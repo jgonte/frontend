@@ -1,0 +1,1 @@
+{"version":3,"file":"clearCustomElements.js","sourceRoot":"","sources":["../../../../src/test/custom-element/helpers/clearCustomElements.ts"],"names":[],"mappings":"AAAA,OAAO,qBAAqB,MAAM,+DAA+D,CAAC;AAWlG,MAAM,CAAC,OAAO,UAAU,mBAAmB;IAGtC,cAAiC,CAAC,SAAS,GAAG,EAAE,CAAC;IAGlD,QAAQ,CAAC,IAAI,CAAC,SAAS,GAAG,EAAE,CAAC;IAG7B,qBAAqB,CAAC,KAAK,EAAE,CAAC;AAClC,CAAC"}

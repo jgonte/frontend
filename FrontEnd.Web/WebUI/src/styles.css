@@ -1,0 +1,106 @@
+:root {
+    --gcs-font-family: Arial, Helvetica, sans-serif;
+
+    /* Colors */
+    --gcs-overlay-background-color: rgba(0,0,0, 0.3);
+
+    --gcs-color-info: #1f87b8;
+    --gcs-background-color-info: #e6f7ff;
+
+    --gcs-color-contained-info: rgb(255, 255, 255);
+    --gcs-background-color-contained-info: #26295c;
+    
+    --gcs-color-primary: #3880ff;
+    --gcs-background-color-primary: #e6f7ff;
+
+    --gcs-color-contained-primary: #fff;
+    --gcs-background-color-contained-primary: #3880ff;
+
+    --gcs-color-success: #009E52;
+    --gcs-background-color-success: #f6ffed;
+
+    --gcs-color-contained-success: #fff;
+    --gcs-background-color-contained-success: #009E52;
+    
+    --gcs-color-warning: #ecbf09;
+    --gcs-background-color-warning: #fffbe6;
+
+    --gcs-color-contained-warning: #000;
+    --gcs-background-color-contained-warning: yellow;
+    
+    --gcs-color-danger: #b12020;
+    --gcs-background-color-danger: #fff2f0;
+
+    --gcs-color-contained-danger: white;
+    --gcs-background-color-contained-danger: crimson;
+
+    --gcs-background-color-secondary: #0cd1e8;
+    --gcs-color-secondary: #032517;
+
+    --gcs-color-contained-secondary: #fff;
+    --gcs-background-color-contained-secondary: #e8c00c;
+
+    --gcs-background-color-tertiary: #f4a942;
+    --gcs-color-tertiary: #b446b4;
+
+    --gcs-disabled-background-color: lightgray;
+    --gcs-disabled-color: darkgray;
+
+    /* Hoverable */
+    --gcs-hoverable-background-color:rgb(211, 227, 233);
+    --gcs-hoverable-color: black;
+    
+/*
+    
+
+    
+
+    
+    
+    
+    
+    --gcs-color-light: #f4f5f8;
+    --gcs-color-medium: #989aa2;
+    --gcs-color-dark: #222428;
+
+    --gcs-background-color:#fff;
+
+    --gcs-selected-background-color:#8ebeba;
+    --gcs-selected-color: gold;
+
+    --gcs-header-background-color: #1d62d8;
+
+    */
+
+    /* Font sizes */
+    --gcs-font-size-large: 2.56rem;
+    --gcs-font-size-medium: 1.6rem;
+    --gcs-font-size-small: 1rem;
+
+    /* Icon sizes */
+    --gcs-icon-size-large: 2.048rem;
+    --gcs-icon-size-medium: 1.28rem;
+    --gcs-icon-size-small: .8rem;
+
+    /* Border */
+    --gcs-border-width: .1em;
+    --gcs-border-radius: .4em;
+
+    /* Min height */
+    --gcs-min-height: 1.2em;
+
+    /* Margin */
+    --gcs-margin: .25em;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0px;
+    padding: 0px;
+    user-select: none;
+    box-sizing: border-box;
+    font-family: var(--gcs-font-family);
+}

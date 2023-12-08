@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width,initial-scale=1" />
+	<title>GCS</title>
+
+	<link rel="stylesheet" href="css/demos.css" />
+
+	<script>
+
+		function getColumns() {
+
+			return ["key", "value"];
+		}
+
+		function getData() {
+
+			const a = [];
+
+			for (const prop in appCtrl.routeParams) {
+
+				a.push(
+					{
+						key: prop,
+						value: appCtrl.routeParams[prop]
+					}
+				)
+			}
+
+			console.dir(a);
+
+			return a;
+		}
+
+	</script>
+</head>
+
+<body>
+	<p>This is a browseable catalog of GCS components.</p>
+	<p>
+		Select a demo from the left. Each demo page offers the option to open the
+		page as its own tab.
+	</p>
+	<p>
+	<div>Query Parameters</div>
+	<gcs-data-grid id-field="key" columns="getColumns()" data="getData()"></gcs-data-grid>
+	</p>
+</body>
+
+</html>

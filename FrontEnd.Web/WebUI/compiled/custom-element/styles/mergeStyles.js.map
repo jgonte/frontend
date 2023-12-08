@@ -1,0 +1,1 @@
+{"version":3,"file":"mergeStyles.js","sourceRoot":"","sources":["../../../src/custom-element/styles/mergeStyles.ts"],"names":[],"mappings":"AAMA,MAAM,CAAC,OAAO,UAAU,WAAW,CAAC,MAA0B,EAAE,MAAc;IAE1E,IAAI,MAAM,KAAK,SAAS,EAAE;QAEtB,OAAO;EACb,MAAM;KACH,CAAC,IAAI,EAAE,CAAC;KACR;SACI;QAED,OAAO;EACb,MAAM;;EAEN,MAAM;KACH,CAAC,IAAI,EAAE,CAAC;KACR;AACL,CAAC"}

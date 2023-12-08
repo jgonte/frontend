@@ -1,0 +1,23 @@
+{
+    "mainEntryPointFilePath": "./compiled/index.d.ts",
+    "apiReport": {
+        "enabled": false
+    },
+    "docModel": {
+        "enabled": false
+    },
+    "dtsRollup": {
+        "enabled": true,
+        "publicTrimmedFilePath": "./compiled/types/types.d.ts"
+    },
+    "messages": {
+        "extractorMessageReporting": {
+            "default": {
+                "logLevel": "none"
+            },
+            "ae-forgotten-export": {
+                "logLevel": "none"
+            }
+        }
+    }
+}

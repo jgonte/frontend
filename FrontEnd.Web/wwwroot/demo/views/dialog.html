@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <script>
+
+        function getErrorAlert() {
+
+            return html`<gcs-alert 
+                kind="danger" 
+                size="small"
+                close
+            >
+                Lorem ipsum dolor, sit amet consectetur adipisicing elit. Ipsam aspernatur amet, nesciunt illum fugiat accusamus quasi accusantium, officiis nobis totam iste sequi! Sed iure sunt earum eveniet placeat velit? Accusamus! danger alert
+            </gcs-alert>`;
+        }
+
+        function getData() {
+
+            return {
+                name: "Sarah",
+                age: 20,
+                description: 'Smart and beautiful',
+                skills: [
+                    {
+                        id: 1,
+                        description: 'Artist'
+                    },
+                    {
+                        id: 2,
+                        description: 'Medicine'
+                    }
+                ],
+                icon: 'person'
+            };
+        }
+
+        // Do not use this syntax since it will throw an error of red
+        // const getItemTemplate = (skill, id) => html`<div style="background-color: cyan;" key=${id} value=${id}>${skill.description}</div>`;
+
+        function getItemTemplate(skill, id) {
+            
+            return html`<div style="background-color: cyan;" key=${id} value=${id}>${skill.description}</div>`;
+        }
+
+        function getTemplate(data, id) {
+
+            const {
+                name,
+                age,
+                description,
+                skills,
+                icon
+            } = data;
+
+            return html`
+<div key=${id} style="width: 200px; margin: 10px;">
+    <div style="background-color: lightgreen; padding: 5px;">
+    ${icon !== undefined ?
+                    html`<gcs-icon name=${icon}></gcs-icon>` :
+                    null}
+    ${name}
+    </div>
+    <div style="background-color: yellow;">${age}</div>
+    <div style="background-color: darkred; color: white; font-weight: bold;">${description}</div>
+    <gcs-data-list item-template=${getItemTemplate} data=${skills}></gcs-data-list>
+</div>`;
+        }
+
+
+        function getTemplateElement() {
+
+            return html`<gcs-data-template data="getData()" id-field="name" template="getTemplate()"></gcs-data-template>`;
+        }
+
+        function showDialog() {
+
+            const element = document.getElementById('app-dialog');
+
+            element.content = getErrorAlert;
+
+            element.showing = true;
+
+            setTimeout(() => {
+
+                element.content = getTemplateElement;
+
+                element.showing = true;
+
+            }, 3000);
+        }
+
+    </script>
+
+    <title>Dialog</title>
+</head>
+
+<body>
+    <gcs-button id="b1" click="showDialog()" kind="primary">
+        Show Dialog
+    </gcs-button>
+
+    <gcs-dialog id="app-dialog"></gcs-dialog>
+
+</body>
+
+</html>

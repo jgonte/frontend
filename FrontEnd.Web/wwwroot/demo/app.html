@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="./css/reset.css">
+    <link rel="stylesheet" href="./css/styles.css">
+    <link rel="stylesheet" href="./css/themes.css">
+
+    <title>Application Selector</title>
+
+    <script src="./js/appConfig.js"></script>
+
+    <script type="module" src="../../lib/gcs-lib.js"></script>
+
+    <script>
+
+        const applicationsList = () => html`
+<gcs-center>
+    <gcs-loader load-url="http://localhost:5000/api/applications/links" data-field="links">
+        <gcs-nav-bar router-name="main" orientation="vertical">
+        </gcs-nav-bar>
+    </gcs-loader>
+</gcs-center>`;
+
+        const loadApplication = (params) => html`
+<gcs-app-view load-url=${`http://localhost:5000/api/applications/${params.id}`}>
+</gcs-app-view>`;
+
+        function getRoutes() {
+
+            return {
+                '/': {
+                    view: applicationsList
+                },
+                '/applications': {
+                    view: applicationsList
+                },
+                '/applications/:id': {
+                    view: loadApplication
+                }
+            };
+        }
+
+    </script>
+
+</head>
+
+<body>
+
+    <gcs-hash-router name="main" content-view-id="main-content-view" routes="getRoutes()">
+    </gcs-hash-router>
+
+    <gcs-content-view id="main-content-view" style="height: 100%; overflow-y: scroll;">
+    </gcs-content-view>
+
+</body>
+
+</html>

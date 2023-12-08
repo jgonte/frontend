@@ -1,0 +1,1 @@
+{"version":3,"file":"renderTip.js","sourceRoot":"","sources":["../../../src/components/tips/renderTip.ts"],"names":[],"mappings":"AAAA,OAAO,IAAI,MAAM,sBAAsB,CAAC;AAGxC,MAAM,CAAC,OAAO,UAAU,SAAS,CAAC,IAAY,EAAE,OAAe,EAAE,OAAe,EAAE;IAE9E,OAAO,IAAI,CAAA;yBACU,IAAI,mBAAmB,OAAO;6CACV,IAAI;oBAC7B,CAAC;AACrB,CAAC"}

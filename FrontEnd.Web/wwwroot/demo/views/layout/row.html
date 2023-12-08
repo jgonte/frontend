@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <style>
+        .border-green {
+            border: solid 3px green;
+        }
+
+        .border-pink {
+            border: solid 3px pink;
+        }
+
+        .border-blue {
+            border: solid 3px blue;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h4>Start, middle and end regions</h4>
+    <gcs-row>
+        <span slot="start" class="border-green">This is the start</span>
+        <span slot="middle" class="border-pink">This is the middle</span>
+        <span slot="end" class="border-blue">This is the end</span>
+    </gcs-row>
+
+    <h4>Start and middle regions</h4>
+    <gcs-row>
+        <span slot="start" class="border-green">This is the start</span>
+        <span slot="middle" class="border-pink">This is the middle</span>
+    </gcs-row>
+
+    <h4>Start and end regions</h4>
+    <gcs-row>
+        <span slot="start" class="border-green">This is the start</span>
+        <span slot="end" class="border-blue">This is the end</span>
+    </gcs-row>
+
+    <h4>Start region only</h4>
+    <gcs-row>
+        <span slot="start" class="border-green">This is the start</span>
+    </gcs-row>
+
+    <h4>End region only</h4>
+    <gcs-row>
+        <span slot="end" class="border-blue">This is the end</span>
+    </gcs-row>
+
+    <h4>Middle region only</h4>
+    <gcs-row>
+        <span slot="middle" class="border-pink">This is the middle</span>
+    </gcs-row>
+
+    <h4>Form label</h4>
+    <gcs-row>
+        <gcs-icon slot="start" name="compass" size="large"></gcs-icon>
+        <gcs-localized-text slot="middle">Full Name</gcs-localized-text>
+        <span slot="end" >
+            <gcs-help-tip>Here it goes the first, middle and last name of the person</gcs-help-tip>
+            <gcs-required-tip></gcs-required-tip>
+        </span>
+    </gcs-row>
+
+    <h4>Header</h4>
+    <gcs-row>
+        <gcs-icon slot="start" name="person" size="large"></gcs-icon>
+        <gcs-localized-text slot="middle">Add Person</gcs-localized-text>
+        <gcs-close-tool slot="end"></gcs-close-tool>
+    </gcs-row>
+
+    <h4>Huge text in middle region</h4>
+    <gcs-row>
+        <span slot="start" class="border-green">This is the start</span>
+        <span slot="middle" class="border-pink">Lorem ipsum dolor sit, amet consectetur adipisicing elit. Ullam, repellendus tempora. Praesentium sapiente cumque obcaecati temporibus labore placeat esse qui, saepe impedit laudantium tempora sint, distinctio consequatur, nemo libero inventore harum eius facilis! Veritatis dolore provident quas facere? Labore suscipit incidunt beatae, quia distinctio officiis commodi, perspiciatis animi expedita laborum similique est repellat? Qui nostrum unde nihil consectetur sapiente dolorum aliquam ea, quis corrupti. Itaque saepe voluptatibus consectetur laboriosam dolor eum cumque aliquid, fugit eaque sunt dolore ullam hic amet laborum labore illum quis expedita ducimus culpa! Voluptatibus, asperiores cupiditate. Accusamus iure blanditiis quam. Exercitationem iure commodi deleniti sint esse! Ipsa officia dolor voluptate voluptatum, consequuntur at assumenda porro similique natus, ratione quod repellendus consequatur. Pariatur odit quaerat explicabo ab sint impedit corporis! Id dolorem corrupti alias iusto eos sunt, modi ipsum dolor, porro officia ex doloremque beatae vero accusamus! Aliquid sint eligendi quibusdam et eum adipisci, pariatur quod! Ipsum ipsam perspiciatis accusantium quae, reprehenderit quas iusto cumque asperiores temporibus iste! Cum explicabo nihil mollitia necessitatibus id! Quam nemo fugit excepturi dolore, suscipit culpa, minima repellendus omnis tenetur, nostrum doloribus laudantium magni. Inventore rem optio quia quod at ullam quidem aspernatur animi in voluptate saepe, sequi cum numquam asperiores hic unde nam veritatis, debitis sit nemo eligendi laborum iste iure tempore? Voluptates sit illo dignissimos quis temporibus, quaerat quas quo dicta quos, hic obcaecati atque incidunt consequatur nulla. Culpa earum laborum eligendi suscipit illum nobis in, itaque dolorum ut? Voluptates sit, repellat enim earum neque quaerat cumque laborum nobis ex accusamus consequuntur eaque ratione perferendis consequatur atque nihil eius facilis adipisci eveniet sapiente, nesciunt assumenda? Eaque excepturi deleniti, odio inventore unde repellendus dolorum tenetur ipsum iste laudantium laborum necessitatibus sequi! Illum ipsa impedit nesciunt! Expedita laboriosam ex sequi tempora unde repellat, consequuntur totam voluptas quibusdam cumque saepe. Eligendi voluptatibus facilis ratione inventore explicabo tempore dolor odio suscipit consequatur fuga quo qui, totam mollitia, sunt non eum neque. Expedita quod eligendi, cum a laboriosam possimus earum ipsa ea in qui aliquid, laudantium nemo sed. Aperiam fugit, sit accusamus repudiandae placeat minima ipsam officiis modi culpa eos perferendis earum officia ex? Nulla fuga ex quasi explicabo inventore labore et, aliquam beatae impedit id libero eligendi ullam provident architecto porro omnis! Assumenda sequi magnam repudiandae adipisci eius alias voluptatem quidem, ex voluptatibus sit quaerat accusamus itaque aperiam dolore nam pariatur autem odio voluptate inventore saepe nemo libero at labore cupiditate. Corrupti voluptas architecto quae recusandae nam, quo voluptatem beatae possimus perferendis repudiandae odit error aut dolor vel eaque deleniti est aspernatur earum aliquam. Quod minima dolorem magnam, illo nihil adipisci. Est, corrupti. Quibusdam, voluptatem. Perferendis optio maxime distinctio, veniam pariatur quas quod eius maiores nobis! Quia amet debitis eligendi, quis nisi, magnam ipsa odio quaerat corrupti ipsam accusamus sint laborum recusandae corporis consectetur perspiciatis hic. Odit officiis officia suscipit reprehenderit culpa velit dolorem voluptatem? Incidunt magni commodi dolores odio quas sed fugiat. Totam dolorem, repudiandae, repellat, dolorum doloribus accusamus dolore dicta porro aliquid ea eligendi ad! Asperiores, quas hic. Consequatur repudiandae cupiditate non?</span>
+        <span slot="end" class="border-blue">This is the end</span>
+    </gcs-row>
+</body>
+
+</html>

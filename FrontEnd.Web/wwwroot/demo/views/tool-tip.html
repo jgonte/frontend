@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+</head>
+
+<body>
+
+    <gcs-tool-tip position="top">
+        <div slot="trigger">Top not really - Hover me now</div>
+        <div slot="content">Top works!</div>
+    </gcs-tool-tip>
+
+    <br/>
+
+    <gcs-tool-tip position="left">
+        <span slot="trigger">Left not really - Hover me now</span>
+        <div slot="content">Left works!</div>
+    </gcs-tool-tip>
+
+    <div style="display: flex; justify-content:space-around; height: 100px;">
+
+        <gcs-tool-tip position="top">
+            <div slot="trigger">Top - Hover me now</div>
+            <div slot="content">Top works!</div>
+        </gcs-tool-tip>
+
+        <gcs-tool-tip position="bottom">
+            <div slot="trigger">Bottom - Hover me now</div>
+            <div slot="content" style="padding: 5px;">
+                Some quite large content
+                Bottom works!</div>
+        </gcs-tool-tip>
+
+        <gcs-tool-tip position="right">
+            <div slot="trigger">Right - Hover me now</div>
+            <div slot="content">Right works!</div>
+        </gcs-tool-tip>
+
+        <gcs-tool-tip position="left">
+            <div slot="trigger">Left - Hover me now</div>
+            <div slot="content">Left works!</div>
+        </gcs-tool-tip>
+
+        <gcs-tool-tip position="right">
+            <div slot="trigger">Right not really - Hover me now</div>
+            <div slot="content">Right works!</div>
+        </gcs-tool-tip>
+
+    </div>
+
+</body>
+
+</html>

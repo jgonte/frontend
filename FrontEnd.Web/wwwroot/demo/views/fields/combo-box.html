@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <script>
+
+        function getData() {
+
+            return [
+                {
+                    id: 1,
+                    name: "Sarah",
+                    age: 19,
+                    description: "Smart and beautiful"
+                },
+                {
+                    id: 2,
+                    name: "Mark",
+                    age: 31,
+                    description: "Dedicated and perseverant"
+                },
+                {
+                    id: 3,
+                    name: "Sasha",
+                    age: 1,
+                    description: "Little giant"
+                },
+                {
+                    id: 4,
+                    name: "Yana",
+                    age: 25,
+                    description: "Rosa mimosa"
+                }
+            ];
+        }
+
+        // Important: The template must have the slot="header" attribute set
+        function getSelectTemplate() {
+
+            return html`<gcs-localized-text slot="header" style="background-color:chartreuse;">Select</gcs-localized-text>`;
+        }
+
+        function getSingleSelectionTemplate(selection) {
+
+            return html`<span slot="header" style="background-color:pink;">${selection.name}</span>`;
+        }
+
+        function getMultipleSelectionTemplate(selection, deselectById) {
+
+            const itemTemplate = record => html`
+<gcs-pill kind="primary" variant="contained">
+    ${record.name}
+    <gcs-close-tool close=${() => this.deselectById(record.id)}></gcs-close-tool>
+</gcs-pill>`;
+
+            return html`<gcs-data-list style="display: flex; flex-wrap: wrap; max-width: 500px; border: solid 1px black;" slot="header" data=${selection} item-template=${itemTemplate}></gcs-data-list>`;
+        }
+
+        function showSelection(selection) {
+
+            alert('Selection: ' + JSON.stringify(selection));
+        }
+
+        function getTemplate(record) {
+
+            const {
+                name,
+                reputation,
+                description
+            } = record;
+
+            return html`<div style="width: 200px;">
+                <div style="background-color: lightgreen;">${name}</div>
+                <div style="background-color: yellow;">${reputation}</div>
+                <div style="background-color: darkred; color: white; font-weight: bold;">${description}</div>
+            </div>`;
+        }
+
+    </script>
+
+</head>
+
+<body>
+
+    <h4>Single selection with selection changed handler</h4>
+
+    <gcs-combo-box id="cb1" name="person" data='getData()' id-field="id" display-field="name"
+        selection-changed="showSelection()"></gcs-combo-box>
+
+    <h4>Single selection with custom item template</h4>
+
+    <gcs-combo-box id="cb2" name="person" data='getData()' id-field="id" display-field="name"
+        item-template="getTemplate()"></gcs-combo-box>
+
+    <h4>Single selection without selection changed handler</h4>
+
+    <gcs-combo-box id="cb3" name="person" select-template="getSelectTemplate()" data='[
+    {
+        "id": 1,
+        "name": "Sarah",
+        "age": 19,
+        "description": "Smart and beautiful"
+    },
+    {
+        "id": 2,
+        "name": "Mark",
+        "age": 31,
+        "description": "Dedicated and perseverant"
+    }
+]' id-field="id" display-field="name">
+    </gcs-combo-box>
+
+    <h4>Single selection with remote data</h4>
+
+    <gcs-loader load-url="https://localhost:7000/api/contacts/">
+        <gcs-combo-box id="cb4" name="person" single-selection-template="getSingleSelectionTemplate()" id-field="id"
+            display-field="name" item-template="getTemplate()">
+        </gcs-combo-box>
+    </gcs-loader>
+
+    <h4>Multiple selection with remote data</h4>
+
+    <gcs-loader load-url="https://localhost:7000/api/contacts/">
+        <gcs-combo-box id="cb5" name="person" id-field="id" display-field="name" item-template="getTemplate()" multiple
+            select-template="getSelectTemplate()">
+        </gcs-combo-box>
+    </gcs-loader>
+
+    <h4>Multiple selection with remote data and multiple selection template</h4>
+
+    <gcs-loader load-url="https://localhost:7000/api/contacts/">
+        <gcs-combo-box id="cb6" name="person" id-field="id" display-field="name" item-template="getTemplate()" multiple
+            select-template="getSelectTemplate()" multiple-selection-template="getMultipleSelectionTemplate()">
+        </gcs-combo-box>
+    </gcs-loader>
+
+</body>
+
+</html>

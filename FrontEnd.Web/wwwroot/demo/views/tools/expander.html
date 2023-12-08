@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    
+    <script>
+
+        window.addEventListener('expanderChanged', event => alert(`
+            Event type: 'expanderChanged'
+            Showing: '${event.detail.showing}'
+            Element id: '${event.detail.element.id}'
+        `));
+
+    </script>
+
+</head>
+
+<body>
+
+    <gcs-expander-tool kind="primary" size="large" id="element-1"></gcs-expander-tool>
+
+    <gcs-expander-tool size="medium" id="element-2"></gcs-expander-tool>
+
+    <gcs-expander-tool size="small" id="element-3"></gcs-expander-tool>
+
+</body>
+
+</html>

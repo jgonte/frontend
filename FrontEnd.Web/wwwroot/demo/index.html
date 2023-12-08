@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="./css/reset.css">
+
+    <link rel="stylesheet" href="./css/styles.css">
+
+    <link rel="stylesheet" href="./css/themes.css">
+
+    <script src="./js/appConfig.js"></script>
+
+    <script type="module" src="../../lib/gcs-lib.js"></script>
+
+    <script src="./js/getAppRoutes.js"></script>
+
+    <script src="./js/getAppLinks.js"></script>
+
+    <title>GCS Components Demo</title>
+</head>
+
+<body>
+
+    <gcs-app-view>
+
+        <gcs-app-header slot="header">
+            <img src="./images/gcs-logo.svg" style="width: 50px;" />
+
+            <h1 style="color: var(--gcs-color-primary-dark);">GCS Design System</h1>
+
+            <div style="width: 100%;"></div>
+
+            <gcs-theme-selector></gcs-theme-selector>
+        </gcs-app-header>
+
+        <gcs-hash-router name="app" content-view-id="app-content-view" routes="getAppRoutes()">
+        </gcs-hash-router>
+
+        <gcs-nav-bar slot="left" router-name="app" links="getAppLinks()" orientation="vertical">
+        </gcs-nav-bar>
+
+        <gcs-content-view slot="center" id="app-content-view" style="height: 100%; overflow-y: scroll;">
+        </gcs-content-view>
+
+    </gcs-app-view>
+
+    <!-- Alternate way of building the sidebar -->
+    <!-- <nav slot="left" class="sidebar">
+
+            <gcs-nav-link to="/" style="padding: .1em 1em;">
+                <gcs-localized-text kind="primary">Intro</gcs-localized-text>
+            </gcs-nav-link>
+
+            <gcs-panel>
+
+                <div slot="header">
+                    <gcs-localized-text kind="secondary">Layout</gcs-localized-text>
+                </div>
+
+                <gcs-nav-link to="/layout/center" slot="body" style="padding: 0.1em 1em;">
+                    <gcs-localized-text kind="primary">Center</gcs-localized-text>
+                </gcs-nav-link>
+    
+                <gcs-nav-link to="/layout/panel" slot="body" style="padding: 0.1em 1em;">
+                    <gcs-localized-text kind="primary">Panel</gcs-localized-text>
+                </gcs-nav-link>
+
+            </gcs-panel>
+
+        </nav> -->
+</body>
+
+</html>

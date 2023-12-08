@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <script>
+
+        window.addEventListener('sorterChanged', event => alert(`
+            Event type: 'sorterChanged'
+            Field name: '${event.detail.column}'
+            Ascending: '${event.detail.ascending}'
+            Sorter element id: '${event.detail.element.id}'
+        `));
+
+    </script>
+
+</head>
+
+<body>
+
+    <gcs-sorter-tool size="large" id="sorter-1" column="amount" kind="warning"></gcs-sorter-tool>
+
+    <gcs-sorter-tool size="medium" id="sorter-2" column="amount" kind="primary"></gcs-sorter-tool>
+
+    <gcs-sorter-tool size="small" id="sorter-3" column="amount" kind="danger"></gcs-sorter-tool>
+
+</body>
+
+</html>

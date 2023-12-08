@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <script>
+        onClose = () => window.alert('Aha! ... trying to close me');
+    </script>
+</head>
+
+<body>
+
+    <gcs-pill kind="primary" variant="contained" size="small">Sarah</gcs-pill>
+
+    <gcs-pill kind="primary" variant="contained" size="small">
+        Sarah
+        <gcs-close-tool close="onClose()"></gcs-close-tool>
+    </gcs-pill>
+
+    <gcs-pill kind="primary" variant="contained" size="small">
+        <gcs-localized-text>Good Morning</gcs-localized-text>
+        <gcs-close-tool close="onClose()"></gcs-close-tool>
+    </gcs-pill>
+
+    <gcs-pill kind="primary" variant="contained">13</gcs-pill>
+
+    <gcs-pill kind="success" size="large">26</gcs-pill>
+
+    <gcs-pill kind="danger">15</gcs-pill>
+
+    <gcs-pill kind="warning">8</gcs-pill>
+
+</body>
+
+</html>

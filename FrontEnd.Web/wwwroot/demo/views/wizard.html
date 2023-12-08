@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="../variables.css">
+
+    <script src="./js/appConfig.js"></script>
+
+    <script type="module" src="../../dist/js/bundle.js"></script>
+
+    <script>
+
+        class Step1 {
+
+            render() {
+
+                return html`
+<div>
+    Step 1
+</div>`;
+            }
+        }
+
+        function Step2() {
+
+            return html`
+<div>
+    Step 2
+</div>`;
+        }
+
+        const Step3 = {
+
+            render() {
+
+                return html`
+<div>
+    Step 3
+</div>`;
+            }
+        };
+
+        function getSteps() {
+
+            return [
+
+                Step1,
+                Step2,
+                Step3
+            ];
+        }
+
+    </script>
+
+    <title>Wizard</title>
+
+</head>
+
+<body>
+    <h4>Wizard</h4>
+
+    <gcs-wizard 
+        submit-url="https://erwerewrewrwe" 
+        steps="getSteps()">
+    </gcs-wizard>
+</body>
+
+</html>

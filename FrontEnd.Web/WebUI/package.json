@@ -1,0 +1,49 @@
+{
+  "name": "gcs-lib",
+  "version": "1.0.0",
+  "description": "Web components framework",
+  "main": "index.js",
+  "scripts": {
+    "clean": "rimraf ../wwwroot/lib",
+    "lint": "eslint ./src/**/*.ts",
+    "apiDoc": "yarn api-extractor run --local",
+    "build": "npm run clean && tsc && rollup -c && npm run apiDoc",
+    "test": "npm run lint && jest --coverage"
+  },
+  "jest": {
+    "transform": {
+      "^.+\\.ts?$": "ts-jest",
+      ".+\\.(css|styl|less|sass|scss)$": "jest-css-modules-transform"
+    },
+    "testEnvironment": "@happy-dom/jest-environment",
+    "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(ts?)$",
+    "moduleFileExtensions": [
+      "ts",
+      "js",
+      "json",
+      "node"
+    ]
+  },
+  "keywords": [
+    "web components"
+  ],
+  "author": "Jorge Rivera Gonte",
+  "license": "ISC",
+  "devDependencies": {
+    "@happy-dom/jest-environment": "^7.6.6",
+    "@microsoft/api-extractor": "^7.23.2",
+    "@tsconfig/recommended": "^1.0.1",
+    "@types/jest": "^27.5.2",
+    "@typescript-eslint/eslint-plugin": "^5.18.0",
+    "@typescript-eslint/parser": "^5.18.0",
+    "eslint-plugin-jest": "^26.1.5",
+    "jest": "^27.5.1",
+    "jest-css-modules-transform": "^4.3.0",
+    "rimraf": "^3.0.2",
+    "rollup": "^2.73.0",
+    "rollup-plugin-import-css": "^3.0.3",
+    "rollup-plugin-typescript2": "^0.31.2",
+    "ts-jest": "^27.1.4",
+    "typescript": "^4.6.3"
+  } 
+}

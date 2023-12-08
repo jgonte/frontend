@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <script>
+
+        function getData() {
+
+            return [
+                {
+                    name: "Sarah",
+                    age: 19,
+                    description: 'Smart and beautiful'
+                },
+                {
+                    name: "Mark",
+                    age: 31,
+                    description: 'Dedicated and perseverant'
+                },
+                {
+                    name: "Sasha",
+                    age: 1,
+                    description: 'A little giant'
+                }
+            ];
+        }
+
+        function getTemplate(record, id) {
+
+            const {
+                name,
+                age,
+                description
+            } = record;
+
+            return html`
+<gcs-selector key=${id} select-value=${record} style="width: 200px; padding: 5px;">
+    <div>${name}</div>
+    <div>${age}</div>
+    <div style="font-weight: bold;">${description}</div>
+</gcs-selector>`;
+        }
+
+        function getRowTemplate(record, id) {
+
+            const {
+                name,
+                age,
+                description
+            } = record;
+
+            return html`
+<gcs-selector key=${id} select-value=${record} style="width: 600px; padding: 5px;">
+    <span style="display: inline-block; width: 200px;">${name}</span>
+    <span style="display: inline-block; width: 50px;">${age}</span>
+    <span style="display: inline-block; font-weight: bold; width: 250px;">${description}</span>
+</gcs-selector>`;
+        }
+
+        function showSelection(selection) {
+
+            alert('Selection: ' + JSON.stringify(selection));
+        }
+
+    </script>
+
+    <title>Data list demo</title>
+</head>
+
+<body>
+
+    <h4>Single selection data set in attribute</h4>
+
+    <gcs-data-list data='[
+            {
+                "name": "Sarah",
+                "age": 19,
+                "description": "Smart and beautiful"
+            },
+            {
+                "name": "Mark",
+                "age": 31,
+                "description": "Dedicated and perseverant"
+            },
+            {
+                "name": "Sasha",
+                "age": 1,
+                "description": "A little giant"
+            }
+        ]' id-field="name" item-template="getRowTemplate()" selection-changed="showSelection()">
+    </gcs-data-list>
+
+    <h4>Single selection</h4>
+
+    <gcs-data-list id-field="name" data='getData()' item-template="getTemplate()" selection-changed="showSelection()">
+    </gcs-data-list>
+
+    <h4>Multiple selection</h4>
+
+    <gcs-data-list id-field="name" data='getData()' multiple item-template="getTemplate()"
+        selection-changed="showSelection()">
+    </gcs-data-list>
+
+</body>
+
+</html>

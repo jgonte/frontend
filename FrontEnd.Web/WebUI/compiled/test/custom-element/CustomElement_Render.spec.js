@@ -1,0 +1,237 @@
+import html from "../../rendering/html";
+import isUndefinedOrNull from "../../utils/isUndefinedOrNull";
+import clearCustomElements from "../../test/custom-element/helpers/clearCustomElements";
+import CustomElement from "../../custom-element/CustomElement";
+import defineCustomElement from "../../custom-element/defineCustomElement";
+import { DataTypes } from "../../utils/data/DataTypes";
+beforeEach(() => {
+    clearCustomElements();
+});
+describe("custom element render tests", () => {
+    it('should render the element even when there are no properties changing', async () => {
+        class A extends CustomElement {
+            render() {
+                return html `
+                    <span>Hello, my name is unknown</span>
+                `;
+            }
+        }
+        defineCustomElement('test-a', A);
+        document.body.innerHTML = '<test-a></test-a>"';
+        const component = document.querySelector('test-a');
+        await component.updateComplete;
+        expect(component.shadowRoot?.innerHTML.trim()).toBe('<span>Hello, my name is unknown</span>');
+    });
+    it('should render the HTML with the default property', async () => {
+        class A extends CustomElement {
+            static get properties() {
+                return {
+                    name: {
+                        type: DataTypes.String,
+                        value: "Sarah"
+                    }
+                };
+            }
+            render() {
+                return html `
+                    <span>Hello, my name is ${this.name}</span>
+                `;
+            }
+        }
+        defineCustomElement('test-a', A);
+        document.body.innerHTML = '<test-a></test-a>"';
+        const component = document.querySelector('test-a');
+        await component.updateComplete;
+        expect(component.shadowRoot?.innerHTML.trim()).toBe('<span>Hello, my name is <!--_$bm_-->Sarah<!--_$em_--></span>');
+    });
+    it('should not render a boolean property reflected property when it is false', async () => {
+        class A extends CustomElement {
+            static get properties() {
+                return {
+                    name: {
+                        type: DataTypes.Boolean,
+                        value: false,
+                        reflect: true
+                    }
+                };
+            }
+            render() {
+                const { disabled } = this;
+                return html `<span disabled=${disabled}>Sarah</span>`;
+            }
+        }
+        defineCustomElement('test-a', A);
+        document.body.innerHTML = '<test-a></test-a>"';
+        const component = document.querySelector('test-a');
+        await component.updateComplete;
+        expect(component.shadowRoot?.innerHTML).toBe("<span>Sarah</span>");
+    });
+    it('should render the HTML with the set property', async () => {
+        class A extends CustomElement {
+            static get properties() {
+                return {
+                    name: {
+                        type: DataTypes.String,
+                        value: "Sarah"
+                    }
+                };
+            }
+            render() {
+                return html `
+                    <span>Hello, my name is ${this.name}</span>
+                `;
+            }
+        }
+        defineCustomElement('test-a', A);
+        document.body.innerHTML = '<test-a name="Mark"></test-a>"';
+        const component = document.querySelector('test-a');
+        await component.updateComplete;
+        expect(component.shadowRoot?.innerHTML.trim()).toBe('<span>Hello, my name is <!--_$bm_-->Mark<!--_$em_--></span>');
+    });
+    it('should render the HTML with the default property and the style attached', async () => {
+        class A extends CustomElement {
+            static get properties() {
+                return {
+                    name: {
+                        type: DataTypes.String,
+                        value: "Sarah"
+                    },
+                    age: {
+                        type: DataTypes.Number,
+                        value: 19
+                    }
+                };
+            }
+            static get styles() {
+                return `:host { background-color: yellowgreen; }`;
+            }
+            render() {
+                return html `
+                    <span>Hello, my name is ${this.name}</span>
+                    <span>My age is ${this.age}</span>
+                `;
+            }
+        }
+        defineCustomElement('test-a', A);
+        document.body.innerHTML = '<test-a></test-a>"';
+        const component = document.querySelector('test-a');
+        await component.updateComplete;
+        expect(component.shadowRoot?.innerHTML).toBe("<style>:host { background-color: yellowgreen; }</style><span>Hello, my name is <!--_$bm_-->Sarah<!--_$em_--></span>\n                    <span>My age is <!--_$bm_-->19<!--_$em_--></span>");
+        component.name = "Mark";
+        component.age = 30;
+        await component.updateComplete;
+        expect(component.shadowRoot?.innerHTML).toBe("<style>:host { background-color: yellowgreen; }</style><span>Hello, my name is <!--_$bm_-->Mark<!--_$em_--></span>\n                    <span>My age is <!--_$bm_-->30<!--_$em_--></span>");
+    });
+    it('should render the HTML with the set property and the style attached', async () => {
+        class A extends CustomElement {
+            static get properties() {
+                return {
+                    name: {
+                        type: DataTypes.String,
+                        value: "Sarah"
+                    },
+                    age: {
+                        type: DataTypes.Number,
+                        value: 19
+                    }
+                };
+            }
+            static get styles() {
+                return `:host { background-color: yellowgreen; }`;
+            }
+            render() {
+                return html `
+                    <span>Hello, my name is ${this.name}</span>
+                    <span>My age is ${this.age}</span>
+                `;
+            }
+        }
+        defineCustomElement('test-a', A);
+        document.body.innerHTML = '<test-a name="Mark" age="31"></test-a>"';
+        const component = document.querySelector('test-a');
+        await component.updateComplete;
+        expect(component.shadowRoot?.innerHTML).toBe("<style>:host { background-color: yellowgreen; }</style><span>Hello, my name is <!--_$bm_-->Mark<!--_$em_--></span>\n                    <span>My age is <!--_$bm_-->31<!--_$em_--></span>");
+    });
+    it('should unmount the element', async () => {
+        class A extends CustomElement {
+            static get properties() {
+                return {
+                    name: {
+                        type: DataTypes.String
+                    }
+                };
+            }
+            render() {
+                const { name } = this;
+                if (isUndefinedOrNull(name) === true) {
+                    return null;
+                }
+                return html `<span>Hello, my name is ${this.name}</span>`;
+            }
+        }
+        defineCustomElement('test-a', A);
+        document.body.innerHTML = '<test-a name="Sarah"></test-a>"';
+        const component = document.querySelector('test-a');
+        await component.updateComplete;
+        expect(component.shadowRoot?.innerHTML).toBe("<span>Hello, my name is <!--_$bm_-->Sarah<!--_$em_--></span>");
+        component.name = null;
+        await component.updateComplete;
+        expect(component.shadowRoot?.innerHTML).toBe("");
+    });
+    it('should remove the function from the attribute but keep its reference in the property. Attribute name and property names are different', async () => {
+        class A extends CustomElement {
+            static get properties() {
+                return {
+                    itemTemplate: {
+                        attribute: 'item-template',
+                        type: DataTypes.Function,
+                        defer: true
+                    }
+                };
+            }
+            render() {
+                const { itemTemplate } = this;
+                return itemTemplate();
+            }
+        }
+        defineCustomElement('test-a', A);
+        class B extends CustomElement {
+            render() {
+                return html `
+                    <test-a item-template=${this.renderTemplate}></test-a>
+                `;
+            }
+            renderTemplate() {
+                return html `
+                    <span>Hello!!!</span>
+                `;
+            }
+        }
+        defineCustomElement('test-b', B);
+        document.body.innerHTML = '<test-b></test-b>"';
+        const component = document.querySelector('test-b');
+        await component.updateComplete;
+        expect(component.shadowRoot?.innerHTML).toBe("<test-a></test-a>");
+        const childNode = component.shadowRoot?.childNodes[0];
+        expect(childNode.shadowRoot?.innerHTML).toBe("<span>Hello!!!</span>");
+        expect(childNode.itemTemplate).toBeDefined();
+    });
+    it('should throw an error when an error is being thrown from render', async () => {
+        class A extends CustomElement {
+            render() {
+                throw new Error('Throwing from render');
+            }
+        }
+        defineCustomElement('test-a', A);
+        try {
+            document.body.innerHTML = '<test-a></test-a>';
+            const component = document.querySelector('test-a');
+            await component.updateComplete;
+            expect(true).toBeFalsy();
+        }
+        catch (error) {
+            expect(error.message).toBe("Throwing from render");
+        }
+    });
+});
+//# sourceMappingURL=CustomElement_Render.spec.js.map

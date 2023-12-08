@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    
+    <script>
+
+        function onCloseTool() {
+
+            alert('Trying to close tool!');
+        }
+
+    </script>
+
+</head>
+
+<body>
+
+    <gcs-close-tool kind="primary" size="large" close="onCloseTool()"></gcs-close-tool>
+
+    <gcs-close-tool kind="warning" size="medium" close="onCloseTool()"></gcs-close-tool>
+
+    <gcs-close-tool kind="danger" size="small"  variant="contained" close="onCloseTool()"></gcs-close-tool>
+
+</body>
+
+</html>

@@ -1,0 +1,1 @@
+{"version":3,"file":"removeLeftSibling.js","sourceRoot":"","sources":["../../../src/rendering/dom/removeLeftSibling.ts"],"names":[],"mappings":"AAAA,MAAM,CAAC,OAAO,UAAU,iBAAiB,CAAC,UAAgB;IAEtD,MAAM,EACF,UAAU,EACV,eAAe,EAClB,GAAG,UAAU,CAAC;IAEf,UAAU,EAAE,WAAW,CAAC,eAAuB,CAAC,CAAC;AACrD,CAAC"}

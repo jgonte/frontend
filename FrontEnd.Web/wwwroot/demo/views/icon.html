@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+</head>
+
+<body>
+
+    <gcs-icon id="alarm-icon" name="alarm" kind="primary" size="large"></gcs-icon>
+    <!-- <gcs-icon name="alarm-fill" kind="secondary" size="medium"></gcs-icon> -->
+    <gcs-icon name="archive" kind="tertiary" size="small"></gcs-icon>
+    <gcs-icon name="calculator-fill" kind="success" size="large"></gcs-icon>
+    <gcs-icon name="calendar" kind="warning" size="large"></gcs-icon>
+    <gcs-icon name="camera-fill" kind="danger"></gcs-icon>
+    <gcs-icon id="mutable-icon" name="camera-video-fill" kind="success" size="large"></gcs-icon>
+    <gcs-icon name="card-checklist" kind="primary"></gcs-icon>
+    <gcs-icon name="chat-fill" kind="secondary"></gcs-icon>
+    <gcs-icon name="compass" size="large" style="color:magenta"></gcs-icon>
+    <gcs-icon name="arrow-right" size="large" kind="success" dir="rtl"></gcs-icon>
+    <!-- <gcs-icon name="chevron-right" size="large" kind="medium" dir="rtl"></gcs-icon> -->
+    <gcs-icon name="bug" style="color:orangered; font-size: 64px;"></gcs-icon>
+
+    <script>
+
+        setTimeout(function () {
+
+            const alarmIcon = document.querySelector("#alarm-icon");
+
+            if (alarmIcon !== null) { // User might have left the page after the timeout was set
+
+                alarmIcon.setAttribute("kind", "danger");
+            }
+
+            const mutableIcon = document.querySelector("#mutable-icon");
+
+            if (mutableIcon !== null) { // User might have left the page after the timeout was set
+
+                mutableIcon.setAttribute("name", "bullseye");
+            }
+
+        }, 5000);
+
+    </script>
+
+</body>
+
+</html>

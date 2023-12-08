@@ -1,0 +1,1 @@
+{"version":3,"file":"isNodePatchingData.js","sourceRoot":"","sources":["../../../src/rendering/utils/isNodePatchingData.ts"],"names":[],"mappings":"AAAA,OAAO,iBAAiB,MAAM,+BAA+B,CAAC;AAQ9D,MAAM,CAAC,OAAO,UAAU,kBAAkB,CAAC,CAAU;IAEjD,IAAI,iBAAiB,CAAC,CAAC,CAAC,EAAE;QAEtB,OAAO,KAAK,CAAC;KAChB;IAED,OAAQ,CAAsB,CAAC,OAAO,KAAK,SAAS,CAAC;AACzD,CAAC"}

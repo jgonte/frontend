@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <script>
+
+        function getColumnName() {
+
+            return "name";
+        }
+
+        function getColumn() {
+
+            return {
+                name: "name",
+                display: "Name",
+                width: '200px',
+                sortable: true,
+                // headerStyle: 'background-color: pink; padding: 5px;'
+                headerStyle: {
+                    backgroundColor: 'pink',
+                    padding: '5px'
+                }
+            };
+        }
+
+        function getColumnWithDynamicDisplay() {
+
+            return {
+                name: "name",
+                display: () => html`<span style="padding: 5px; background-color: darkgreen; color: white">My Name</span>`,
+                width: '200px'
+            };
+        }
+
+        function getSortableColumn() {
+
+            return {
+                name: "name",
+                display: () => html`<span style="padding: 5px; background-color: darkgreen; color: white">My Name</span>`,
+                width: '200px',
+                sortable: true,
+                headerStyle: 'background-color: pink; padding: 5px;'
+            };
+        }
+
+    </script>
+
+    <script>
+
+        window.addEventListener('sorterChanged', event => alert(`
+            Event type: 'sorterChanged'
+            Column name: '${event.detail.column}'
+            Ascending: '${event.detail.ascending}'
+        `));
+
+    </script>
+
+    <title>Data header cell demo</title>
+
+</head>
+
+<body>
+    <gcs-data-header-cell id="dh1" column="name"></gcs-data-header-cell>
+    <gcs-data-header-cell id="dh2" column="getColumnName()"></gcs-data-header-cell>
+    <gcs-data-header-cell id="dh3" column="getColumn()"></gcs-data-header-cell>
+    <gcs-data-header-cell id="dh4" column="getColumnWithDynamicDisplay()"></gcs-data-header-cell>
+    <gcs-data-header-cell id="dh5" column="getSortableColumn()"></gcs-data-header-cell>
+</body>
+
+</html>

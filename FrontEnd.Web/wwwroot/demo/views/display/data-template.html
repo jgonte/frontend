@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <script>
+
+        function getData() {
+
+            return {
+                name: "Sarah",
+                age: 20,
+                description: 'Smart and beautiful',
+                skills: [
+                    {
+                        id: 1,
+                        description: 'Artist'
+                    },
+                    {
+                        id: 2,
+                        description: 'Medicine'
+                    }
+                ],
+                icon: 'person'
+            };
+        }
+
+        // Do not use this syntax since it will throw an error of red
+        // const getItemTemplate = (skill, id) => html`<div style="background-color: cyan;" key=${id} value=${id}>${skill.description}</div>`;
+
+        function getItemTemplate(skill, id) {
+            
+            return html`<div style="background-color: cyan;" key=${id} value=${id}>${skill.description}</div>`;
+        }
+
+        function getTemplate(data, id) {
+
+            const {
+                name,
+                age,
+                description,
+                skills,
+                icon
+            } = data;
+
+            return html`
+<div key=${id} style="width: 200px; margin: 10px;">
+    <div style="background-color: lightgreen; padding: 5px;">
+        ${icon !== undefined ? 
+            html`<gcs-icon name=${icon}></gcs-icon>` : 
+            null}
+        ${name}
+    </div>
+    <div style="background-color: yellow;">${age}</div>
+    <div style="background-color: darkred; color: white; font-weight: bold;">${description}</div>
+    <gcs-data-list item-template=${getItemTemplate} data=${skills}></gcs-data-list>
+</div>`;
+        }
+
+        function getSimpleTemplate(data) {
+
+            return html`Simple template`;
+        }
+
+        setTimeout(() => {
+
+            const element = document.getElementById('changing-template');
+
+            element.template = getTemplate;
+        }, 2000);
+
+    </script>
+
+</head>
+
+<body>
+
+    <h4>Data as object in the attributes</h4>
+
+    <gcs-data-template data='{
+        "name": "Sarah",
+        "age": 20,
+        "description": "Smart and beautiful",
+        "skills": [
+            {
+                "id": 1,
+                "description": "Artist"
+            },
+            {
+                "id": 2,
+                "description": "Medicine"
+            }
+        ]
+    }' id-field="name" template="getTemplate()">
+    </gcs-data-template>
+
+    <h4>Data as a function in the attributes</h4>
+
+    <gcs-data-template id-field="name" data='getData()' template="getTemplate()">
+    </gcs-data-template>
+
+    <h4>Simple template</h4>
+
+    <gcs-data-template id-field="name" data='getData()' template="getSimpleTemplate()">
+    </gcs-data-template>
+
+    <h4>Change content template</h4>
+
+    <gcs-data-template id="changing-template" id-field="name" data='getData()' template="getSimpleTemplate()">
+    </gcs-data-template>
+
+</body>
+
+</html>

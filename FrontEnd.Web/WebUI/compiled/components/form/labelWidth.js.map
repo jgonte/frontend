@@ -1,0 +1,1 @@
+{"version":3,"file":"labelWidth.js","sourceRoot":"","sources":["../../../src/components/form/labelWidth.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,SAAS,EAAE,MAAM,4BAA4B,CAAC;AAKvD,MAAM,UAAU,GAAG;IACf,SAAS,EAAE,aAAa;IACxB,IAAI,EAAE,SAAS,CAAC,MAAM;IACtB,KAAK,EAAE,KAAK;IACZ,OAAO,EAAE,IAAI;IACb,OAAO,EAAE,IAAI;CAChB,CAAC;AAEF,eAAe,UAAU,CAAC"}

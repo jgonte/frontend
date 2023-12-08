@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <script>
+
+        function getData() {
+
+            return [
+                {
+                    name: "Sarah",
+                    age: 19,
+                    description: 'Smart and beautiful',
+                    dob: new Date(2002, 6, 26)
+                },
+                {
+                    name: "Mark",
+                    age: 31,
+                    description: 'Dedicated and perseverant',
+                    dob: new Date(1990, 10, 4)
+                },
+                {
+                    name: "Sasha",
+                    age: 1,
+                    description: 'A little giant',
+                    dob: new Date(2020, 6, 27)
+                }
+            ];
+        }
+
+        function getColumnKeys() {
+
+            return ["name", "age", "description", "dob"];
+        }
+
+        function getColumns() {
+
+            return [
+                {
+                    name: "name",
+                    display: "Name",
+                    sortable: true
+                },
+                {
+                    name: "age",
+                    display: "Age",
+                    sortable: true
+                },
+                {
+                    name: "description",
+                    display: "Description",
+                    sortable: true
+                },
+                {
+                    name: "dob",
+                    display: "Date of Birth",
+                    sortable: true,
+                    render: value => value.toLocaleDateString()
+                }
+            ];
+        }
+
+    </script>
+
+</head>
+
+<body>
+
+    <!-- <h4>Data grid data set in attribute</h4>
+
+    <gcs-data-grid id="dg1" id-field="name" columns='["name", "age", "description"]' data='[
+        {
+            "name": "Sarah",
+            "age": 19,
+            "description": "Smart and beautiful"
+        },
+        {
+            "name": "Mark",
+            "age": 31,
+            "description": "Dedicated and perseverant"
+        }
+    ]'></gcs-data-grid>
+
+    <h4>Data grid data comes from function</h4>
+
+    <gcs-data-grid id="dg2" id-field="name" columns="getColumnKeys()" data="getData()"></gcs-data-grid> -->
+
+    <h4>Data grid with field descriptors</h4>
+
+    <gcs-data-grid id="dg3" id-field="name" columns="getColumns()" data="getData()"></gcs-data-grid>
+
+</body>
+
+</html>

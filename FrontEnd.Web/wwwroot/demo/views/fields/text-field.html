@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <script>
+
+        window.addEventListener('changeEvent', event => alert(
+            `
+                Event type: 'changeEvent'
+                Field name: '${event.detail.name}'
+                Field old value: '${event.detail.oldValue}'
+                Field new value: '${event.detail.newValue}'
+        `));
+
+    </script>
+
+</head>
+
+<body>
+    <gcs-text-field id="tf1" name="name" size="large"></gcs-text-field>
+    <br />
+    <gcs-text-field id="tf2" name="name" value="Sarah"></gcs-text-field>
+</body>
+
+</html>

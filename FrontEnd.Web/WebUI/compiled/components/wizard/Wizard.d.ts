@@ -1,0 +1,32 @@
+import CustomElement from "../../custom-element/CustomElement";
+import CustomElementPropertyMetadata from "../../custom-element/mixins/metadata/types/CustomElementPropertyMetadata";
+import CustomElementStateMetadata from "../../custom-element/mixins/metadata/types/CustomElementStateMetadata";
+import { NodePatchingData } from "../../rendering/nodes/NodePatchingData";
+import { DynamicObject, GenericRecord } from "../../utils/types";
+declare const Wizard_base: typeof CustomElement;
+export default class Wizard extends Wizard_base {
+    sharedData: DynamicObject;
+    private _forms;
+    static get properties(): Record<string, CustomElementPropertyMetadata>;
+    static get state(): Record<string, CustomElementStateMetadata>;
+    constructor();
+    render(): NodePatchingData;
+    renderStep(): NodePatchingData;
+    renderButtons(): NodePatchingData;
+    handleBack(): void;
+    handleNext(): void;
+    handleFinish(): void;
+    handleSubmitResponse(data: GenericRecord): void;
+    getSubmitData(): DynamicObject;
+    didMountCallback(): void;
+    connectedCallback(): void;
+    disconnectedCallback(): void;
+    handleFormConnected(event: CustomEvent): void;
+    handleFormDisconnected(event: CustomEvent): void;
+    private _hideBackButtonIfNecessary;
+    private _hideNextButtonIfNecessary;
+    private _hideFinishButtonIfNecessary;
+    private _populateFormsFromSharedData;
+    private _populateSharedDataFromForms;
+}
+export {};

@@ -1,0 +1,23 @@
+{
+    "include": [
+        "./src"
+    ],
+    "exclude": [
+        "node_modules"
+    ],
+    "compilerOptions": {
+        "removeComments": true,
+        "rootDir": "./src",
+        "outDir": "./compiled",
+        "sourceMap": true,
+        "declaration": true,
+        "declarationDir": "./compiled",
+        "strict": true,
+        "module": "ESNext",
+        "target": "ESNext",
+        "moduleResolution": "Node",
+        "noImplicitReturns": true,
+        "noUnusedLocals": true,
+        "noUnusedParameters": true
+    }
+}

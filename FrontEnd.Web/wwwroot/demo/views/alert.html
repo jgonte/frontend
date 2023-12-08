@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+    <script>
+
+        function onCloseAlert() {
+
+            alert('Trying to close alert!');
+        }
+
+        document.addEventListener('closingEvent', () =>
+            alert('Trying to close alert dispatched an event!')
+        );
+
+    </script>
+
+    <title>Alert demo</title>
+
+</head>
+
+<body>
+    <h4>Icon and plain text</h4>
+    <gcs-alert size="large" kind="info" close="onCloseAlert()">Some info alert</gcs-alert>
+    <gcs-alert kind="success" close="onCloseAlert()">Some success alert</gcs-alert>
+    <gcs-alert kind="warning" dir="rtl" close="onCloseAlert()">Some warning alert</gcs-alert>
+    <gcs-alert kind="danger" size="small" close="onCloseAlert()">Lorem ipsum dolor, sit amet consectetur adipisicing
+        elit. Ipsam aspernatur amet, nesciunt illum fugiat accusamus quasi accusantium, officiis nobis totam iste sequi!
+        Sed iure sunt earum eveniet placeat velit? Accusamus! danger alert</gcs-alert>
+
+    <h4>Icon and localized text</h4>
+    <gcs-alert size="large" kind="info" close="onCloseAlert()">
+        <gcs-localized-text>Some info alert</gcs-localized-text>
+    </gcs-alert>
+
+    <gcs-alert kind="success" close="onCloseAlert()">
+        <gcs-localized-text>Some success alert</gcs-localized-text>
+    </gcs-alert>
+
+    <gcs-alert kind="warning" dir="rtl" close="onCloseAlert()">
+        <gcs-localized-text>Some warning alert</gcs-localized-text>
+    </gcs-alert>
+
+    <gcs-alert kind="danger" size="small" close="onCloseAlert()">
+        <gcs-localized-text>
+            Lorem ipsum dolor, sit amet consectetur adipisicing elit. Ipsam aspernatur amet, nesciunt illum fugiat
+            accusamus quasi accusantium, officiis nobis totam iste sequi! Sed iure sunt earum eveniet placeat velit?
+            Accusamus! danger alert
+        </gcs-localized-text>
+    </gcs-alert>
+
+    <h4>The close property is a boolean</h4>
+    <gcs-alert size="large" kind="info" close>Another info alert</gcs-alert>
+
+</body>
+
+</html>

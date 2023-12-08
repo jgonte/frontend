@@ -1,0 +1,34 @@
+import { NodePatchingData } from "../../../../rendering/nodes/NodePatchingData";
+import { GenericRecord } from "../../../../utils/types";
+import { RenderReturnTypes } from "./IRenderable";
+export type NodePatchingTypes = NodePatchingData | NodePatchingData[] | null;
+export default interface CustomHTMLElement extends HTMLElement {
+    [index: string]: any;
+    connectedCallback(): void;
+    disconnectedCallback(): void;
+    attributeChangedCallback(attributeName: string, oldValue: string | null, newValue: string | null): void;
+    render(): RenderReturnTypes;
+    beforeRender(patchingData: NodePatchingTypes): NodePatchingTypes;
+    get document(): HTMLElement | ShadowRoot;
+    didMountCallback(): void;
+    willUpdateCallback(): void;
+    didUpdateCallback(): void;
+    willUnmountCallback(): void;
+    setProperty(name: string, value: unknown): void;
+    setState(name: string, value: unknown): void;
+    get updateComplete(): Promise<void>;
+    stylesAdded: boolean;
+    adoptedChildren: Set<Node>;
+    didAdoptChildCallback(parent: CustomHTMLElement, child: HTMLElement): void;
+    didAdoptChildrenCallback(parent: CustomHTMLElement, children: Set<Node>): void;
+    willAbandonChildCallback(parent: CustomHTMLElement, child: HTMLElement): void;
+    handleSlotChange: EventListenerOrEventListenerObject;
+    enableEvents(): void;
+    disableEvents(): void;
+    _setProperty(name: string, value: unknown): boolean;
+    _setState(name: string, value: unknown): boolean;
+    clearChangedProperties(): void;
+    updateDom(): Promise<void>;
+    dispatchCustomEvent(type: string, detail: GenericRecord): Promise<void>;
+    _$tempProperties?: GenericRecord;
+}

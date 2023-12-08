@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+    <script>
+
+        function onButtonClicked() {
+
+            alert('Button clicked!');
+        }
+
+    </script>
+
+</head>
+
+<body>
+    <h4>Text only</h4>
+    
+    <gcs-button id="b1" click="onButtonClicked()" kind="primary">
+        Outlined
+    </gcs-button>
+    <br />
+    <gcs-button id="b2" click="onButtonClicked()" kind="primary" variant="contained" size="large">
+        Contained
+    </gcs-button>
+    <br />
+    <gcs-button id="b3" click="onButtonClicked()" kind="primary" variant="text" size="small">
+        Text
+    </gcs-button>
+
+    <h4>With icon</h4>
+    <gcs-button id="b4" click="onButtonClicked()" kind="primary">
+        <gcs-icon name="alarm"></gcs-icon>
+        Outlined
+    </gcs-button>
+    <br />
+    <gcs-button id="b5" click="onButtonClicked()" kind="danger" variant="contained" size="large">
+        <gcs-icon name="alarm-fill" size="small"></gcs-icon>
+        Contained
+    </gcs-button>
+    <br />
+    <gcs-button id="b6" click="onButtonClicked()" kind="tertiary" variant="text" size="small">
+        <gcs-icon name="archive"></gcs-icon>
+        Text
+    </gcs-button>
+
+    <h4>Icon only</h4>
+    <gcs-button id="b4" click="onButtonClicked()" kind="primary">
+        <gcs-icon name="alarm"></gcs-icon>
+    </gcs-button>
+    <br />
+    <gcs-button id="b5" click="onButtonClicked()" kind="secondary" variant="contained" size="large">
+        <gcs-icon name="alarm-fill" size="small"></gcs-icon>
+    </gcs-button>
+    <br />
+    <gcs-button id="b6" click="onButtonClicked()" kind="tertiary" variant="text" size="small">
+        <gcs-icon name="x"></gcs-icon>
+    </gcs-button>
+
+    <h4>With localized text</h4>
+    <gcs-button id="b7" click="onButtonClicked()" kind="primary">
+        <gcs-icon name="person-add"></gcs-icon>
+        <gcs-localized-text>Outlined</gcs-localized-text>
+    </gcs-button>
+    <br />
+
+    <h4>Disabled</h4>
+
+    <gcs-button click="onButtonClicked()" kind="primary" disabled>
+        <gcs-icon name="person"></gcs-icon>
+        <gcs-localized-text>Outlined</gcs-localized-text>
+    </gcs-button>
+    <br />
+
+    <gcs-button click="onButtonClicked()" variant="contained" kind="primary" disabled>
+        <gcs-localized-text>Contained</gcs-localized-text>
+    </gcs-button>
+    <br />
+
+    <gcs-button click="onButtonClicked()" variant="text" kind="primary" disabled>
+        <gcs-localized-text>Text</gcs-localized-text>
+        <gcs-icon name="download"></gcs-icon>
+    </gcs-button>
+    <br />
+
+</body>
+
+</html>

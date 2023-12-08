@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <script>
+
+        window.addEventListener('changeEvent', event => alert(
+            `
+                Event type: 'changeEvent'
+                Field name: '${event.detail.name}'
+                Field old value: '${event.detail.oldValue}'
+                Field new value: '${event.detail.newValue}'
+        `));
+
+        function showPropertyChanged(name, value) {
+
+            // window.alert(`Property has changed: name: '${name}' value: '${value}'`);
+        }
+
+    </script>
+
+    <title>Form field demo</title>
+
+</head>
+
+<body>
+
+    <h4>Localized text required</h4>
+    <gcs-form-field required label-width="50%">
+        <gcs-localized-text slot="label">Full Name</gcs-localized-text>
+        <gcs-help-tip slot="tools">Here it goes the first, middle and last name of the person</gcs-help-tip>
+        <gcs-text-field slot="field" name="name" value="Sarah" property-changed="showPropertyChanged()"></gcs-text-field>
+    </gcs-form-field>
+    <br />
+
+    <h4>Localized text not required</h4>
+    <gcs-form-field label-width="50%" label-align="center">
+        <gcs-localized-text slot="label">Full Name</gcs-localized-text>
+        <gcs-help-tip slot="tools">Here it goes the first, middle and last name of the person</gcs-help-tip>
+        <gcs-text-field slot="field" name="name" value="Sarah" input-style="width: 50ch;" property-changed="showPropertyChanged()"></gcs-text-field>
+    </gcs-form-field>
+    <br />
+
+    <h4>Localized text disabled</h4>
+    <gcs-form-field disabled label-width="50%" label-align="right">
+        <gcs-localized-text slot="label">Full Name</gcs-localized-text>
+        <gcs-help-tip slot="tools">Here it goes the first, middle and last name of the person</gcs-help-tip>
+        <gcs-text-field slot="field" name="name" value="Sarah" property-changed="showPropertyChanged()"></gcs-text-field>
+    </gcs-form-field>
+    <br />
+    <!-- <gcs-form-field>
+        <span slot="label">Name</span>
+        <gcs-text-field slot="field" id="tf2" name="name" value="Sarah"></gcs-text-field>
+    </gcs-form-field> -->
+</body>
+
+</html>

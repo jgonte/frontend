@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="./css/reset.css">
+    <link rel="stylesheet" href="./css/styles.css">
+    <link rel="stylesheet" href="./css/themes.css">
+
+    <title>Router</title>
+
+    <script src="./js/appConfig.js"></script>
+
+    <script type="module" src="../../lib/gcs-lib.js"></script>
+
+    <script>
+
+        class AboutPage {
+
+            render() {
+
+                return html`
+<h1>About</h1>
+<p>To add more here</p>`;
+            }
+        }
+
+        class PostsPage {
+
+            render() {
+
+                return html`
+<h1>Posts</h1>
+<p>Posts should be here</p>`;
+            }
+        }
+
+        class PostPage {
+
+            constructor(params) {
+
+                this._params = params;
+            }
+
+            render() {
+
+                return html`
+<h1>Post ${this._params.id}</h1>
+<p>Posts should be here</p>`;
+            }
+        }
+
+        function customerPage(params) {
+
+            return html`
+<h1>Customer Id:${params.id} Country:${params.country}</h1>
+<p>Posts should be here</p>`;
+        }
+
+        function getRoutes() {
+            return {
+                '/': {
+                    view: '/src/demo/views/display/data-list.html'
+                },
+                '/posts': {
+                    view: PostsPage
+                },
+                '/posts/:id': {
+                    view: PostPage
+                },
+                '/customers/:id/:country': {
+                    view: customerPage
+                },
+                '/about': {
+                    view: AboutPage
+                }
+            };
+        }
+
+        function getNotFoundView() {
+
+            return class {
+
+                render() {
+
+                    return html`
+<h1>Not found</h1>
+<p>Sorry :-(</p>`;
+                }
+            }
+        }
+
+        function getSubHeaderLinks() {
+
+            return {
+                '/': {
+                    text: 'Home',
+                    intlKey: 'home'
+                },
+                '/about': {
+                    text: 'About',
+                    intlKey: 'about'
+                }
+            }
+        }
+
+        function getSidebarLinks() {
+
+            const postsGroup = {
+                text: 'Posts',
+                intlKey: 'posts'
+            };
+
+            const customersGroup = {
+                text: 'Customers',
+                intlKey: 'customers'
+            };
+
+            return {
+                // Posts
+                '/posts': {
+                    group: postsGroup,
+                    text: 'View Posts',
+                    intlKey: 'view posts'
+                },
+                '/posts/:id': {
+                    group: postsGroup,
+                    text: 'Edit Posts',
+                    intlKey: 'edit posts'
+                },
+                // Customers
+                '/customers/:id/:country': {
+                    group: customersGroup,
+                    text: 'Edit Customer',
+                    intlKey: 'customer'
+                }
+            }
+        }
+
+    </script>
+
+</head>
+
+<body>
+
+    <gcs-app-view>
+
+        <div slot="header" style="display: flex;">
+
+            <img src="./images/gcs-logo.svg" style="width: 50px;" />
+
+            <h1 style="color: var(--gcs-color-primary-dark);">GCS Design System</h1>
+
+            <div style="width: 100%;"></div>
+
+            <gcs-theme-selector></gcs-theme-selector>
+        </div>
+
+        <gcs-hash-router name="app" content-view-id="app-content-view" routes="getRoutes()"
+            not-found-view="getNotFoundView()">
+        </gcs-hash-router>
+
+        <gcs-nav-bar slot="subheader" router-name="app" links="getSubHeaderLinks()">
+        </gcs-nav-bar>
+
+        <gcs-nav-bar slot="left" router-name="app" links="getSidebarLinks()" orientation="vertical" style="width: 100%">
+        </gcs-nav-bar>
+
+        <gcs-content-view slot="center" id="app-content-view" style="height: 100%; overflow-y: scroll;">
+        </gcs-content-view>
+
+    </gcs-app-view>
+
+</body>
+
+</html>
