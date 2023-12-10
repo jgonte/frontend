@@ -119,14 +119,17 @@ function getAppLinks() {
         },
         '/display/data-header-cell': {
             group: displayGroup,
-            text: 'Data Header Cell',
-            intlKey: 'data header cell'
+            text: 'Data Header Cell'
         },
         '/display/data-grid': {
             group: displayGroup,
-            text: 'Data Grid',
-            intlKey: 'data grid'
+            text: 'Data Grid'
         },
+        '/display/collection-panel': {
+            group: displayGroup,
+            text: 'Collection Panel'
+        },
+
         // Tools
         '/tools/close': {
             group: toolsGroup,

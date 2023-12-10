@@ -96,6 +96,19 @@ export declare class CloseTool extends Tool {
     handleClick(): void;
 }
 
+export declare class CollectionPanel extends CustomElement {
+    static get properties(): Record<string, CustomElementPropertyMetadata>;
+    render(): NodePatchingData;
+    renderToolbar(): NodePatchingData;
+    renderDataGrid(): NodePatchingData;
+    renderInsertDialog(): NodePatchingData;
+    renderDeleteDialog(): NodePatchingData;
+    renderUpdateDialog(): NodePatchingData;
+    showAddForm(): void;
+    showEditForm(): void;
+    showConfirmDelete(): void;
+}
+
 export declare class ComboBox extends ComboBox_base {
     static get properties(): Record<string, CustomElementPropertyMetadata>;
     constructor();
@@ -582,9 +595,6 @@ export declare class Overlay extends CustomElement {
 export declare class Panel extends Panel_base {
     static get styles(): string;
     render(): RenderReturnTypes;
-    renderHeader(): NodePatchingData;
-    renderBody(): NodePatchingData;
-    renderFooter(): NodePatchingData;
 }
 
 declare const Panel_base: CustomHTMLElementConstructor;

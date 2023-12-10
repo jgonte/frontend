@@ -4,7 +4,6 @@ import CustomHTMLElementConstructor from "../../custom-element/mixins/metadata/t
 import { RenderReturnTypes } from "../../custom-element/mixins/metadata/types/IRenderable";
 import mergeStyles from "../../custom-element/styles/mergeStyles";
 import html from "../../rendering/html";
-import { NodePatchingData } from "../../rendering/nodes/NodePatchingData";
 import Sizable from "../mixins/sizable/Sizable";
 import { panelStyles } from "./Panel.styles";
 
@@ -24,25 +23,16 @@ export default class Panel extends
     render(): RenderReturnTypes {
 
         return html`
-            <div id=header>${this.renderHeader()}</div>
-            <div id=body>${this.renderBody()}</div>
-            <div id=footer>${this.renderFooter()}</div>
+            <div id=header>
+                <slot name="header"></slot>
+            </div>
+            <div id=body>
+                <slot name="body"></slot>
+            </div>
+            <div id=footer>
+                <slot name="footer"></slot>
+            </div>
         `;
-    }
-
-    renderHeader(): NodePatchingData {
-
-        return html`<slot name="header"></slot>`;
-    }
-
-    renderBody(): NodePatchingData {
-
-        return html`<slot name="body"></slot>`;
-    }
-
-    renderFooter(): NodePatchingData {
-
-        return html`<slot name="footer"></slot>`;
     }
 }
 

@@ -47,12 +47,15 @@ function getAppRoutes() {
             view: `${views}/layout/panel.html`
         },
         '/layout/accordion': {
-            view: `${views}/layout/accordion.html`
+            view: 
+            `${views}/layout/accordion.html`
         },
+
         // Navigation
         '/navigation/link': {
             view: `${views}/navigation/link.html`
         },
+
         // Display
         '/display/data-template': {
             view: `${views}/display/data-template.html`
@@ -66,6 +69,10 @@ function getAppRoutes() {
         '/display/data-grid': {
             view: `${views}/display/data-grid.html`
         },
+        '/display/collection-panel': {
+            view: `${views}/display/collection-panel.html`
+        },
+
         // Tools
         '/tools/close': {
             view: `${views}/tools/close.html`
@@ -76,6 +83,7 @@ function getAppRoutes() {
         '/tools/sorter': {
             view: `${views}/tools/sorter.html`
         },
+        
         // Fields
         '/fields/combo-box': {
             view: `${views}/fields/combo-box.html`
@@ -92,6 +100,7 @@ function getAppRoutes() {
         '/fields/star-rating': {
             view: `${views}/fields/star-rating.html`
         },
+
         // Form
         '/form-field': {
             view: `${views}/form-field.html`
@@ -99,6 +108,7 @@ function getAppRoutes() {
         '/form': {
             view: `${views}/form.html`
         },
+
         // Tips
         '/tips/help': {
             view: `${views}/tips/help.html`

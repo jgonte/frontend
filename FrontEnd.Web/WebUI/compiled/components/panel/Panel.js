@@ -10,19 +10,16 @@ export default class Panel extends Sizable(CustomElement) {
     }
     render() {
         return html `
-            <div id=header>${this.renderHeader()}</div>
-            <div id=body>${this.renderBody()}</div>
-            <div id=footer>${this.renderFooter()}</div>
+            <div id=header>
+                <slot name="header"></slot>
+            </div>
+            <div id=body>
+                <slot name="body"></slot>
+            </div>
+            <div id=footer>
+                <slot name="footer"></slot>
+            </div>
         `;
-    }
-    renderHeader() {
-        return html `<slot name="header"></slot>`;
-    }
-    renderBody() {
-        return html `<slot name="body"></slot>`;
-    }
-    renderFooter() {
-        return html `<slot name="footer"></slot>`;
     }
 }
 defineCustomElement('gcs-panel', Panel);

@@ -35,9 +35,18 @@ export default class Dialog extends CustomElement {
         if (showing !== true) {
             return null;
         }
-        return html `<gcs-overlay>
-            ${content()}
-        </gcs-overlay> `;
+        if (content) {
+            return html `
+<gcs-overlay>
+    ${content()}
+</gcs-overlay>`;
+        }
+        else {
+            return html `
+<gcs-overlay>
+    <slot></slot>
+</gcs-overlay>`;
+        }
     }
 }
 defineCustomElement('gcs-dialog', Dialog);

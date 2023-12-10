@@ -83,6 +83,7 @@ import DataRow from "./components/data-grid/body/row/DataRow";
 import DataHeaderCell from "./components/data-grid/header/cell/DataHeaderCell";
 import DataHeader from "./components/data-grid/header/DataHeader";
 import DataGrid from "./components/data-grid/DataGrid";
+import CollectionPanel from "./components/crud/CollectionPanel";
 
 // Routers
 import HashRouter from "./components/routers/hash-router/HashRouter";
@@ -191,6 +192,7 @@ export {
     DataCell,
     DataRow,
     DataGrid,
+    CollectionPanel,
 
     // Routers
     HashRouter,

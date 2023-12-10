@@ -2076,9 +2076,18 @@ class Dialog extends CustomElement {
         if (showing !== true) {
             return null;
         }
-        return html `<gcs-overlay>
-            ${content()}
-        </gcs-overlay> `;
+        if (content) {
+            return html `
+<gcs-overlay>
+    ${content()}
+</gcs-overlay>`;
+        }
+        else {
+            return html `
+<gcs-overlay>
+    <slot></slot>
+</gcs-overlay>`;
+        }
     }
 }
 defineCustomElement('gcs-dialog', Dialog);
@@ -4655,19 +4664,16 @@ class Panel extends Sizable(CustomElement) {
     }
     render() {
         return html `
-            <div id=header>${this.renderHeader()}</div>
-            <div id=body>${this.renderBody()}</div>
-            <div id=footer>${this.renderFooter()}</div>
+            <div id=header>
+                <slot name="header"></slot>
+            </div>
+            <div id=body>
+                <slot name="body"></slot>
+            </div>
+            <div id=footer>
+                <slot name="footer"></slot>
+            </div>
         `;
-    }
-    renderHeader() {
-        return html `<slot name="header"></slot>`;
-    }
-    renderBody() {
-        return html `<slot name="body"></slot>`;
-    }
-    renderFooter() {
-        return html `<slot name="footer"></slot>`;
     }
 }
 defineCustomElement('gcs-panel', Panel);
@@ -5965,6 +5971,135 @@ class DataGrid extends DataCollectionHolder(CustomElement) {
 }
 defineCustomElement('gcs-data-grid', DataGrid);
 
+class CollectionPanel extends CustomElement {
+    static get properties() {
+        return {
+            columns: {
+                type: [
+                    DataTypes.Array,
+                    DataTypes.Function
+                ],
+                required: true
+            },
+            data: {
+                type: [
+                    DataTypes.Array,
+                    DataTypes.Function
+                ],
+                required: true
+            },
+            idField: {
+                attribute: 'id-field',
+                type: DataTypes.String,
+                value: 'id'
+            },
+        };
+    }
+    render() {
+        return html `
+<gcs-center>
+    <gcs-panel>
+        ${this.renderToolbar()}
+        ${this.renderDataGrid()}  
+        ${this.renderInsertDialog()} 
+        ${this.renderUpdateDialog()}  
+        ${this.renderDeleteDialog()}  
+    </gcs-panel>
+</gcs-center>
+`;
+    }
+    renderToolbar() {
+        return html `
+<div slot="header">
+    <gcs-button 
+        click=${this.showAddForm}
+        kind="primary">
+        <gcs-icon name="person-add"></gcs-icon>
+        <gcs-localized-text>Add</gcs-localized-text>
+    </gcs-button>
+</div>`;
+    }
+    renderDataGrid() {
+        const me = this;
+        let { columns } = this;
+        columns = [
+            ...columns,
+            {
+                render: function () {
+                    return html `
+                <gcs-button 
+                    kind="warning" 
+                    size="large" 
+                    click=${me.showEditForm}
+                >
+                    Edit
+                </gcs-button>`;
+                }
+            },
+            {
+                render: function () {
+                    return html `
+                <gcs-button 
+                    kind="danger" 
+                    size="large"
+                    click=${me.showConfirmDelete}
+                >
+                    Delete
+                </gcs-button>`;
+                }
+            }
+        ];
+        return html `
+<gcs-data-grid 
+    slot="body" 
+    id-field=${this.idField}
+    columns=${columns} 
+    data=${this.data}
+>
+</gcs-data-grid>`;
+    }
+    renderInsertDialog() {
+        return html `
+<gcs-dialog 
+    id="add-dialog" 
+    slot="body"
+>
+    Add record
+</gcs-dialog>`;
+    }
+    renderDeleteDialog() {
+        return html `
+<gcs-dialog 
+    id="delete-dialog" 
+    slot="body"
+>
+    Are you sure you want to delete the record?
+</gcs-dialog>`;
+    }
+    renderUpdateDialog() {
+        return html `
+<gcs-dialog 
+    id="update-dialog" 
+    slot="body"
+>
+    Generate a dynamic form or use an existing one
+</gcs-dialog>`;
+    }
+    showAddForm() {
+        const element = Array.from(this.adoptingParent.adoptedChildren)[2];
+        element.showing = true;
+    }
+    showEditForm() {
+        const element = Array.from(this.adoptingParent.adoptingParent.adoptingParent.adoptingParent.adoptingParent.adoptedChildren)[3];
+        element.showing = true;
+    }
+    showConfirmDelete() {
+        const element = Array.from(this.adoptingParent.adoptingParent.adoptingParent.adoptingParent.adoptingParent.adoptedChildren)[4];
+        element.showing = true;
+    }
+}
+defineCustomElement('gcs-collection-panel', CollectionPanel);
+
 function getNotFoundView() {
     return class {
         render() {
@@ -6381,4 +6516,4 @@ window.appCtrl = appCtrl;
 window.html = html;
 window.viewsRegistry = viewsRegistry;
 
-export { Accordion, Alert, AppInitializedEvent, ApplicationHeader, ApplicationView, Button, Center, CheckBox, CloseTool, ComboBox, ContentView, CustomElement, DataCell, DataGrid, DataHeader, DataHeaderCell, DataList, DataRow, DataTemplate, DataTypes, DateField, Dialog, DisplayableField, DropDown, ExpanderTool, FileField, Form, FormField, HashRouter, HelpTip, HiddenField, Icon, Loader, LocalizedText, ModifiedTip, NavigationBar, NavigationLink, NumberField, Overlay, Panel, PasswordField, Pill, RequiredTip, Selector, Slider, SorterTool, StarRating, TextArea, TextField, Theme, Tool, ToolTip, ValidationSummary, Wizard, WizardStep, appCtrl, css, defineCustomElement, getNotFoundView, html, navigateToRoute, viewsRegistry };
+export { Accordion, Alert, AppInitializedEvent, ApplicationHeader, ApplicationView, Button, Center, CheckBox, CloseTool, CollectionPanel, ComboBox, ContentView, CustomElement, DataCell, DataGrid, DataHeader, DataHeaderCell, DataList, DataRow, DataTemplate, DataTypes, DateField, Dialog, DisplayableField, DropDown, ExpanderTool, FileField, Form, FormField, HashRouter, HelpTip, HiddenField, Icon, Loader, LocalizedText, ModifiedTip, NavigationBar, NavigationLink, NumberField, Overlay, Panel, PasswordField, Pill, RequiredTip, Selector, Slider, SorterTool, StarRating, TextArea, TextField, Theme, Tool, ToolTip, ValidationSummary, Wizard, WizardStep, appCtrl, css, defineCustomElement, getNotFoundView, html, navigateToRoute, viewsRegistry };

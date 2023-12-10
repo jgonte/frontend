@@ -1,0 +1,77 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+
+    <script>
+
+        function getData() {
+
+            return [
+                {
+                    id: 1,
+                    name: "Sarah",
+                    age: 19,
+                    description: 'Smart and beautiful',
+                    dob: new Date(2002, 6, 26)
+                },
+                {
+                    id: 2,
+                    name: "Mark",
+                    age: 31,
+                    description: 'Dedicated and perseverant',
+                    dob: new Date(1990, 10, 4)
+                },
+                {
+                    id: 3,
+                    name: "Sasha",
+                    age: 1,
+                    description: 'A little giant',
+                    dob: new Date(2020, 6, 27)
+                }
+            ];
+        }
+
+        function getColumnKeys() {
+
+            return ["name", "age", "description", "dob"];
+        }
+
+        function getColumns() {
+
+            return [
+                {
+                    name: "name",
+                    display: "Name",
+                    sortable: true
+                },
+                {
+                    name: "age",
+                    display: "Age",
+                    sortable: true
+                },
+                {
+                    name: "description",
+                    display: "Description",
+                    sortable: true
+                },
+                {
+                    name: "dob",
+                    display: "Date of Birth",
+                    sortable: true,
+                    render: value => value.toLocaleDateString()
+                }
+            ];
+        }
+
+    </script>
+</head>
+<body>
+    <gcs-collection-panel 
+        columns="getColumns()" 
+        data="getData()"
+    >
+    </gcs-collection-panel>
+</body>
+</html>
