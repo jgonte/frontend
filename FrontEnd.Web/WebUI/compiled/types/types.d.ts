@@ -98,12 +98,13 @@ export declare class CloseTool extends Tool {
 
 export declare class CollectionPanel extends CustomElement {
     static get properties(): Record<string, CustomElementPropertyMetadata>;
+    constructor();
     render(): NodePatchingData;
     renderToolbar(): NodePatchingData;
     renderDataGrid(): NodePatchingData;
     renderInsertDialog(): NodePatchingData;
-    renderDeleteDialog(): NodePatchingData;
     renderUpdateDialog(): NodePatchingData;
+    renderDeleteDialog(): NodePatchingData;
     showAddForm(): void;
     showEditForm(): void;
     showConfirmDelete(): void;

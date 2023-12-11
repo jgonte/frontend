@@ -80,6 +80,20 @@ function ParentChild(Base) {
             console.dir(e);
             alert('kuku');
         }
+        findChild(predicate) {
+            const children = Array.from(this.adoptedChildren);
+            for (let i = 0; i < children.length; ++i) {
+                const child = children[i];
+                if (predicate(child) === true) {
+                    return child;
+                }
+                const grandChild = child?.findChild?.(predicate);
+                if (grandChild) {
+                    return grandChild;
+                }
+            }
+            return null;
+        }
     };
 }
 
@@ -5995,24 +6009,29 @@ class CollectionPanel extends CustomElement {
             },
         };
     }
+    constructor() {
+        super();
+        this.showAddForm = this.showAddForm.bind(this);
+        this.showEditForm = this.showEditForm.bind(this);
+        this.showConfirmDelete = this.showConfirmDelete.bind(this);
+    }
     render() {
         return html `
-<gcs-center>
-    <gcs-panel>
-        ${this.renderToolbar()}
-        ${this.renderDataGrid()}  
-        ${this.renderInsertDialog()} 
-        ${this.renderUpdateDialog()}  
-        ${this.renderDeleteDialog()}  
-    </gcs-panel>
-</gcs-center>
+<gcs-panel id="collection-panel">
+    ${this.renderToolbar()}
+    ${this.renderDataGrid()}  
+    ${this.renderInsertDialog()} 
+    ${this.renderUpdateDialog()}  
+    ${this.renderDeleteDialog()}  
+</gcs-panel>
 `;
     }
     renderToolbar() {
+        const { showAddForm } = this;
         return html `
 <div slot="header">
     <gcs-button 
-        click=${this.showAddForm}
+        click=${showAddForm}
         kind="primary">
         <gcs-icon name="person-add"></gcs-icon>
         <gcs-localized-text>Add</gcs-localized-text>
@@ -6020,7 +6039,7 @@ class CollectionPanel extends CustomElement {
 </div>`;
     }
     renderDataGrid() {
-        const me = this;
+        const { showEditForm, showConfirmDelete } = this;
         let { columns } = this;
         columns = [
             ...columns,
@@ -6030,7 +6049,7 @@ class CollectionPanel extends CustomElement {
                 <gcs-button 
                     kind="warning" 
                     size="large" 
-                    click=${me.showEditForm}
+                    click=${showEditForm}
                 >
                     Edit
                 </gcs-button>`;
@@ -6042,7 +6061,7 @@ class CollectionPanel extends CustomElement {
                 <gcs-button 
                     kind="danger" 
                     size="large"
-                    click=${me.showConfirmDelete}
+                    click=${showConfirmDelete}
                 >
                     Delete
                 </gcs-button>`;
@@ -6067,15 +6086,6 @@ class CollectionPanel extends CustomElement {
     Add record
 </gcs-dialog>`;
     }
-    renderDeleteDialog() {
-        return html `
-<gcs-dialog 
-    id="delete-dialog" 
-    slot="body"
->
-    Are you sure you want to delete the record?
-</gcs-dialog>`;
-    }
     renderUpdateDialog() {
         return html `
 <gcs-dialog 
@@ -6085,16 +6095,25 @@ class CollectionPanel extends CustomElement {
     Generate a dynamic form or use an existing one
 </gcs-dialog>`;
     }
+    renderDeleteDialog() {
+        return html `
+<gcs-dialog 
+    id="delete-dialog" 
+    slot="body"
+>
+    Are you sure you want to delete the record?
+</gcs-dialog>`;
+    }
     showAddForm() {
-        const element = Array.from(this.adoptingParent.adoptedChildren)[2];
+        const element = this.findChild((n) => n.id === 'add-dialog');
         element.showing = true;
     }
     showEditForm() {
-        const element = Array.from(this.adoptingParent.adoptingParent.adoptingParent.adoptingParent.adoptingParent.adoptedChildren)[3];
+        const element = this.findChild((n) => n.id === 'update-dialog');
         element.showing = true;
     }
     showConfirmDelete() {
-        const element = Array.from(this.adoptingParent.adoptingParent.adoptingParent.adoptingParent.adoptingParent.adoptedChildren)[4];
+        const element = this.findChild((n) => n.id === 'delete-dialog');
         element.showing = true;
     }
 }
