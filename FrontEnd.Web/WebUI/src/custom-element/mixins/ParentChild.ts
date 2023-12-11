@@ -152,5 +152,34 @@ export default function ParentChild<TBase extends CustomHTMLElementConstructor>(
 
             alert('kuku');
         }
+
+        /**
+         * Finds the first child (in order traversal) that satisfies the predicate
+         * @param predicate Function to test whether the node satisfies the search condition
+         * @returns The node that satisfies the predicate or null otherwise
+         */
+        findChild(predicate: (element: Node) => true): Node | null {
+
+            const children = Array.from(this.adoptedChildren);
+
+            for (let i = 0; i < children.length; ++i) {
+
+                const child = children[i];
+
+                if (predicate(child) === true) {
+
+                    return child;
+                }
+
+                const grandChild = (child as ParentChildMixin)?.findChild?.(predicate);
+
+                if (grandChild) {
+
+                    return grandChild;
+                }
+            }
+
+            return null;
+        }
     }
 }

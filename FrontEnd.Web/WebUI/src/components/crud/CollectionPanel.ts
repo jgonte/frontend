@@ -36,7 +36,7 @@ export default class CollectionPanel extends CustomElement {
                 ],
                 required: true
             },
-            
+
             /**
              * The name of the field that contains the ID of the record
              */
@@ -48,27 +48,40 @@ export default class CollectionPanel extends CustomElement {
         };
     }
 
+    constructor() {
+
+        super();
+
+        this.showAddForm = this.showAddForm.bind(this);
+
+        this.showEditForm = this.showEditForm.bind(this);
+
+        this.showConfirmDelete = this.showConfirmDelete.bind(this);
+    }
+
     render(): NodePatchingData {
 
         return html`
-<gcs-center>
-    <gcs-panel>
-        ${this.renderToolbar()}
-        ${this.renderDataGrid()}  
-        ${this.renderInsertDialog()} 
-        ${this.renderUpdateDialog()}  
-        ${this.renderDeleteDialog()}  
-    </gcs-panel>
-</gcs-center>
+<gcs-panel id="collection-panel">
+    ${this.renderToolbar()}
+    ${this.renderDataGrid()}  
+    ${this.renderInsertDialog()} 
+    ${this.renderUpdateDialog()}  
+    ${this.renderDeleteDialog()}  
+</gcs-panel>
 `;
     }
 
     renderToolbar(): NodePatchingData {
 
+        const {
+            showAddForm
+        } = this;
+
         return html`
 <div slot="header">
     <gcs-button 
-        click=${this.showAddForm}
+        click=${showAddForm}
         kind="primary">
         <gcs-icon name="person-add"></gcs-icon>
         <gcs-localized-text>Add</gcs-localized-text>
@@ -78,7 +91,10 @@ export default class CollectionPanel extends CustomElement {
 
     renderDataGrid(): NodePatchingData {
 
-        const me = this;
+        const {
+            showEditForm,
+            showConfirmDelete
+        } = this;
 
         let {
             columns
@@ -92,7 +108,7 @@ export default class CollectionPanel extends CustomElement {
                 <gcs-button 
                     kind="warning" 
                     size="large" 
-                    click=${me.showEditForm}
+                    click=${showEditForm}
                 >
                     Edit
                 </gcs-button>`
@@ -104,7 +120,7 @@ export default class CollectionPanel extends CustomElement {
                 <gcs-button 
                     kind="danger" 
                     size="large"
-                    click=${me.showConfirmDelete}
+                    click=${showConfirmDelete}
                 >
                     Delete
                 </gcs-button>`
@@ -133,17 +149,6 @@ export default class CollectionPanel extends CustomElement {
 </gcs-dialog>`;
     }
 
-    renderDeleteDialog(): NodePatchingData {
-
-        return html`
-<gcs-dialog 
-    id="delete-dialog" 
-    slot="body"
->
-    Are you sure you want to delete the record?
-</gcs-dialog>`;
-    }
-
     renderUpdateDialog(): NodePatchingData {
 
         return html`
@@ -155,23 +160,34 @@ export default class CollectionPanel extends CustomElement {
 </gcs-dialog>`;
     }
 
+    renderDeleteDialog(): NodePatchingData {
+
+        return html`
+<gcs-dialog 
+    id="delete-dialog" 
+    slot="body"
+>
+    Are you sure you want to delete the record?
+</gcs-dialog>`;
+    }
+
     showAddForm() {
 
-        const element = Array.from(this.adoptingParent.adoptedChildren)[2];
+        const element = this.findChild((n: { id: string; }) => n.id === 'add-dialog');
 
         (element as Dialog).showing = true;
     }
 
     showEditForm() {
 
-        const element = Array.from(this.adoptingParent.adoptingParent.adoptingParent.adoptingParent.adoptingParent.adoptedChildren)[3];
+        const element = this.findChild((n: { id: string; }) => n.id === 'update-dialog');
 
         (element as Dialog).showing = true;
     }
 
     showConfirmDelete() {
 
-        const element = Array.from(this.adoptingParent.adoptingParent.adoptingParent.adoptingParent.adoptingParent.adoptedChildren)[4];
+        const element = this.findChild((n: { id: string; }) => n.id === 'delete-dialog');
 
         (element as Dialog).showing = true;
     }

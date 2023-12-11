@@ -3,12 +3,13 @@ import CustomElementPropertyMetadata from "../../custom-element/mixins/metadata/
 import { NodePatchingData } from "../../rendering/nodes/NodePatchingData";
 export default class CollectionPanel extends CustomElement {
     static get properties(): Record<string, CustomElementPropertyMetadata>;
+    constructor();
     render(): NodePatchingData;
     renderToolbar(): NodePatchingData;
     renderDataGrid(): NodePatchingData;
     renderInsertDialog(): NodePatchingData;
-    renderDeleteDialog(): NodePatchingData;
     renderUpdateDialog(): NodePatchingData;
+    renderDeleteDialog(): NodePatchingData;
     showAddForm(): void;
     showEditForm(): void;
     showConfirmDelete(): void;

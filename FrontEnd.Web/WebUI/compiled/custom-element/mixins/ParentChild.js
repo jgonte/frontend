@@ -73,6 +73,20 @@ export default function ParentChild(Base) {
             console.dir(e);
             alert('kuku');
         }
+        findChild(predicate) {
+            const children = Array.from(this.adoptedChildren);
+            for (let i = 0; i < children.length; ++i) {
+                const child = children[i];
+                if (predicate(child) === true) {
+                    return child;
+                }
+                const grandChild = child?.findChild?.(predicate);
+                if (grandChild) {
+                    return grandChild;
+                }
+            }
+            return null;
+        }
     };
 }
 //# sourceMappingURL=ParentChild.js.map
