@@ -11,6 +11,7 @@ import CustomElementPropertyMetadata from "../../../custom-element/mixins/metada
 import { DataTypes } from "../../../utils/data/DataTypes";
 
 export default class NavigationBar extends
+
     NavigationContainer(CustomElement) {
 
     static get styles(): string {

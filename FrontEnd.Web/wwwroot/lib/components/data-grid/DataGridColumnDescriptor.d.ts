@@ -6,5 +6,5 @@ export default interface DataGridColumnDescriptor {
     width: string;
     sortable: boolean;
     headerStyle: string | GenericRecord;
-    render: (value: unknown, record: Record<string, unknown>, column: DataGridColumnDescriptor) => NodePatchingData;
+    render: (value: unknown, record: GenericRecord, column: DataGridColumnDescriptor) => NodePatchingData;
 }

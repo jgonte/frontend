@@ -300,6 +300,9 @@ const valueConverter = {
             }
         }
         if (type.includes(DataTypes.Boolean)) {
+            if (value === 'false') {
+                return false;
+            }
             return true;
         }
         if (type.includes(DataTypes.Number)) {
@@ -2402,6 +2405,7 @@ class Alert extends Nuanced {
     static get properties() {
         return {
             showIcon: {
+                attribute: 'show-icon',
                 type: DataTypes.Boolean,
                 value: true
             },
@@ -2416,18 +2420,27 @@ class Alert extends Nuanced {
     }
     render() {
         return html `
-${this._renderIcon()}
-<div style="word-wrap: break-word; max-height: 80vh; overflow: auto;">
-    <slot></slot>
-</div>
-${this._renderCloseTool()}`;
+<gcs-row>
+    ${this._renderIcon()}
+    <div 
+        slot="middle" 
+        style="word-wrap: break-word; max-height: 80vh; overflow: auto;">
+        <slot></slot>
+    </div>
+    ${this._renderCloseTool()}
+</gcs-row>`;
     }
     _renderIcon() {
         const { showIcon, } = this;
         if (showIcon !== true) {
-            return html `<span></span>`;
+            return null;
         }
-        return html `<gcs-icon name=${this._getIconName()}></gcs-icon>`;
+        return html `
+<gcs-icon 
+    slot="start" 
+    name=${this._getIconName()}
+>
+</gcs-icon>`;
     }
     _getIconName() {
         switch (this.kind) {
@@ -2447,7 +2460,12 @@ ${this._renderCloseTool()}`;
                 originalEvent: evt
             }) :
             evt => this.close(evt);
-        return html `<gcs-close-tool close=${handleClose}></gcs-close-tool>`;
+        return html `
+<gcs-close-tool 
+    slot="end"
+    close=${handleClose}
+>
+</gcs-close-tool>`;
     }
 }
 defineCustomElement('gcs-alert', Alert);
@@ -2805,6 +2823,10 @@ class DataTemplate extends CustomElement {
                 defer: true
             }
         };
+    }
+    constructor() {
+        super();
+        this.isSingleItemDataHolder = true;
     }
     render() {
         const { data, template } = this;
@@ -3758,7 +3780,7 @@ function Submittable(Base) {
         connectedCallback() {
             super.connectedCallback?.();
             this._submitFetcher = new Fetcher({
-                onData: data => this.handleSubmitData(data),
+                onData: async (data) => await this.handleSubmitData(data),
                 onError: error => this.handleSubmitError(error)
             });
         }
@@ -4389,6 +4411,7 @@ function NavigationContainer(Base) {
         }
         constructor(...args) {
             super(args);
+            this.isNavigationContainer = true;
             this.updateActiveLink = this.updateActiveLink.bind(this);
         }
         connectedCallback() {
@@ -4660,6 +4683,34 @@ class Overlay extends CustomElement {
 }
 defineCustomElement('gcs-overlay', Overlay);
 
+const rowStyles = css `
+:host {
+    display: flex;
+    justify-content: space-between;
+    justify-items: center;
+    width: 100%;
+    padding: 1rem;
+}`;
+
+class Row extends CustomElement {
+    static get styles() {
+        return mergeStyles(super.styles, rowStyles);
+    }
+    render() {
+        return html `
+<span>
+    <slot name="start"></slot>
+</span>
+<span>
+    <slot name="middle"></slot>
+</span>
+<span>
+    <slot name="end"></slot>
+</span>`;
+    }
+}
+defineCustomElement('gcs-row', Row);
+
 const panelStyles = css `
 :host {
     display: grid;
@@ -4709,13 +4760,11 @@ class Loader extends LoadableHolder(Errorable(CustomElement)) {
     <slot id="data-holder"></slot>
 </div>`;
     }
-    didMountCallback() {
-        this.dataHolder = this.document.getElementById('data-holder')
-            .assignedElements({ flatten: false })[0];
-        this.dataHolder.loader = this;
-        super.didMountCallback?.();
-    }
     handleLoadedData(data) {
+        if (!this.dataHolder) {
+            this.dataHolder = this.findChild((c) => c.isDataCollectionHolder || c.isNavigationContainer || c.isSingleItemDataHolder);
+            this.dataHolder.loader = this;
+        }
         this.dataHolder[this.dataField] = data.payload || data;
     }
 }
@@ -4954,6 +5003,10 @@ function DataCollectionHolder(Base) {
                 }
             };
         }
+        constructor(...args) {
+            super(args);
+            this.isDataCollectionHolder = true;
+        }
         connectedCallback() {
             super.connectedCallback?.();
             this.addEventListener(sorterChanged, this.sort);
@@ -4963,7 +5016,7 @@ function DataCollectionHolder(Base) {
             this.removeEventListener(sorterChanged, this.sort);
         }
         sort(event) {
-            const { field, ascending, element } = event.detail;
+            const { column, ascending, element } = event.detail;
             if (this._lastSorter !== element) {
                 if (this._lastSorter !== undefined) {
                     this._lastSorter.ascending = undefined;
@@ -4976,10 +5029,10 @@ function DataCollectionHolder(Base) {
             else {
                 const comparer = (r1, r2) => {
                     if (ascending === true) {
-                        return compareValues(r1[field], r2[field]);
+                        return compareValues(r1[column], r2[column]);
                     }
                     else {
-                        return compareValues(r2[field], r1[field]);
+                        return compareValues(r2[column], r1[column]);
                     }
                 };
                 this.data = [...this.data].sort(comparer);
@@ -5763,6 +5816,9 @@ class DataCell extends CustomElement {
             column :
             column.name;
         const value = record[name];
+        if (isUndefinedOrNull(value)) {
+            throw new Error(`Undefined or null value in column: ${name}`);
+        }
         if (column.render !== undefined) {
             return column.render(value, record, column);
         }
@@ -5986,6 +6042,7 @@ class DataGrid extends DataCollectionHolder(CustomElement) {
 defineCustomElement('gcs-data-grid', DataGrid);
 
 class CollectionPanel extends CustomElement {
+    _deleteFetcher;
     static get properties() {
         return {
             columns: {
@@ -6000,13 +6057,28 @@ class CollectionPanel extends CustomElement {
                     DataTypes.Array,
                     DataTypes.Function
                 ],
-                required: true
             },
             idField: {
                 attribute: 'id-field',
                 type: DataTypes.String,
                 value: 'id'
             },
+            loadUrl: {
+                attribute: 'load-url',
+                type: DataTypes.String
+            },
+            createUrl: {
+                attribute: 'create-url',
+                type: DataTypes.String
+            },
+            updateUrl: {
+                attribute: 'update-url',
+                type: DataTypes.String
+            },
+            deleteUrl: {
+                attribute: 'delete-url',
+                type: DataTypes.String
+            }
         };
     }
     constructor() {
@@ -6014,6 +6086,14 @@ class CollectionPanel extends CustomElement {
         this.showAddForm = this.showAddForm.bind(this);
         this.showEditForm = this.showEditForm.bind(this);
         this.showConfirmDelete = this.showConfirmDelete.bind(this);
+        this.deleteRecord = this.deleteRecord.bind(this);
+    }
+    connectedCallback() {
+        super.connectedCallback?.();
+        this._deleteFetcher = new Fetcher({
+            onData: () => this.handleSuccessfulDelete(),
+            onError: error => notifyError(this, error)
+        });
     }
     render() {
         return html `
@@ -6027,7 +6107,10 @@ class CollectionPanel extends CustomElement {
 `;
     }
     renderToolbar() {
-        const { showAddForm } = this;
+        const { createUrl, showAddForm } = this;
+        if (!createUrl) {
+            return null;
+        }
         return html `
 <div slot="header">
     <gcs-button 
@@ -6039,36 +6122,57 @@ class CollectionPanel extends CustomElement {
 </div>`;
     }
     renderDataGrid() {
-        const { showEditForm, showConfirmDelete } = this;
+        const { updateUrl, showEditForm, deleteUrl, showConfirmDelete, loadUrl } = this;
         let { columns } = this;
-        columns = [
-            ...columns,
-            {
-                render: function () {
-                    return html `
-                <gcs-button 
-                    kind="warning" 
-                    size="large" 
-                    click=${showEditForm}
-                >
-                    Edit
-                </gcs-button>`;
+        if (updateUrl) {
+            columns = [
+                ...columns,
+                {
+                    render: function () {
+                        return html `
+<gcs-button 
+    kind="warning" 
+    size="large" 
+    click=${showEditForm}
+>
+    Edit
+</gcs-button>`;
+                    }
                 }
-            },
-            {
-                render: function () {
-                    return html `
-                <gcs-button 
-                    kind="danger" 
-                    size="large"
-                    click=${showConfirmDelete}
-                >
-                    Delete
-                </gcs-button>`;
+            ];
+        }
+        if (deleteUrl) {
+            columns = [
+                ...columns,
+                {
+                    render: function (_value, record) {
+                        return html `
+<gcs-button 
+    kind="danger" 
+    click=${() => showConfirmDelete(record)}
+>
+    Delete
+</gcs-button>`;
+                    }
                 }
-            }
-        ];
-        return html `
+            ];
+        }
+        if (loadUrl) {
+            return html `
+<gcs-loader 
+    slot="body" 
+    load-url=${loadUrl}
+>
+    <gcs-data-grid
+        
+        id-field=${this.idField}
+        columns=${columns} 
+    >
+    </gcs-data-grid>
+</gcs-loader>`;
+        }
+        else {
+            return html `
 <gcs-data-grid 
     slot="body" 
     id-field=${this.idField}
@@ -6076,6 +6180,7 @@ class CollectionPanel extends CustomElement {
     data=${this.data}
 >
 </gcs-data-grid>`;
+        }
     }
     renderInsertDialog() {
         return html `
@@ -6101,20 +6206,50 @@ class CollectionPanel extends CustomElement {
     id="delete-dialog" 
     slot="body"
 >
-    Are you sure you want to delete the record?
 </gcs-dialog>`;
     }
     showAddForm() {
-        const element = this.findChild((n) => n.id === 'add-dialog');
-        element.showing = true;
+        const dialog = this.findChild((n) => n.id === 'add-dialog');
+        dialog.showing = true;
     }
     showEditForm() {
-        const element = this.findChild((n) => n.id === 'update-dialog');
-        element.showing = true;
+        const dialog = this.findChild((n) => n.id === 'update-dialog');
+        dialog.showing = true;
     }
-    showConfirmDelete() {
-        const element = this.findChild((n) => n.id === 'delete-dialog');
-        element.showing = true;
+    showConfirmDelete(record) {
+        const dialog = this.findChild((n) => n.id === 'delete-dialog');
+        const { deleteRecord } = this;
+        dialog.content = () => html `
+<gcs-alert
+    kind="danger" 
+    close
+>
+    <gcs-localized-text>Are you sure you want to delete the record?</gcs-localized-text>
+    <gcs-row>
+        <gcs-button slot="middle"
+            click=${async () => await deleteRecord(record)} 
+            kind="danger"
+            variant="outlined"
+        >
+            <gcs-localized-text>Delete</gcs-localized-text>
+            <gcs-icon name="trash"></gcs-icon>
+        </gcs-button>
+    </gcs-row>  
+</gcs-alert>`;
+        dialog.showing = true;
+    }
+    async deleteRecord(record) {
+        const { idField, deleteUrl } = this;
+        const id = record[idField];
+        await this._deleteFetcher?.fetch({
+            url: deleteUrl,
+            method: 'DELETE',
+            data: id
+        });
+    }
+    handleSuccessfulDelete() {
+        const dialog = this.findChild((n) => n.id === 'delete-dialog');
+        dialog.showing = false;
     }
 }
 defineCustomElement('gcs-collection-panel', CollectionPanel);
@@ -6535,4 +6670,4 @@ window.appCtrl = appCtrl;
 window.html = html;
 window.viewsRegistry = viewsRegistry;
 
-export { Accordion, Alert, AppInitializedEvent, ApplicationHeader, ApplicationView, Button, Center, CheckBox, CloseTool, CollectionPanel, ComboBox, ContentView, CustomElement, DataCell, DataGrid, DataHeader, DataHeaderCell, DataList, DataRow, DataTemplate, DataTypes, DateField, Dialog, DisplayableField, DropDown, ExpanderTool, FileField, Form, FormField, HashRouter, HelpTip, HiddenField, Icon, Loader, LocalizedText, ModifiedTip, NavigationBar, NavigationLink, NumberField, Overlay, Panel, PasswordField, Pill, RequiredTip, Selector, Slider, SorterTool, StarRating, TextArea, TextField, Theme, Tool, ToolTip, ValidationSummary, Wizard, WizardStep, appCtrl, css, defineCustomElement, getNotFoundView, html, navigateToRoute, viewsRegistry };
+export { Accordion, Alert, AppInitializedEvent, ApplicationHeader, ApplicationView, Button, Center, CheckBox, CloseTool, CollectionPanel, ComboBox, ContentView, CustomElement, DataCell, DataGrid, DataHeader, DataHeaderCell, DataList, DataRow, DataTemplate, DataTypes, DateField, Dialog, DisplayableField, DropDown, ExpanderTool, FileField, Form, FormField, HashRouter, HelpTip, HiddenField, Icon, Loader, LocalizedText, ModifiedTip, NavigationBar, NavigationLink, NumberField, Overlay, Panel, PasswordField, Pill, RequiredTip, Row, Selector, Slider, SorterTool, StarRating, TextArea, TextField, Theme, Tool, ToolTip, ValidationSummary, Wizard, WizardStep, appCtrl, css, defineCustomElement, getNotFoundView, html, navigateToRoute, viewsRegistry };

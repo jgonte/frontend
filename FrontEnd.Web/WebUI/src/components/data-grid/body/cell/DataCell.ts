@@ -5,6 +5,7 @@ import mergeStyles from "../../../../custom-element/styles/mergeStyles";
 import html from "../../../../rendering/html";
 import { NodePatchingData } from "../../../../rendering/nodes/NodePatchingData";
 import { DataTypes } from "../../../../utils/data/DataTypes";
+import isUndefinedOrNull from "../../../../utils/isUndefinedOrNull";
 import { dataCellStyles } from "./DataCell.styles";
 
 export default class DataCell extends CustomElement {
@@ -55,6 +56,11 @@ export default class DataCell extends CustomElement {
             column.name;
 
         const value = record[name];
+
+        if (isUndefinedOrNull(value)) {
+
+            throw new Error(`Undefined or null value in column: ${name}`);
+        }
 
         if (column.render !== undefined) {
 

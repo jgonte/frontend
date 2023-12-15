@@ -6,7 +6,6 @@ declare const Loader_base: CustomHTMLElementConstructor;
 export default class Loader extends Loader_base {
     static get properties(): Record<string, CustomElementPropertyMetadata>;
     render(): NodePatchingData;
-    didMountCallback(): void;
     handleLoadedData(data: LoaderData): void;
 }
 export {};

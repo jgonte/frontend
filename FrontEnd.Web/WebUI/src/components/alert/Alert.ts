@@ -23,6 +23,7 @@ export default class Alert extends Nuanced {
              * Whether to show the icon
              */
             showIcon: {
+                attribute: 'show-icon',
                 type: DataTypes.Boolean,
                 value: true
             },
@@ -44,11 +45,15 @@ export default class Alert extends Nuanced {
     render(): NodePatchingData {
 
         return html`
-${this._renderIcon()}
-<div style="word-wrap: break-word; max-height: 80vh; overflow: auto;">
-    <slot></slot>
-</div>
-${this._renderCloseTool()}`;
+<gcs-row>
+    ${this._renderIcon()}
+    <div 
+        slot="middle" 
+        style="word-wrap: break-word; max-height: 80vh; overflow: auto;">
+        <slot></slot>
+    </div>
+    ${this._renderCloseTool()}
+</gcs-row>`;
     }
 
     private _renderIcon(): NodePatchingData | null {
@@ -59,10 +64,15 @@ ${this._renderCloseTool()}`;
 
         if (showIcon !== true) {
 
-            return html`<span></span>`; // Return an empty element so the flexbox keeps the position
+            return null;
         }
 
-        return html`<gcs-icon name=${this._getIconName()}></gcs-icon>`;
+        return html`
+<gcs-icon 
+    slot="start" 
+    name=${this._getIconName()}
+>
+</gcs-icon>`;
     }
 
     private _getIconName(): string {
@@ -93,7 +103,12 @@ ${this._renderCloseTool()}`;
             }) :
             evt => this.close(evt);
 
-        return html`<gcs-close-tool close=${handleClose}></gcs-close-tool>`;
+        return html`
+<gcs-close-tool 
+    slot="end"
+    close=${handleClose}
+>
+</gcs-close-tool>`;
     }
 }
 

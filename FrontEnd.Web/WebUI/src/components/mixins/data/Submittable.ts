@@ -65,7 +65,7 @@ export default function Submittable<TBase extends CustomHTMLElementConstructor>(
             super.connectedCallback?.();
 
             this._submitFetcher = new Fetcher({
-                onData: data => this.handleSubmitData(data as unknown as GenericRecord),
+                onData: async data => await this.handleSubmitData(data as unknown as GenericRecord),
                 onError: error => this.handleSubmitError(error)
             });
         }

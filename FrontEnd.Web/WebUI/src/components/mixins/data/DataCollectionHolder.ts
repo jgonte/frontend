@@ -29,6 +29,15 @@ export default function DataCollectionHolder<TBase extends CustomHTMLElementCons
             }
         }
 
+        // The mixin constructor requires the parameters signature to be of type any
+        // eslint-disable-next-line  @typescript-eslint/no-explicit-any
+        constructor(...args: any[]) {
+
+            super(args);
+
+            this.isDataCollectionHolder = true; // Flag the element as a data holder
+        }
+
         connectedCallback() {
 
             super.connectedCallback?.();
@@ -49,7 +58,7 @@ export default function DataCollectionHolder<TBase extends CustomHTMLElementCons
         sort(event: CustomEvent): void {
 
             const {
-                field,
+                column,
                 ascending,
                 element // Send this element to track the current sorter
             } = event.detail;
@@ -74,11 +83,11 @@ export default function DataCollectionHolder<TBase extends CustomHTMLElementCons
 
                     if (ascending === true) {
 
-                        return compareValues(r1[field], r2[field]);
+                        return compareValues(r1[column], r2[column]);
                     }
                     else {
 
-                        return compareValues(r2[field], r1[field]);
+                        return compareValues(r2[column], r1[column]);
                     }
                 }
 

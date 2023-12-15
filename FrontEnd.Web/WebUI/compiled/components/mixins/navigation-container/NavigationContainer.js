@@ -26,6 +26,7 @@ export default function NavigationContainer(Base) {
         }
         constructor(...args) {
             super(args);
+            this.isNavigationContainer = true;
             this.updateActiveLink = this.updateActiveLink.bind(this);
         }
         connectedCallback() {

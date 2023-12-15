@@ -46,31 +46,39 @@
                     display: "Name",
                     sortable: true
                 },
-                {
-                    name: "age",
-                    display: "Age",
-                    sortable: true
-                },
+                //{
+                //    name: "age",
+                //    display: "Age",
+                //    sortable: true
+                //},
                 {
                     name: "description",
                     display: "Description",
                     sortable: true
                 },
-                {
-                    name: "dob",
-                    display: "Date of Birth",
-                    sortable: true,
-                    render: value => value.toLocaleDateString()
-                }
+                //{
+                //    name: "dob",
+                //    display: "Date of Birth",
+                //    sortable: true,
+                //    render: value => value.toLocaleDateString()
+                //}
             ];
         }
 
     </script>
 </head>
 <body>
+    <h4>Collection panel with local data</h4>
     <gcs-collection-panel 
-        columns="getColumns()" 
+        columns="getColumns()"
         data="getData()"
+    >
+    </gcs-collection-panel>
+
+    <h4>Collection panel with remote data</h4>
+    <gcs-collection-panel 
+        columns="getColumns()"
+        load-url="https://localhost:7000/api/contacts/"
     >
     </gcs-collection-panel>
 </body>

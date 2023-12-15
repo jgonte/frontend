@@ -27,6 +27,7 @@ import ModifiedTip from "./components/tips/ModifiedTip";
 import RequiredTip from "./components/tips/RequiredTip";
 import Center from "./components/center/Center";
 import Overlay from "./components/overlay/Overlay";
+import Row from "./components/row/Row";
 import Panel from "./components/panel/Panel";
 import Loader from "./components/loader/Loader";
 import CloseTool from "./components/tools/close/CloseTool";
@@ -54,7 +55,7 @@ import DataRow from "./components/data-grid/body/row/DataRow";
 import DataHeaderCell from "./components/data-grid/header/cell/DataHeaderCell";
 import DataHeader from "./components/data-grid/header/DataHeader";
 import DataGrid from "./components/data-grid/DataGrid";
-import CollectionPanel from "./components/crud/CollectionPanel";
+import CollectionPanel from "./components/collection-panel/CollectionPanel";
 import HashRouter from "./components/routers/hash-router/HashRouter";
 import ApplicationHeader from "./components/application/view/header/ApplicationHeader";
 import ApplicationView from "./components/application/view/ApplicationView";
@@ -63,5 +64,5 @@ import { navigateToRoute } from "./components/routers/hash-router/utils/routersR
 window.appCtrl = appCtrl;
 window.html = html;
 window.viewsRegistry = viewsRegistry;
-export { CustomElement, DataTypes, defineCustomElement, html, css, viewsRegistry, appCtrl, AppInitializedEvent, Theme, Panel, Icon, LocalizedText, Alert, Accordion, Pill, Button, ToolTip, DataTemplate, Selector, DropDown, Dialog, WizardStep, Wizard, NavigationLink, NavigationBar, ContentView, RequiredTip, ModifiedTip, HelpTip, Center, Overlay, Loader, Tool, CloseTool, ExpanderTool, SorterTool, DisplayableField, TextField, TextArea, NumberField, CheckBox, DateField, FileField, ComboBox, HiddenField, Slider, StarRating, PasswordField, FormField, Form, ValidationSummary, DataList, DataHeaderCell, DataHeader, DataCell, DataRow, DataGrid, CollectionPanel, HashRouter, ApplicationHeader, ApplicationView, getNotFoundView, navigateToRoute };
+export { CustomElement, DataTypes, defineCustomElement, html, css, viewsRegistry, appCtrl, AppInitializedEvent, Theme, Icon, LocalizedText, Alert, Accordion, Pill, Button, ToolTip, DataTemplate, Selector, DropDown, Dialog, WizardStep, Wizard, NavigationLink, NavigationBar, ContentView, RequiredTip, ModifiedTip, HelpTip, Center, Overlay, Row, Panel, Loader, Tool, CloseTool, ExpanderTool, SorterTool, DisplayableField, TextField, TextArea, NumberField, CheckBox, DateField, FileField, ComboBox, HiddenField, Slider, StarRating, PasswordField, FormField, Form, ValidationSummary, DataList, DataHeaderCell, DataHeader, DataCell, DataRow, DataGrid, CollectionPanel, HashRouter, ApplicationHeader, ApplicationView, getNotFoundView, navigateToRoute };
 //# sourceMappingURL=index.js.map

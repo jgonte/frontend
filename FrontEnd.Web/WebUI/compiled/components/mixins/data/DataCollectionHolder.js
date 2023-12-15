@@ -15,6 +15,10 @@ export default function DataCollectionHolder(Base) {
                 }
             };
         }
+        constructor(...args) {
+            super(args);
+            this.isDataCollectionHolder = true;
+        }
         connectedCallback() {
             super.connectedCallback?.();
             this.addEventListener(sorterChanged, this.sort);
@@ -24,7 +28,7 @@ export default function DataCollectionHolder(Base) {
             this.removeEventListener(sorterChanged, this.sort);
         }
         sort(event) {
-            const { field, ascending, element } = event.detail;
+            const { column, ascending, element } = event.detail;
             if (this._lastSorter !== element) {
                 if (this._lastSorter !== undefined) {
                     this._lastSorter.ascending = undefined;
@@ -37,10 +41,10 @@ export default function DataCollectionHolder(Base) {
             else {
                 const comparer = (r1, r2) => {
                     if (ascending === true) {
-                        return compareValues(r1[field], r2[field]);
+                        return compareValues(r1[column], r2[column]);
                     }
                     else {
-                        return compareValues(r2[field], r1[field]);
+                        return compareValues(r2[column], r1[column]);
                     }
                 };
                 this.data = [...this.data].sort(comparer);

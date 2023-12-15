@@ -71,6 +71,8 @@ export default function NavigationContainer<TBase extends CustomHTMLElementConst
 
             super(args);
 
+            this.isNavigationContainer = true;
+
             this.updateActiveLink = this.updateActiveLink.bind(this);
         }
 
