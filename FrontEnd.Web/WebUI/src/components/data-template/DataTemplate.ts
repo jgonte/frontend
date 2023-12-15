@@ -36,6 +36,13 @@ import { DataTypes } from "../../utils/data/DataTypes";
         }
     }
 
+    constructor() {
+
+        super();
+
+        this.isSingleItemDataHolder = true;
+    }
+
     render(): NodePatchingData {
 
         const {

@@ -3,5 +3,6 @@ import CustomElementPropertyMetadata from "../../custom-element/mixins/metadata/
 import { NodePatchingData } from "../../rendering/nodes/NodePatchingData";
 export default class DataTemplate extends CustomElement {
     static get properties(): Record<string, CustomElementPropertyMetadata>;
+    constructor();
     render(): NodePatchingData;
 }

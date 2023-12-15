@@ -12,6 +12,7 @@ export default class Alert extends Nuanced {
     static get properties() {
         return {
             showIcon: {
+                attribute: 'show-icon',
                 type: DataTypes.Boolean,
                 value: true
             },
@@ -26,18 +27,27 @@ export default class Alert extends Nuanced {
     }
     render() {
         return html `
-${this._renderIcon()}
-<div style="word-wrap: break-word; max-height: 80vh; overflow: auto;">
-    <slot></slot>
-</div>
-${this._renderCloseTool()}`;
+<gcs-row>
+    ${this._renderIcon()}
+    <div 
+        slot="middle" 
+        style="word-wrap: break-word; max-height: 80vh; overflow: auto;">
+        <slot></slot>
+    </div>
+    ${this._renderCloseTool()}
+</gcs-row>`;
     }
     _renderIcon() {
         const { showIcon, } = this;
         if (showIcon !== true) {
-            return html `<span></span>`;
+            return null;
         }
-        return html `<gcs-icon name=${this._getIconName()}></gcs-icon>`;
+        return html `
+<gcs-icon 
+    slot="start" 
+    name=${this._getIconName()}
+>
+</gcs-icon>`;
     }
     _getIconName() {
         switch (this.kind) {
@@ -57,7 +67,12 @@ ${this._renderCloseTool()}`;
                 originalEvent: evt
             }) :
             evt => this.close(evt);
-        return html `<gcs-close-tool close=${handleClose}></gcs-close-tool>`;
+        return html `
+<gcs-close-tool 
+    slot="end"
+    close=${handleClose}
+>
+</gcs-close-tool>`;
     }
 }
 defineCustomElement('gcs-alert', Alert);

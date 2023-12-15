@@ -39,6 +39,9 @@ const valueConverter = {
             }
         }
         if (type.includes(DataTypes.Boolean)) {
+            if (value === 'false') {
+                return false;
+            }
             return true;
         }
         if (type.includes(DataTypes.Number)) {

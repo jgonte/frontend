@@ -38,7 +38,7 @@ export default function Submittable(Base) {
         connectedCallback() {
             super.connectedCallback?.();
             this._submitFetcher = new Fetcher({
-                onData: data => this.handleSubmitData(data),
+                onData: async (data) => await this.handleSubmitData(data),
                 onError: error => this.handleSubmitError(error)
             });
         }

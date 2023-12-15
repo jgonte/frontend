@@ -18,6 +18,10 @@ export default class DataTemplate extends CustomElement {
             }
         };
     }
+    constructor() {
+        super();
+        this.isSingleItemDataHolder = true;
+    }
     render() {
         const { data, template } = this;
         return data === undefined ?

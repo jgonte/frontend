@@ -21,13 +21,11 @@ export default class Loader extends Loadable(Errorable(CustomElement)) {
     <slot id="data-holder"></slot>
 </div>`;
     }
-    didMountCallback() {
-        this.dataHolder = this.document.getElementById('data-holder')
-            .assignedElements({ flatten: false })[0];
-        this.dataHolder.loader = this;
-        super.didMountCallback?.();
-    }
     handleLoadedData(data) {
+        if (!this.dataHolder) {
+            this.dataHolder = this.findChild((c) => c.isDataCollectionHolder || c.isNavigationContainer || c.isSingleItemDataHolder);
+            this.dataHolder.loader = this;
+        }
         this.dataHolder[this.dataField] = data.payload || data;
     }
 }

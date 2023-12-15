@@ -97,17 +97,21 @@ export declare class CloseTool extends Tool {
 }
 
 export declare class CollectionPanel extends CustomElement {
+    private _deleteFetcher?;
     static get properties(): Record<string, CustomElementPropertyMetadata>;
     constructor();
+    connectedCallback(): void;
     render(): NodePatchingData;
-    renderToolbar(): NodePatchingData;
+    renderToolbar(): NodePatchingData | null;
     renderDataGrid(): NodePatchingData;
     renderInsertDialog(): NodePatchingData;
     renderUpdateDialog(): NodePatchingData;
     renderDeleteDialog(): NodePatchingData;
     showAddForm(): void;
     showEditForm(): void;
-    showConfirmDelete(): void;
+    showConfirmDelete(record: GenericRecord): void;
+    deleteRecord(record: GenericRecord): Promise<void>;
+    handleSuccessfulDelete(): void;
 }
 
 export declare class ComboBox extends ComboBox_base {
@@ -249,7 +253,7 @@ declare interface DataGridColumnDescriptor {
     width: string;
     sortable: boolean;
     headerStyle: string | GenericRecord;
-    render: (value: unknown, record: Record<string, unknown>, column: DataGridColumnDescriptor) => NodePatchingData;
+    render: (value: unknown, record: GenericRecord, column: DataGridColumnDescriptor) => NodePatchingData;
 }
 
 export declare class DataHeader extends CustomElement {
@@ -284,6 +288,7 @@ declare const DataRow_base: CustomHTMLElementConstructor;
 
 export declare class DataTemplate extends CustomElement {
     static get properties(): Record<string, CustomElementPropertyMetadata>;
+    constructor();
     render(): NodePatchingData;
 }
 
@@ -487,7 +492,6 @@ declare interface IRenderable {
 export declare class Loader extends Loader_base {
     static get properties(): Record<string, CustomElementPropertyMetadata>;
     render(): NodePatchingData;
-    didMountCallback(): void;
     handleLoadedData(data: LoaderData): void;
 }
 
@@ -630,6 +634,11 @@ declare interface Route {
     name: string;
     path: string;
     view: string;
+}
+
+export declare class Row extends CustomElement {
+    static get styles(): string;
+    render(): NodePatchingData;
 }
 
 declare interface Script {

@@ -44,18 +44,20 @@ export default class Loader extends
 </div>`;
 	}
 
-	didMountCallback() {
-
-		// Bind to the data property of the child (assuming a single child)
-		this.dataHolder = ((this.document as ShadowRoot).getElementById('data-holder') as HTMLSlotElement)
-			.assignedElements({ flatten: false })[0]; // Only include elements
-
-		this.dataHolder.loader = this; // Inject the loader
-
-		super.didMountCallback?.();
-	}
-
 	handleLoadedData(data: LoaderData) {
+
+		//await this.updateComplete;
+
+		if (!this.dataHolder) {
+
+			this.dataHolder = this.findChild((c: { 
+				isDataCollectionHolder: boolean; 
+				isNavigationContainer: boolean;
+				isSingleItemDataHolder: boolean }) => 
+					c.isDataCollectionHolder || c.isNavigationContainer || c.isSingleItemDataHolder)
+	
+			this.dataHolder.loader = this; // Inject the loader
+		}
 
 		this.dataHolder[this.dataField] = data.payload || data;
 	}
