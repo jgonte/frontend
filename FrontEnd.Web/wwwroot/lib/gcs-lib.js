@@ -2197,6 +2197,13 @@ class IntlProvider extends Observer {
     }
 }
 
+const successEvent = "successEvent";
+function notifySuccess(element, successMessage) {
+    element.dispatchCustomEvent(successEvent, {
+        successMessage
+    });
+}
+
 const AppInitializedEvent = "AppInitializedEvent";
 class AppCtrl {
     application;
@@ -2211,6 +2218,7 @@ class AppCtrl {
     routeParams;
     async init() {
         console.log('Initializing appCtrl...');
+        this.handleSuccess = this.handleSuccess.bind(this);
         this.handleError = this.handleError.bind(this);
         const appConfig = window.appConfig;
         if (appConfig !== undefined) {
@@ -2232,6 +2240,7 @@ class AppCtrl {
         const themeName = window.localStorage.getItem('app-theme') || appCtrl.defaultTheme;
         this.setTheme(themeName);
         document.body.appendChild(this.dialog);
+        document.addEventListener(successEvent, this.handleSuccess);
         document.addEventListener(errorEvent, this.handleError);
         window.addEventListener('hashchange', updateRoutes);
         updateRoutes();
@@ -2243,6 +2252,11 @@ class AppCtrl {
         const { dialog } = this;
         dialog.content = content;
         dialog.showing = true;
+    }
+    handleSuccess(evt) {
+        const { successMessage, } = evt.detail;
+        const content = () => html `<gcs-alert kind="success" close>${successMessage}</gcs-alert>`;
+        this.showDialog(content);
     }
     handleError(evt) {
         const { errorHandler } = this;
@@ -2807,7 +2821,295 @@ class ToolTip extends CustomElement {
 }
 defineCustomElement('gcs-tool-tip', ToolTip);
 
-class DataTemplate extends CustomElement {
+function deserializeXmlDocument(document) {
+    const o = {};
+    const childNodes = document.documentElement.childNodes;
+    const length = childNodes.length;
+    for (let i = 0; i < length; ++i) {
+        const childNode = childNodes[i];
+        if (childNode.nodeType === Node.ELEMENT_NODE) {
+            o[childNode.nodeName] = childNode.childNodes[0].nodeValue;
+        }
+    }
+    return o;
+}
+
+function template(text, data) {
+    const result = {
+        keysNotInData: []
+    };
+    if (!data) {
+        result.text = text;
+        return result;
+    }
+    result.keysNotInData = Object.keys(data);
+    function processMatch(match) {
+        const key = match
+            .replace('{{', '')
+            .replace('}}', '')
+            .trim();
+        if (data?.hasOwnProperty(key)) {
+            const index = result.keysNotInData.indexOf(key);
+            if (index > -1) {
+                result.keysNotInData.splice(index, 1);
+            }
+            return data[key].toString();
+        }
+        else {
+            return match;
+        }
+    }
+    result.text = text.replace(/\{{\S+?\}}/g, processMatch);
+    return result;
+}
+
+const ContentType = 'Content-Type';
+const ContentTypeApplicationJson = 'application/json';
+const ContentMultipartFormData = 'multipart/form-data';
+const ContentTypeTextPlain = 'text/plain';
+class Fetcher {
+    onResponse;
+    onSuccess;
+    onError;
+    onData;
+    constructor(callbacks) {
+        const { onResponse, onSuccess, onError, onData } = callbacks;
+        if (onResponse !== undefined) {
+            this.onResponse = onResponse.bind(this);
+        }
+        if (onSuccess !== undefined) {
+            this.onSuccess = onSuccess.bind(this);
+        }
+        if (onError !== undefined) {
+            this.onError = onError.bind(this);
+        }
+        if (onData !== undefined) {
+            this.onData = onData.bind(this);
+        }
+    }
+    async fetch(request) {
+        const { method = 'GET', cors, authProvider } = request;
+        const url = this.buildUrl(request);
+        try {
+            const response = await fetch(url, {
+                method,
+                headers: await this.buildHeaders(request),
+                body: this.buildBody(request),
+                mode: cors === false ? 'same-origin' : 'cors',
+                credentials: authProvider !== undefined ? 'include' : undefined
+            });
+            await this.processResponse(response);
+        }
+        catch (error) {
+            this.handleError(error);
+        }
+    }
+    buildUrl(request) {
+        const { url, params } = request;
+        const { text, keysNotInData } = template(url, params);
+        if (params !== undefined) {
+            const queryParams = keysNotInData
+                .map(key => `${key}=${params[key]}`)
+                .join('&');
+            return text.indexOf('?') > -1 ? `${text}&${queryParams}` : `${text}?${queryParams}`;
+        }
+        return text;
+    }
+    async buildHeaders(request) {
+        const requestHeaders = request.headers || {};
+        const contentType = requestHeaders[ContentType] || ContentTypeApplicationJson;
+        if (contentType === ContentMultipartFormData) {
+            delete requestHeaders[ContentType];
+        }
+        const headers = new Headers();
+        for (const key in requestHeaders) {
+            if (requestHeaders.hasOwnProperty(key)) {
+                headers.append(key, requestHeaders[key]);
+            }
+        }
+        if (request.authProvider !== undefined) {
+            const authHeader = await request.authProvider.authorize();
+            if (authHeader != undefined) {
+                for (const key in authHeader) {
+                    if (authHeader.hasOwnProperty(key)) {
+                        headers.append(key, authHeader[key]);
+                    }
+                }
+            }
+        }
+        return headers;
+    }
+    buildBody(request) {
+        const { data, headers } = request;
+        if (data === undefined) {
+            return undefined;
+        }
+        if (typeof data === 'string') {
+            return data;
+        }
+        const contentType = headers?.[ContentType];
+        if (contentType?.startsWith(ContentTypeApplicationJson)) {
+            return JSON.stringify(data);
+        }
+        const formData = new FormData();
+        for (const key in data) {
+            if (data.hasOwnProperty(key)) {
+                const value = data[key];
+                if (typeof value === 'object') {
+                    if (value.hasOwnProperty('name')) {
+                        const { name, type, content, } = value;
+                        const file = new File([...content], name, {
+                            type
+                        });
+                        formData.append(key, file);
+                    }
+                    else {
+                        throw new Error(`Invalid form value: ${JSON.stringify(value)}`);
+                    }
+                }
+                else {
+                    formData.append(key, value);
+                }
+            }
+        }
+        return formData;
+    }
+    async processResponse(response) {
+        if (this.onResponse) {
+            this.onResponse(response);
+        }
+        if (response.status > 299) {
+            const error = {
+                status: response.status,
+                statusText: response.statusText,
+                payload: await this.parseContent(response)
+            };
+            this.handleError(error);
+            return;
+        }
+        if (response.status !== 204) {
+            const data = {
+                headers: response.headers,
+                payload: await this.parseContent(response)
+            };
+            if (this.onData !== undefined) {
+                this.onData(data);
+            }
+        }
+        if (this.onSuccess !== undefined) {
+            this.onSuccess();
+        }
+    }
+    async parseContent(response) {
+        let contentType = response.headers.get('content-type');
+        const content = await response.text();
+        if (contentType !== null) {
+            contentType = contentType.split(';')[0].trim();
+            switch (contentType) {
+                case 'application/json': return JSON.parse(content);
+                case 'application/xml': {
+                    const document = (new window.DOMParser()).parseFromString(content, "text/xml");
+                    return deserializeXmlDocument(document);
+                }
+                default: return content;
+            }
+        }
+        else {
+            return content;
+        }
+    }
+    handleError(error) {
+        if (this.onError !== undefined) {
+            this.onError(error);
+        }
+        else {
+            throw error;
+        }
+    }
+}
+
+function RemoteLoadableHolder(Base) {
+    return class RemoteLoadableHolderMixin extends Base {
+        _loadFetcher;
+        dataField = 'data';
+        static get properties() {
+            return {
+                loadUrl: {
+                    attribute: 'load-url',
+                    type: DataTypes.String,
+                },
+                autoLoad: {
+                    attribute: 'auto-load',
+                    type: DataTypes.Boolean,
+                    value: true
+                },
+                metadataKey: {
+                    attribute: 'metadata-key',
+                    type: DataTypes.String
+                }
+            };
+        }
+        static get state() {
+            return {
+                loading: {
+                    value: false
+                },
+                metadata: {}
+            };
+        }
+        renderLoading() {
+            if (this.loading === false) {
+                return null;
+            }
+            return html `
+<gcs-overlay>
+    <gcs-alert kind="info" >
+        <gcs-localized-text>...Loading</gcs-localized-text>
+    </gcs-alert>
+</gcs-overlay>`;
+        }
+        connectedCallback() {
+            super.connectedCallback?.();
+            if (this.loadUrl === undefined) {
+                return;
+            }
+            this._loadFetcher = new Fetcher({
+                onData: data => this.handleLoadData(data),
+                onError: error => this.handleLoadError(error)
+            });
+            if (this.autoLoad === true) {
+                setTimeout(() => this.loadRemote(), 0);
+            }
+        }
+        loadRemote() {
+            this.error = undefined;
+            this.loading = true;
+            this._loadFetcher?.fetch({
+                url: this.loadUrl
+            });
+        }
+        async handleLoadData(data) {
+            await this.updateComplete;
+            this.loading = false;
+            if (this.metadataKey !== undefined) {
+                const header = data.headers.get(this.metadataKey);
+                this.metadata = JSON.parse(header);
+            }
+            this.handleLoadedData(data);
+        }
+        handleLoadedData(data) {
+            this[this.dataField] = data.payload || data;
+        }
+        async handleLoadError(error) {
+            await this.updateComplete;
+            this.loading = false;
+            this.error = error;
+            this.renderError();
+        }
+    };
+}
+
+class DataTemplate extends RemoteLoadableHolder(CustomElement) {
     static get properties() {
         return {
             data: {
@@ -2823,10 +3125,6 @@ class DataTemplate extends CustomElement {
                 defer: true
             }
         };
-    }
-    constructor() {
-        super();
-        this.isSingleItemDataHolder = true;
     }
     render() {
         const { data, template } = this;
@@ -3108,33 +3406,89 @@ class WizardStep extends CustomElement {
 }
 defineCustomElement('gcs-wizard-step', WizardStep);
 
-function template(text, data) {
-    const result = {
-        keysNotInData: []
-    };
-    if (!data) {
-        result.text = text;
-        return result;
-    }
-    result.keysNotInData = Object.keys(data);
-    function processMatch(match) {
-        const key = match
-            .replace('{{', '')
-            .replace('}}', '')
-            .trim();
-        if (data?.hasOwnProperty(key)) {
-            const index = result.keysNotInData.indexOf(key);
-            if (index > -1) {
-                result.keysNotInData.splice(index, 1);
+function Submittable(Base) {
+    return class SubmittableMixin extends Base {
+        static get properties() {
+            return {
+                submitUrl: {
+                    attribute: 'submit-url',
+                    type: DataTypes.String,
+                    required: true
+                },
+                method: {
+                    type: [
+                        DataTypes.String,
+                        DataTypes.Function
+                    ],
+                    options: ['post', 'put']
+                }
+            };
+        }
+        static get state() {
+            return {
+                submitting: {
+                    value: false
+                }
+            };
+        }
+        renderSubmitting() {
+            const { submitting } = this;
+            if (submitting === false) {
+                return null;
             }
-            return data[key].toString();
+            return html `<gcs-overlay>
+                <gcs-alert kind="info" >...Submitting</gcs-alert>
+            </gcs-overlay>`;
         }
-        else {
-            return match;
+        connectedCallback() {
+            super.connectedCallback?.();
+            this._submitFetcher = new Fetcher({
+                onData: data => this.handleSubmitData(data),
+                onSuccess: () => this.handleSuccess('Record was successfully submitted.'),
+                onError: error => this.handleSubmitError(error)
+            });
         }
-    }
-    result.text = text.replace(/\{{\S+?\}}/g, processMatch);
-    return result;
+        submit() {
+            this.error = undefined;
+            this.submitting = true;
+            const data = this.getSubmitData();
+            this._submitFetcher.fetch({
+                url: this.submitUrl,
+                method: this.getMethod(data),
+                contentType: this.getContentType(),
+                data
+            });
+        }
+        getContentType() {
+            const fileField = this.findChild((c) => c.nodeName === "GCS-FILE-FIELD");
+            if (fileField) {
+                return ContentMultipartFormData;
+            }
+            return ContentTypeApplicationJson;
+        }
+        getMethod(data) {
+            const { method } = this;
+            if (method !== undefined) {
+                return typeof method === 'function' ?
+                    method() :
+                    method;
+            }
+            return data.id !== undefined ? 'PUT' : 'POST';
+        }
+        handleSubmitData(data) {
+            this.submitting = false;
+            this.handleSubmitResponse(data);
+        }
+        handleSuccess(successMessage) {
+            this.submitting = false;
+            this.renderSuccess(successMessage);
+        }
+        handleSubmitError(error) {
+            this.submitting = false;
+            this.error = error;
+            this.renderError();
+        }
+    };
 }
 
 class Validator {
@@ -3305,184 +3659,13 @@ function getErrorMessage(error) {
         }
         else {
             switch (error.status) {
-                case 404: return 'Resource not found';
+                case 404: return 'Not Found';
+                case 405: return 'Method Not Allowed';
                 default: throw new Error(`Not implemented for error status: ${error.status}`);
             }
         }
     }
     throw new Error(`getErrorMessage - Unhandled error: ${error}`);
-}
-
-function deserializeXmlDocument(document) {
-    const o = {};
-    const childNodes = document.documentElement.childNodes;
-    const length = childNodes.length;
-    for (let i = 0; i < length; ++i) {
-        const childNode = childNodes[i];
-        if (childNode.nodeType === Node.ELEMENT_NODE) {
-            o[childNode.nodeName] = childNode.childNodes[0].nodeValue;
-        }
-    }
-    return o;
-}
-
-const ContentType = 'Content-Type';
-const ContentTypeApplicationJson = 'application/json';
-const ContentTypeTextPlain = 'text/plain';
-class Fetcher {
-    onResponse;
-    onError;
-    onData;
-    contentType;
-    constructor(callbacks) {
-        const { onResponse, onError, onData } = callbacks;
-        if (onResponse !== undefined) {
-            this.onResponse = onResponse.bind(this);
-        }
-        if (onError !== undefined) {
-            this.onError = onError.bind(this);
-        }
-        if (onData !== undefined) {
-            this.onData = onData.bind(this);
-        }
-    }
-    async fetch(request) {
-        const { method = 'GET', cors, authProvider } = request;
-        const url = this.buildUrl(request);
-        try {
-            const response = await fetch(url, {
-                method,
-                headers: await this.buildHeaders(request),
-                body: this.buildBody(request),
-                mode: cors === false ? 'same-origin' : 'cors',
-                credentials: authProvider !== undefined ? 'include' : undefined
-            });
-            if (response.status != 204) {
-                return await this.processResponse(response);
-            }
-        }
-        catch (error) {
-            this.handleError(error);
-        }
-        return null;
-    }
-    buildUrl(request) {
-        const { url, params } = request;
-        const { text, keysNotInData } = template(url, params);
-        if (params !== undefined) {
-            const queryParams = keysNotInData
-                .map(key => `${key}=${params[key]}`)
-                .join('&');
-            return text.indexOf('?') > -1 ? `${text}&${queryParams}` : `${text}?${queryParams}`;
-        }
-        return text;
-    }
-    async buildHeaders(request) {
-        const requestHeaders = request.headers || {};
-        this.contentType = this.contentType || ContentTypeApplicationJson;
-        if (requestHeaders[ContentType] === undefined) {
-            requestHeaders[ContentType] = this.contentType;
-        }
-        const headers = new Headers();
-        for (const key in requestHeaders) {
-            if (requestHeaders.hasOwnProperty(key)) {
-                headers.append(key, requestHeaders[key]);
-            }
-        }
-        if (request.authProvider !== undefined) {
-            const authHeader = await request.authProvider.authorize();
-            if (authHeader != undefined) {
-                for (const key in authHeader) {
-                    if (authHeader.hasOwnProperty(key)) {
-                        headers.append(key, authHeader[key]);
-                    }
-                }
-            }
-        }
-        return headers;
-    }
-    buildBody(request) {
-        const { data } = request;
-        if (data === undefined) {
-            return undefined;
-        }
-        if (typeof data === 'string') {
-            return data;
-        }
-        if (this.contentType?.startsWith(ContentTypeApplicationJson)) {
-            return JSON.stringify(data);
-        }
-        const formData = new FormData();
-        for (const key in data) {
-            if (data.hasOwnProperty(key)) {
-                const value = data[key];
-                if (typeof value === 'object') {
-                    if (value.hasOwnProperty('name')) {
-                        const { name, type, content, } = value;
-                        const file = new File([...content], name, {
-                            type
-                        });
-                        formData.append(key, file);
-                    }
-                    else {
-                        throw new Error(`Invalid form value: ${JSON.stringify(value)}`);
-                    }
-                }
-                else {
-                    formData.append(key, value);
-                }
-            }
-        }
-        return formData;
-    }
-    async processResponse(response) {
-        if (this.onResponse) {
-            this.onResponse(response);
-        }
-        if (response.status > 299) {
-            const error = {
-                status: response.status,
-                statusText: response.statusText,
-                payload: await this.parseContent(response)
-            };
-            this.handleError(error);
-            return;
-        }
-        const data = {
-            headers: response.headers,
-            payload: await this.parseContent(response)
-        };
-        if (this.onData !== undefined) {
-            this.onData(data);
-        }
-        return data;
-    }
-    async parseContent(response) {
-        let contentType = response.headers.get('content-type');
-        const content = await response.text();
-        if (contentType !== null) {
-            contentType = contentType.split(';')[0].trim();
-            switch (contentType) {
-                case 'application/json': return JSON.parse(content);
-                case 'application/xml': {
-                    const document = (new window.DOMParser()).parseFromString(content, "text/xml");
-                    return deserializeXmlDocument(document);
-                }
-                default: return content;
-            }
-        }
-        else {
-            return content;
-        }
-    }
-    handleError(error) {
-        if (this.onError !== undefined) {
-            this.onError(error);
-        }
-        else {
-            throw error;
-        }
-    }
 }
 
 class ServerFieldValidator extends SingleValueFieldValidator {
@@ -3503,10 +3686,12 @@ class ServerFieldValidator extends SingleValueFieldValidator {
             onData: data => this.handleValidationData(context, data),
             onError: error => this.handleError(field, error)
         });
-        fetcher.contentType = ContentTypeTextPlain;
         await fetcher.fetch({
             url: this.url,
             method: 'POST',
+            headers: {
+                'Content-Type': ContentTypeTextPlain
+            },
             data: value
         });
         const valid = context.errors.length === 0;
@@ -3575,6 +3760,33 @@ function Validatable(Base) {
                 }
             }
             return validators;
+        }
+    };
+}
+
+function Successful(Base) {
+    return class SuccessfulMixin extends Base {
+        renderSuccess(successMessage) {
+            notifySuccess(this, successMessage);
+        }
+    };
+}
+
+function Errorable(Base) {
+    return class ErrorableMixin extends Base {
+        static get state() {
+            return {
+                error: {
+                    value: undefined
+                }
+            };
+        }
+        renderError() {
+            const { error } = this;
+            if (error !== undefined) {
+                notifyError(this, error);
+                this.error = undefined;
+            }
         }
     };
 }
@@ -3743,176 +3955,6 @@ class Field extends Validatable(CustomElement) {
     }
 }
 
-function Submittable(Base) {
-    return class SubmittableMixin extends Base {
-        static get properties() {
-            return {
-                submitUrl: {
-                    attribute: 'submit-url',
-                    type: DataTypes.String,
-                    required: true
-                },
-                method: {
-                    type: [
-                        DataTypes.String,
-                        DataTypes.Function
-                    ],
-                    options: ['post', 'put']
-                }
-            };
-        }
-        static get state() {
-            return {
-                submitting: {
-                    value: false
-                }
-            };
-        }
-        renderSubmitting() {
-            const { submitting } = this;
-            if (submitting === false) {
-                return null;
-            }
-            return html `<gcs-overlay>
-                <gcs-alert kind="info" >...Submitting</gcs-alert>
-            </gcs-overlay>`;
-        }
-        connectedCallback() {
-            super.connectedCallback?.();
-            this._submitFetcher = new Fetcher({
-                onData: async (data) => await this.handleSubmitData(data),
-                onError: error => this.handleSubmitError(error)
-            });
-        }
-        submit() {
-            this.error = undefined;
-            this.submitting = true;
-            const data = this.getSubmitData();
-            this._submitFetcher.fetch({
-                url: this.submitUrl,
-                method: this.getMethod(data),
-                contentType: this.getContentType(),
-                data
-            });
-        }
-        getContentType() {
-            return ContentTypeApplicationJson;
-        }
-        getMethod(data) {
-            const { method } = this;
-            if (method !== undefined) {
-                return typeof method === 'function' ?
-                    method() :
-                    method;
-            }
-            return data.id !== undefined ? 'PUT' : 'POST';
-        }
-        async handleSubmitData(data) {
-            await this.updateComplete;
-            this.submitting = false;
-            this.handleSubmitResponse(data);
-        }
-        async handleSubmitError(error) {
-            await this.updateComplete;
-            this.submitting = false;
-            this.error = error;
-            this.renderError();
-        }
-    };
-}
-
-function LoadableHolder(Base) {
-    return class LoadableHolderMixin extends Base {
-        static get properties() {
-            return {
-                loadUrl: {
-                    attribute: 'load-url',
-                    type: DataTypes.String,
-                },
-                autoLoad: {
-                    attribute: 'auto-load',
-                    type: DataTypes.Boolean,
-                    value: true
-                },
-                metadataKey: {
-                    attribute: 'metadata-key',
-                    type: DataTypes.String
-                }
-            };
-        }
-        static get state() {
-            return {
-                loading: {
-                    value: false
-                },
-                metadata: {}
-            };
-        }
-        renderLoading() {
-            if (this.loading === false) {
-                return null;
-            }
-            return html `<gcs-overlay>
-                <gcs-alert kind="info" >...Loading</gcs-alert>
-            </gcs-overlay>`;
-        }
-        connectedCallback() {
-            super.connectedCallback?.();
-            if (this.loadUrl === undefined) {
-                return;
-            }
-            this._loadFetcher = new Fetcher({
-                onData: data => this.handleLoadData(data),
-                onError: error => this.handleLoadError(error)
-            });
-            if (this.autoLoad === true) {
-                setTimeout(() => this.load(), 0);
-            }
-        }
-        load() {
-            this.error = undefined;
-            this.loading = true;
-            this._loadFetcher.fetch({
-                url: this.loadUrl
-            });
-        }
-        async handleLoadData(data) {
-            await this.updateComplete;
-            this.loading = false;
-            if (this.metadataKey !== undefined) {
-                const header = data.headers.get(this.metadataKey);
-                this.metadata = JSON.parse(header);
-            }
-            this.handleLoadedData(data);
-        }
-        async handleLoadError(error) {
-            await this.updateComplete;
-            this.loading = false;
-            this.error = error;
-            this.renderError();
-        }
-    };
-}
-
-function Errorable(Base) {
-    return class ErrorableMixin extends Base {
-        static get state() {
-            return {
-                error: {
-                    value: undefined
-                }
-            };
-        }
-        renderError() {
-            const { error } = this;
-            if (error !== undefined) {
-                notifyError(this, error);
-                this.error = undefined;
-            }
-        }
-    };
-}
-
 const formStyles = css `
 :host {
     display: block;    
@@ -3943,7 +3985,7 @@ const labelAlign = {
 
 const formConnectedEvent = "formConnectedEvent";
 const formDisconnectedEvent = "formDisconnectedEvent";
-class Form extends Sizable(Submittable(Validatable(LoadableHolder(Errorable(CustomElement))))) {
+class Form extends Sizable(Submittable(Validatable(RemoteLoadableHolder(Successful(Errorable(CustomElement)))))) {
     _fields = new Map();
     modifiedFields = new Set();
     constructor() {
@@ -3971,7 +4013,6 @@ class Form extends Sizable(Submittable(Validatable(LoadableHolder(Errorable(Cust
         return html `<form>
             ${this.renderLoading()}
             ${this.renderSubmitting()}
-            ${this.renderError()}
             <slot label-width=${labelWidth} label-align=${labelAlign} key="form-fields"></slot>
             ${this._renderButton()}
         </form>`;
@@ -4360,7 +4401,7 @@ const navigationBarStyles = css `
 
 .horizontal {
     display: flex;
-    justify-content: space-evenly;   
+    justify-content: space-evenly;
 }
 
 .vertical {    
@@ -4388,7 +4429,8 @@ const navigationContainerRegistry = {
 };
 
 function NavigationContainer(Base) {
-    return class NavigationContainerMixin extends Base {
+    return class NavigationContainerMixin extends RemoteLoadableHolder(Base) {
+        dataField = 'links';
         static get properties() {
             return {
                 routerName: {
@@ -4411,7 +4453,6 @@ function NavigationContainer(Base) {
         }
         constructor(...args) {
             super(args);
-            this.isNavigationContainer = true;
             this.updateActiveLink = this.updateActiveLink.bind(this);
         }
         connectedCallback() {
@@ -4743,33 +4784,6 @@ class Panel extends Sizable(CustomElement) {
 }
 defineCustomElement('gcs-panel', Panel);
 
-class Loader extends LoadableHolder(Errorable(CustomElement)) {
-    static get properties() {
-        return {
-            dataField: {
-                attribute: 'data-field',
-                type: DataTypes.String,
-                value: 'data'
-            }
-        };
-    }
-    render() {
-        return html `
-<div style="position: relative;">
-    ${this.renderLoading()}
-    <slot id="data-holder"></slot>
-</div>`;
-    }
-    handleLoadedData(data) {
-        if (!this.dataHolder) {
-            this.dataHolder = this.findChild((c) => c.isDataCollectionHolder || c.isNavigationContainer || c.isSingleItemDataHolder);
-            this.dataHolder.loader = this;
-        }
-        this.dataHolder[this.dataField] = data.payload || data;
-    }
-}
-defineCustomElement('gcs-loader', Loader);
-
 const sorterChanged = 'sorterChanged';
 class SorterTool extends Tool {
     static get properties() {
@@ -4989,8 +5003,8 @@ function compareValues(v1, v2) {
     return v1.localeCompare(v2);
 }
 
-function DataCollectionHolder(Base) {
-    return class DataCollectionHolderMixin extends Base {
+function CollectionDataHolder(Base) {
+    return class CollectionDataHolderMixin extends Base {
         _lastSorter;
         static get properties() {
             return {
@@ -5002,10 +5016,6 @@ function DataCollectionHolder(Base) {
                     value: [],
                 }
             };
-        }
-        constructor(...args) {
-            super(args);
-            this.isDataCollectionHolder = true;
         }
         connectedCallback() {
             super.connectedCallback?.();
@@ -5041,7 +5051,7 @@ function DataCollectionHolder(Base) {
     };
 }
 
-class ComboBox extends SelectionContainer(DataCollectionHolder(DisplayableField)) {
+class ComboBox extends SelectionContainer(CollectionDataHolder(DisplayableField)) {
     static get properties() {
         return {
             displayField: {
@@ -5750,7 +5760,7 @@ const dataListStyles = css `
     display: grid;
 }`;
 
-class DataList extends SelectionContainer(DataCollectionHolder(CustomElement)) {
+class DataList extends SelectionContainer(RemoteLoadableHolder(CollectionDataHolder(CustomElement))) {
     static get styles() {
         return mergeStyles(super.styles, dataListStyles);
     }
@@ -5815,7 +5825,7 @@ class DataCell extends CustomElement {
         const name = typeof column === 'string' ?
             column :
             column.name;
-        const value = record[name];
+        const value = record[name] || column.value;
         if (isUndefinedOrNull(value)) {
             throw new Error(`Undefined or null value in column: ${name}`);
         }
@@ -5999,7 +6009,7 @@ const dataGridStyles = css `
     flex: 1 1 auto;
 }`;
 
-class DataGrid extends DataCollectionHolder(CustomElement) {
+class DataGrid extends RemoteLoadableHolder(CollectionDataHolder(CustomElement)) {
     static get styles() {
         return mergeStyles(super.styles, dataGridStyles);
     }
@@ -6038,10 +6048,18 @@ class DataGrid extends DataCollectionHolder(CustomElement) {
     key=${record[idField]}>
 </gcs-data-row>`);
     }
+    load() {
+        if (this.loadUrl) {
+            this.loadRemote();
+        }
+        else {
+            throw new Error('load local is not implemented');
+        }
+    }
 }
 defineCustomElement('gcs-data-grid', DataGrid);
 
-class CollectionPanel extends CustomElement {
+class CollectionPanel extends Successful(CustomElement) {
     _deleteFetcher;
     static get properties() {
         return {
@@ -6091,7 +6109,7 @@ class CollectionPanel extends CustomElement {
     connectedCallback() {
         super.connectedCallback?.();
         this._deleteFetcher = new Fetcher({
-            onData: () => this.handleSuccessfulDelete(),
+            onSuccess: () => this.handleSuccessfulDelete(),
             onError: error => notifyError(this, error)
         });
     }
@@ -6128,6 +6146,7 @@ class CollectionPanel extends CustomElement {
             columns = [
                 ...columns,
                 {
+                    value: 'edit',
                     render: function () {
                         return html `
 <gcs-button 
@@ -6145,6 +6164,7 @@ class CollectionPanel extends CustomElement {
             columns = [
                 ...columns,
                 {
+                    value: 'delete',
                     render: function (_value, record) {
                         return html `
 <gcs-button 
@@ -6157,30 +6177,16 @@ class CollectionPanel extends CustomElement {
                 }
             ];
         }
-        if (loadUrl) {
-            return html `
-<gcs-loader 
-    slot="body" 
-    load-url=${loadUrl}
->
-    <gcs-data-grid
-        
-        id-field=${this.idField}
-        columns=${columns} 
-    >
-    </gcs-data-grid>
-</gcs-loader>`;
-        }
-        else {
-            return html `
+        return html `
 <gcs-data-grid 
+    id="data-grid"
     slot="body" 
     id-field=${this.idField}
-    columns=${columns} 
+    columns=${columns}
+    load-url=${loadUrl}
     data=${this.data}
 >
 </gcs-data-grid>`;
-        }
     }
     renderInsertDialog() {
         return html `
@@ -6244,12 +6250,17 @@ class CollectionPanel extends CustomElement {
         await this._deleteFetcher?.fetch({
             url: deleteUrl,
             method: 'DELETE',
-            data: id
+            params: {
+                'id': id
+            }
         });
     }
     handleSuccessfulDelete() {
         const dialog = this.findChild((n) => n.id === 'delete-dialog');
         dialog.showing = false;
+        const grid = this.findChild((n) => n.id === 'data-grid');
+        grid.load();
+        this.renderSuccess('Record was successfully deleted.');
     }
 }
 defineCustomElement('gcs-collection-panel', CollectionPanel);
@@ -6552,7 +6563,7 @@ const applicationViewStyles = css `
   	overflow-y: scroll;
 }`;
 
-class ApplicationView extends LoadableHolder(Errorable(CustomElement)) {
+class ApplicationView extends RemoteLoadableHolder(Errorable(CustomElement)) {
     static get styles() {
         return mergeStyles(super.styles, applicationViewStyles);
     }
@@ -6670,4 +6681,4 @@ window.appCtrl = appCtrl;
 window.html = html;
 window.viewsRegistry = viewsRegistry;
 
-export { Accordion, Alert, AppInitializedEvent, ApplicationHeader, ApplicationView, Button, Center, CheckBox, CloseTool, CollectionPanel, ComboBox, ContentView, CustomElement, DataCell, DataGrid, DataHeader, DataHeaderCell, DataList, DataRow, DataTemplate, DataTypes, DateField, Dialog, DisplayableField, DropDown, ExpanderTool, FileField, Form, FormField, HashRouter, HelpTip, HiddenField, Icon, Loader, LocalizedText, ModifiedTip, NavigationBar, NavigationLink, NumberField, Overlay, Panel, PasswordField, Pill, RequiredTip, Row, Selector, Slider, SorterTool, StarRating, TextArea, TextField, Theme, Tool, ToolTip, ValidationSummary, Wizard, WizardStep, appCtrl, css, defineCustomElement, getNotFoundView, html, navigateToRoute, viewsRegistry };
+export { Accordion, Alert, AppInitializedEvent, ApplicationHeader, ApplicationView, Button, Center, CheckBox, CloseTool, CollectionPanel, ComboBox, ContentView, CustomElement, DataCell, DataGrid, DataHeader, DataHeaderCell, DataList, DataRow, DataTemplate, DataTypes, DateField, Dialog, DisplayableField, DropDown, ExpanderTool, FileField, Form, FormField, HashRouter, HelpTip, HiddenField, Icon, LocalizedText, ModifiedTip, NavigationBar, NavigationLink, NumberField, Overlay, Panel, PasswordField, Pill, RequiredTip, Row, Selector, Slider, SorterTool, StarRating, TextArea, TextField, Theme, Tool, ToolTip, ValidationSummary, Wizard, WizardStep, appCtrl, css, defineCustomElement, getNotFoundView, html, navigateToRoute, viewsRegistry };

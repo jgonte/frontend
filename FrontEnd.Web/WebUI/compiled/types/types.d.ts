@@ -32,6 +32,7 @@ declare class AppCtrl {
     init(): Promise<void>;
     setTheme(theme: string): void;
     showDialog(content: () => NodePatchingData): void;
+    handleSuccess(evt: CustomEvent): void;
     handleError(evt: CustomEvent): void;
 }
 
@@ -67,7 +68,7 @@ export declare class ApplicationView extends ApplicationView_base {
     render(): NodePatchingData | null;
     getRoutes(application: Application): GenericRecord;
     getModuleLinks(application: Application): GenericRecord;
-    handleLoadedData(data: LoaderData): Promise<void>;
+    handleLoadedData(data: DataResponse): Promise<void>;
 }
 
 declare const ApplicationView_base: CustomHTMLElementConstructor;
@@ -96,7 +97,7 @@ export declare class CloseTool extends Tool {
     handleClick(): void;
 }
 
-export declare class CollectionPanel extends CustomElement {
+export declare class CollectionPanel extends CollectionPanel_base {
     private _deleteFetcher?;
     static get properties(): Record<string, CustomElementPropertyMetadata>;
     constructor();
@@ -113,6 +114,8 @@ export declare class CollectionPanel extends CustomElement {
     deleteRecord(record: GenericRecord): Promise<void>;
     handleSuccessfulDelete(): void;
 }
+
+declare const CollectionPanel_base: typeof CustomElement;
 
 export declare class ComboBox extends ComboBox_base {
     static get properties(): Record<string, CustomElementPropertyMetadata>;
@@ -243,6 +246,7 @@ export declare class DataGrid extends DataGrid_base {
     render(): NodePatchingData;
     renderHeader(): NodePatchingData;
     renderBody(): NodePatchingData[];
+    load(): void;
 }
 
 declare const DataGrid_base: CustomHTMLElementConstructor;
@@ -278,6 +282,11 @@ export declare class DataList extends DataList_base {
 
 declare const DataList_base: CustomHTMLElementConstructor;
 
+declare interface DataResponse {
+    headers: Headers;
+    payload: GenericRecord | string;
+}
+
 export declare class DataRow extends DataRow_base {
     static get styles(): string;
     static get properties(): Record<string, CustomElementPropertyMetadata>;
@@ -286,11 +295,12 @@ export declare class DataRow extends DataRow_base {
 
 declare const DataRow_base: CustomHTMLElementConstructor;
 
-export declare class DataTemplate extends CustomElement {
+export declare class DataTemplate extends DataTemplate_base {
     static get properties(): Record<string, CustomElementPropertyMetadata>;
-    constructor();
     render(): NodePatchingData;
 }
+
+declare const DataTemplate_base: typeof CustomElement;
 
 export declare enum DataTypes {
     Boolean = "boolean",
@@ -403,7 +413,7 @@ export declare class Form extends Form_base {
     getSubmitData(): DynamicObject;
     submit(): void;
     createValidationContext(): ValidationContext;
-    handleLoadedData(data: LoaderData): void;
+    handleLoadedData(data: DataResponse): void;
     handleSubmitResponse(data: GenericRecord): void;
     setData(data: DynamicObject, acceptChanges?: boolean): void;
     getData(): DynamicObject;
@@ -487,19 +497,6 @@ declare class IntlProvider extends Observer {
 
 declare interface IRenderable {
     render(): RenderReturnTypes;
-}
-
-export declare class Loader extends Loader_base {
-    static get properties(): Record<string, CustomElementPropertyMetadata>;
-    render(): NodePatchingData;
-    handleLoadedData(data: LoaderData): void;
-}
-
-declare const Loader_base: CustomHTMLElementConstructor;
-
-declare interface LoaderData {
-    headers: Headers;
-    payload: GenericRecord | string;
 }
 
 export declare class LocalizedText extends LocalizedText_base {

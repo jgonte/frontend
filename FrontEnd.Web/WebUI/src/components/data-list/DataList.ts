@@ -1,9 +1,10 @@
+import SelectionContainer from "../mixins/selection-container/SelectionContainer";
+import RemoteLoadableHolder from "../mixins/remote-loadable/RemoteLoadable";
+import CollectionDataHolder from "../mixins/data-holder/CollectionDataHolder";
 import CustomElement from "../../custom-element/CustomElement";
 import defineCustomElement from "../../custom-element/defineCustomElement";
 import CustomElementPropertyMetadata from "../../custom-element/mixins/metadata/types/CustomElementPropertyMetadata";
 import { NodePatchingData } from "../../rendering/nodes/NodePatchingData";
-import SelectionContainer from "../mixins/selection-container/SelectionContainer";
-import DataCollectionHolder from "../mixins/data/DataCollectionHolder";
 import CustomHTMLElementConstructor from "../../custom-element/mixins/metadata/types/CustomHTMLElementConstructor";
 import { GenericRecord } from "../../utils/types";
 import { DataTypes } from "../../utils/data/DataTypes";
@@ -15,8 +16,10 @@ import mergeStyles from "../../custom-element/styles/mergeStyles";
  */
 export default class DataList extends
     SelectionContainer(
-        DataCollectionHolder(
-            CustomElement as CustomHTMLElementConstructor
+        RemoteLoadableHolder(
+            CollectionDataHolder(
+                CustomElement as CustomHTMLElementConstructor
+            )
         )
     ) {
 

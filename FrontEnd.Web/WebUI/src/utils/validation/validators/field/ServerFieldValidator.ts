@@ -1,6 +1,6 @@
 import Field from "../../../../components/fields/Field";
 import FormField from "../../../../components/form/form-field/FormField";
-import LoaderData from "../../../../components/loader/LoaderData";
+import DataResponse from "../../../data/transfer/DataResponse";
 import notifyError, { AnyError } from "../../../../services/errors/notifyError";
 import Fetcher, { ContentTypeTextPlain } from "../../../data/transfer/Fetcher";
 import { ValidatorOptions } from "../Validator";
@@ -50,11 +50,12 @@ export default class ServerFieldValidator extends SingleValueFieldValidator {
             onError: error => this.handleError(field as Field, error)
         });
 
-        fetcher.contentType = ContentTypeTextPlain;
-
         await fetcher.fetch({
             url: this.url,
             method: 'POST',
+            headers: {
+                'Content-Type': ContentTypeTextPlain
+            },
             data: value as string
         });
 
@@ -68,7 +69,7 @@ export default class ServerFieldValidator extends SingleValueFieldValidator {
         return valid;
     }
 
-    handleValidationData(context: SingleValueFieldValidationContext, data: LoaderData) {
+    handleValidationData(context: SingleValueFieldValidationContext, data: DataResponse) {
 
         (context.field as Field).form.loading = false;
 

@@ -3,7 +3,7 @@ import CustomHTMLElementConstructor from "../../../custom-element/mixins/metadat
 import { NodePatchingData } from "../../../rendering/nodes/NodePatchingData";
 import Application from "../../../services/application/Application";
 import { GenericRecord } from "../../../utils/types";
-import LoaderData from "../../loader/LoaderData";
+import DataResponse from "../../../utils/data/transfer/DataResponse";
 declare const ApplicationView_base: CustomHTMLElementConstructor;
 export default class ApplicationView extends ApplicationView_base {
     static get styles(): string;
@@ -11,6 +11,6 @@ export default class ApplicationView extends ApplicationView_base {
     render(): NodePatchingData | null;
     getRoutes(application: Application): GenericRecord;
     getModuleLinks(application: Application): GenericRecord;
-    handleLoadedData(data: LoaderData): Promise<void>;
+    handleLoadedData(data: DataResponse): Promise<void>;
 }
 export {};

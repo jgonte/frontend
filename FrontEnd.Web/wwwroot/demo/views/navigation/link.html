@@ -11,12 +11,20 @@
 
 <body>
 
+    <h4>Statically configured links</h4>
     <div>
         <gcs-nav-link to="/home">Home</gcs-nav-link>
         <gcs-nav-link to="/about">About</gcs-nav-link>
     </div>
-    
-    <gcs-content-view></gcs-content-view>
+
+    <h4>Dynamically configured links</h4>
+    <gcs-nav-bar
+        style="max-height: 60px;"
+        load-url="https://localhost:7000/api/applications/links"
+        router-name="app"
+    >
+    </gcs-nav-bar>
+
 
 </body>
 

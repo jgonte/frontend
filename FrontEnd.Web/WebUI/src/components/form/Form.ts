@@ -1,3 +1,9 @@
+import Sizable from "../mixins/sizable/Sizable";
+import Submittable from "../mixins/submittable/Submittable";
+import Validatable from "../mixins/validatable/Validatable";
+import Loadable from "../mixins/remote-loadable/RemoteLoadable";
+import Successful from "../mixins/successful/Successful";
+import Errorable from "../mixins/errorable/Errorable";
 import CustomElement from "../../custom-element/CustomElement";
 import defineCustomElement from "../../custom-element/defineCustomElement";
 import CustomElementPropertyMetadata from "../../custom-element/mixins/metadata/types/CustomElementPropertyMetadata";
@@ -6,17 +12,12 @@ import html from "../../rendering/html";
 import { NodePatchingData } from "../../rendering/nodes/NodePatchingData";
 import { ValidationContext } from "../../utils/validation/validators/Validator";
 import Field, { fieldAddedEvent, changeEvent } from "../fields/Field";
-import Sizable from "../mixins/sizable/Sizable";
-import Submittable from "../mixins/data/Submittable";
-import Validatable from "../mixins/validatable/Validatable";
-import Loadable from "../mixins/data/Loadable";
-import Errorable from "../mixins/errorable/Errorable";
 import { formStyles } from "./Form.styles";
 import { DynamicObject, GenericRecord } from "../../utils/types";
 import labelWidth from "./labelWidth";
 import labelAlign from "./labelAlign";
 import isUndefinedOrNull from "../../utils/isUndefinedOrNull";
-import LoaderData from "../loader/LoaderData";
+import DataResponse from "../../utils/data/transfer/DataResponse";
 import { DataTypes } from "../../utils/data/DataTypes";
 
 export const formConnectedEvent = "formConnectedEvent";
@@ -28,8 +29,10 @@ export default class Form extends
         Submittable(
             Validatable(
                 Loadable(
-                    Errorable(
-                        CustomElement as CustomHTMLElementConstructor
+                    Successful(
+                        Errorable(
+                            CustomElement as CustomHTMLElementConstructor
+                        )
                     )
                 )
             )
@@ -88,7 +91,6 @@ export default class Form extends
         return html`<form>
             ${this.renderLoading()}
             ${this.renderSubmitting()}
-            ${this.renderError()}
             <slot label-width=${labelWidth} label-align=${labelAlign} key="form-fields"></slot>
             ${this._renderButton()}
         </form>`;
@@ -141,7 +143,7 @@ export default class Form extends
      * Handles the data that was loaded from the server
      * @param data The data returned by the server
      */
-    handleLoadedData(data: LoaderData) {
+    handleLoadedData(data: DataResponse) {
 
         this.setData((data.payload ?? data) as DynamicObject, true); // Set the fields as not being changed
     }

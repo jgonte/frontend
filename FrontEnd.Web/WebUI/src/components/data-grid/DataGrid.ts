@@ -1,4 +1,6 @@
 import CustomElement from "../../custom-element/CustomElement";
+import RemoteLoadableHolder from "../mixins/remote-loadable/RemoteLoadable";
+import CollectionDataHolder from "../mixins/data-holder/CollectionDataHolder";
 import defineCustomElement from "../../custom-element/defineCustomElement";
 import CustomElementPropertyMetadata from "../../custom-element/mixins/metadata/types/CustomElementPropertyMetadata";
 import CustomHTMLElementConstructor from "../../custom-element/mixins/metadata/types/CustomHTMLElementConstructor";
@@ -6,15 +8,16 @@ import html from "../../rendering/html";
 import { NodePatchingData } from "../../rendering/nodes/NodePatchingData";
 import { DataTypes } from "../../utils/data/DataTypes";
 import { GenericRecord } from "../../utils/types";
-import DataCollectionHolder from "../mixins/data/DataCollectionHolder";
 import { dataGridStyles } from "./DataGrid.styles";
 import mergeStyles from "../../custom-element/styles/mergeStyles";
 
 export default class DataGrid extends
-    DataCollectionHolder(
-        CustomElement as CustomHTMLElementConstructor
-    ) {
-
+    RemoteLoadableHolder(
+        CollectionDataHolder(
+            CustomElement as CustomHTMLElementConstructor
+        )
+    )
+{
     static get styles(): string {
 
         return mergeStyles(super.styles, dataGridStyles);
@@ -72,6 +75,18 @@ export default class DataGrid extends
     key=${record[idField]}>
 </gcs-data-row>`
         );
+    }
+
+    load() {
+
+        if (this.loadUrl) {
+
+            this.loadRemote();
+        }
+        else {
+
+            throw new Error('load local is not implemented');
+        }
     }
 }
 

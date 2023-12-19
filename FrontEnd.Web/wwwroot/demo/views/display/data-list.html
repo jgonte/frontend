@@ -58,6 +58,27 @@
 </gcs-selector>`;
         }
 
+        function getRemoteTemplate(record) {
+
+            const {
+                name,
+                dateOfBirth,
+                gender,
+                reputation,
+                description,
+                avatar
+            } = record;
+
+            return html`<div style="width: 200px; border: thick double #7743DB;">       
+                <div style="background-color: #FFEBD8;"> Full Name: ${name}</div>
+                <div style="background-color: #E5D4FF;"> Date: ${new Date(dateOfBirth).toLocaleDateString(navigator.language)}</div>
+                <div style="background-color: #C7DCA7;font-weight: bold;">Gender: ${gender.toUpperCase()}</div>
+                <div style="background-color: #FFDFDF;font-weight: bold;">Reputation: ${reputation}</div>
+                <div style="background-color: #F9F3CC;font-weight: bold;">Description: ${description}</div>
+                <div style="background-color: #D2E9E9;font-weight: bold;">Avatar: <img src=${`data:image/gif;base64,${avatar.content}`}/></div>
+            </div>`;
+        }
+
         function showSelection(selection) {
 
             alert('Selection: ' + JSON.stringify(selection));
@@ -71,8 +92,8 @@
 <body>
 
     <h4>Single selection data set in attribute</h4>
-
-    <gcs-data-list data='[
+    <gcs-data-list 
+        data='[
             {
                 "name": "Sarah",
                 "age": 19,
@@ -88,18 +109,36 @@
                 "age": 1,
                 "description": "A little giant"
             }
-        ]' id-field="name" item-template="getRowTemplate()" selection-changed="showSelection()">
+        ]' 
+        id-field="name" 
+        item-template="getRowTemplate()" 
+        selection-changed="showSelection()"
+    >
     </gcs-data-list>
 
     <h4>Single selection</h4>
-
-    <gcs-data-list id-field="name" data='getData()' item-template="getTemplate()" selection-changed="showSelection()">
+    <gcs-data-list 
+        id-field="name" 
+        data='getData()' 
+        item-template="getTemplate()" 
+        selection-changed="showSelection()"
+    >
     </gcs-data-list>
 
     <h4>Multiple selection</h4>
-
-    <gcs-data-list id-field="name" data='getData()' multiple item-template="getTemplate()"
+    <gcs-data-list 
+        id-field="name" 
+        data='getData()'
+        multiple item-template="getTemplate()"
         selection-changed="showSelection()">
+    </gcs-data-list>
+
+    <h4>Data list remote loading</h4>
+    <gcs-data-list
+        load-url="https://localhost:7000/api/contacts/"
+        id-field="id" item-template="getRemoteTemplate()"
+        selection-changed="showSelection()"
+    >
     </gcs-data-list>
 
 </body>

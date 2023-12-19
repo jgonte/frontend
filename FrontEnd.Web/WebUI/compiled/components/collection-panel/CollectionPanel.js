@@ -1,10 +1,11 @@
+import Successful from "../mixins/successful/Successful";
 import CustomElement from "../../custom-element/CustomElement";
 import defineCustomElement from "../../custom-element/defineCustomElement";
 import html from "../../rendering/html";
 import notifyError from "../../services/errors/notifyError";
 import { DataTypes } from "../../utils/data/DataTypes";
 import Fetcher from "../../utils/data/transfer/Fetcher";
-export default class CollectionPanel extends CustomElement {
+export default class CollectionPanel extends Successful(CustomElement) {
     _deleteFetcher;
     static get properties() {
         return {
@@ -54,7 +55,7 @@ export default class CollectionPanel extends CustomElement {
     connectedCallback() {
         super.connectedCallback?.();
         this._deleteFetcher = new Fetcher({
-            onData: () => this.handleSuccessfulDelete(),
+            onSuccess: () => this.handleSuccessfulDelete(),
             onError: error => notifyError(this, error)
         });
     }
@@ -91,6 +92,7 @@ export default class CollectionPanel extends CustomElement {
             columns = [
                 ...columns,
                 {
+                    value: 'edit',
                     render: function () {
                         return html `
 <gcs-button 
@@ -108,6 +110,7 @@ export default class CollectionPanel extends CustomElement {
             columns = [
                 ...columns,
                 {
+                    value: 'delete',
                     render: function (_value, record) {
                         return html `
 <gcs-button 
@@ -120,30 +123,16 @@ export default class CollectionPanel extends CustomElement {
                 }
             ];
         }
-        if (loadUrl) {
-            return html `
-<gcs-loader 
-    slot="body" 
-    load-url=${loadUrl}
->
-    <gcs-data-grid
-        
-        id-field=${this.idField}
-        columns=${columns} 
-    >
-    </gcs-data-grid>
-</gcs-loader>`;
-        }
-        else {
-            return html `
+        return html `
 <gcs-data-grid 
+    id="data-grid"
     slot="body" 
     id-field=${this.idField}
-    columns=${columns} 
+    columns=${columns}
+    load-url=${loadUrl}
     data=${this.data}
 >
 </gcs-data-grid>`;
-        }
     }
     renderInsertDialog() {
         return html `
@@ -207,12 +196,17 @@ export default class CollectionPanel extends CustomElement {
         await this._deleteFetcher?.fetch({
             url: deleteUrl,
             method: 'DELETE',
-            data: id
+            params: {
+                'id': id
+            }
         });
     }
     handleSuccessfulDelete() {
         const dialog = this.findChild((n) => n.id === 'delete-dialog');
         dialog.showing = false;
+        const grid = this.findChild((n) => n.id === 'data-grid');
+        grid.load();
+        this.renderSuccess('Record was successfully deleted.');
     }
 }
 defineCustomElement('gcs-collection-panel', CollectionPanel);

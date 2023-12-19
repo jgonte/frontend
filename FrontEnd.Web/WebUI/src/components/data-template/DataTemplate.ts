@@ -3,11 +3,15 @@ import defineCustomElement from "../../custom-element/defineCustomElement";
 import CustomElementPropertyMetadata from "../../custom-element/mixins/metadata/types/CustomElementPropertyMetadata";
 import { NodePatchingData } from "../../rendering/nodes/NodePatchingData";
 import { DataTypes } from "../../utils/data/DataTypes";
+import RemoteLoadableHolder from "../mixins/remote-loadable/RemoteLoadable";
 
 /**
  * Component that uses data and a template to generate its content
  */
- export default class DataTemplate extends CustomElement {
+export default class DataTemplate extends
+    RemoteLoadableHolder(
+        CustomElement
+    ) {
 
     static get properties(): Record<string, CustomElementPropertyMetadata> {
 
@@ -18,7 +22,7 @@ import { DataTypes } from "../../utils/data/DataTypes";
              */
             data: {
                 type: [
-                    DataTypes.Object, 
+                    DataTypes.Object,
                     DataTypes.Function
                 ],
                 value: undefined
@@ -36,13 +40,6 @@ import { DataTypes } from "../../utils/data/DataTypes";
         }
     }
 
-    constructor() {
-
-        super();
-
-        this.isSingleItemDataHolder = true;
-    }
-
     render(): NodePatchingData {
 
         const {
@@ -50,7 +47,7 @@ import { DataTypes } from "../../utils/data/DataTypes";
             template
         } = this;
 
-        return data === undefined ? 
+        return data === undefined ?
             null :
             template(data);
     }

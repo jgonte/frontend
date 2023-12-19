@@ -1,5 +1,5 @@
 
-import LoaderData from "../../../components/loader/LoaderData";
+import DataResponse from "./DataResponse";
 import deserializeXmlDocument from "../../deserializeXmlDocument";
 import template from "../../template";
 import { DynamicObject, GenericRecord } from "../../types";
@@ -20,16 +20,17 @@ export default class Fetcher implements FetchCallbacks {
 
     onResponse?: (response: Response) => void;
 
+    onSuccess?: () => void;
+
     onError?: (error: ErrorResponse) => void;
 
-    onData?: (data: LoaderData) => void;
-
-    contentType?: string;
+    onData?: (data: DataResponse) => void;
 
     constructor(callbacks: FetchCallbacks) {
 
         const {
             onResponse,
+            onSuccess,
             onError,
             onData
         } = callbacks;
@@ -37,6 +38,11 @@ export default class Fetcher implements FetchCallbacks {
         if (onResponse !== undefined) {
 
             this.onResponse = onResponse.bind(this);
+        }
+
+        if (onSuccess !== undefined) {
+
+            this.onSuccess = onSuccess.bind(this);
         }
 
         if (onError !== undefined) {
@@ -70,17 +76,12 @@ export default class Fetcher implements FetchCallbacks {
                 credentials: authProvider !== undefined ? 'include' : undefined
             });
 
-            if (response.status != 204) { // No content
-
-                return await this.processResponse(response);
-            }
+            await this.processResponse(response);
         }
         catch (error: unknown) {
 
             this.handleError(error as ErrorResponse);
         }
-
-        return null;
     }
 
     /**
@@ -120,11 +121,11 @@ export default class Fetcher implements FetchCallbacks {
 
         const requestHeaders = request.headers || {};
 
-        this.contentType = this.contentType || ContentTypeApplicationJson;
+        const contentType = requestHeaders[ContentType] || ContentTypeApplicationJson;
 
-        if (requestHeaders[ContentType] === undefined) {
+        if (contentType === ContentMultipartFormData) {
 
-            requestHeaders[ContentType] = this.contentType;
+            delete requestHeaders[ContentType];
         }
 
         const headers = new Headers();
@@ -138,6 +139,7 @@ export default class Fetcher implements FetchCallbacks {
             }
         }
 
+        
         // Add the authorization header
         if (request.authProvider !== undefined) {
 
@@ -161,7 +163,8 @@ export default class Fetcher implements FetchCallbacks {
     buildBody(request: FetchRequest): FormData | string | undefined {
 
         const {
-            data
+            data,
+            headers
         } = request;
 
         if (data === undefined) {
@@ -174,7 +177,9 @@ export default class Fetcher implements FetchCallbacks {
             return data;
         }
 
-        if (this.contentType?.startsWith(ContentTypeApplicationJson)) {
+        const contentType = headers?.[ContentType];
+
+        if (contentType?.startsWith(ContentTypeApplicationJson)) {
 
             return JSON.stringify(data);
         }
@@ -239,17 +244,24 @@ export default class Fetcher implements FetchCallbacks {
             return;
         }
 
-        const data: LoaderData = {
-            headers: response.headers,
-            payload: await this.parseContent(response)
+        if (response.status !== 204) { // No content
+
+            const data: DataResponse = {
+                headers: response.headers,
+                payload: await this.parseContent(response)
+            }
+    
+            if (this.onData !== undefined) {
+    
+                this.onData(data);
+            }
         }
 
-        if (this.onData !== undefined) {
-
-            this.onData(data);
+        if (this.onSuccess !== undefined) {
+    
+            this.onSuccess();
         }
-
-        return data;
+  
     }
 
     /**

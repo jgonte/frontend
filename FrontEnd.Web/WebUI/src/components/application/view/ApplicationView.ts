@@ -11,8 +11,8 @@ import scriptsRegistry from "../../../services/application/type/module/script/sc
 import viewsRegistry from "../../../services/application/type/module/script/viewsRegistry";
 import Route from "../../../services/application/type/route/Route";
 import { GenericRecord } from "../../../utils/types";
-import LoaderData from "../../loader/LoaderData";
-import Loadable from "../../mixins/data/Loadable";
+import DataResponse from "../../../utils/data/transfer/DataResponse";
+import Loadable from "../../mixins/remote-loadable/RemoteLoadable";
 import Errorable from "../../mixins/errorable/Errorable";
 import { applicationViewStyles } from "./ApplicationView.styles";
 
@@ -152,7 +152,7 @@ export default class ApplicationView extends
         }, {});
     }
 
-    async handleLoadedData(data: LoaderData) {
+    async handleLoadedData(data: DataResponse) {
 
         const application = (data.payload || data) as unknown as Application;
 

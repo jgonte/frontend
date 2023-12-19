@@ -55,7 +55,7 @@ export default class DataCell extends CustomElement {
             column :
             column.name;
 
-        const value = record[name];
+        const value = record[name] || column.value;
 
         if (isUndefinedOrNull(value)) {
 

@@ -1,11 +1,12 @@
+import SelectionContainer from "../mixins/selection-container/SelectionContainer";
+import RemoteLoadableHolder from "../mixins/remote-loadable/RemoteLoadable";
+import CollectionDataHolder from "../mixins/data-holder/CollectionDataHolder";
 import CustomElement from "../../custom-element/CustomElement";
 import defineCustomElement from "../../custom-element/defineCustomElement";
-import SelectionContainer from "../mixins/selection-container/SelectionContainer";
-import DataCollectionHolder from "../mixins/data/DataCollectionHolder";
 import { DataTypes } from "../../utils/data/DataTypes";
 import { dataListStyles } from "./DataList.styles";
 import mergeStyles from "../../custom-element/styles/mergeStyles";
-export default class DataList extends SelectionContainer(DataCollectionHolder(CustomElement)) {
+export default class DataList extends SelectionContainer(RemoteLoadableHolder(CollectionDataHolder(CustomElement))) {
     static get styles() {
         return mergeStyles(super.styles, dataListStyles);
     }

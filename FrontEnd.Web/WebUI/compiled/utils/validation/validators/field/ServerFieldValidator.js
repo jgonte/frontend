@@ -19,10 +19,12 @@ export default class ServerFieldValidator extends SingleValueFieldValidator {
             onData: data => this.handleValidationData(context, data),
             onError: error => this.handleError(field, error)
         });
-        fetcher.contentType = ContentTypeTextPlain;
         await fetcher.fetch({
             url: this.url,
             method: 'POST',
+            headers: {
+                'Content-Type': ContentTypeTextPlain
+            },
             data: value
         });
         const valid = context.errors.length === 0;

@@ -1,7 +1,8 @@
 import CustomElement from "../../custom-element/CustomElement";
 import defineCustomElement from "../../custom-element/defineCustomElement";
 import { DataTypes } from "../../utils/data/DataTypes";
-export default class DataTemplate extends CustomElement {
+import RemoteLoadableHolder from "../mixins/remote-loadable/RemoteLoadable";
+export default class DataTemplate extends RemoteLoadableHolder(CustomElement) {
     static get properties() {
         return {
             data: {
@@ -17,10 +18,6 @@ export default class DataTemplate extends CustomElement {
                 defer: true
             }
         };
-    }
-    constructor() {
-        super();
-        this.isSingleItemDataHolder = true;
     }
     render() {
         const { data, template } = this;

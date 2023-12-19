@@ -6,13 +6,16 @@ export const ContentMultipartFormData = 'multipart/form-data';
 export const ContentTypeTextPlain = 'text/plain';
 export default class Fetcher {
     onResponse;
+    onSuccess;
     onError;
     onData;
-    contentType;
     constructor(callbacks) {
-        const { onResponse, onError, onData } = callbacks;
+        const { onResponse, onSuccess, onError, onData } = callbacks;
         if (onResponse !== undefined) {
             this.onResponse = onResponse.bind(this);
+        }
+        if (onSuccess !== undefined) {
+            this.onSuccess = onSuccess.bind(this);
         }
         if (onError !== undefined) {
             this.onError = onError.bind(this);
@@ -32,14 +35,11 @@ export default class Fetcher {
                 mode: cors === false ? 'same-origin' : 'cors',
                 credentials: authProvider !== undefined ? 'include' : undefined
             });
-            if (response.status != 204) {
-                return await this.processResponse(response);
-            }
+            await this.processResponse(response);
         }
         catch (error) {
             this.handleError(error);
         }
-        return null;
     }
     buildUrl(request) {
         const { url, params } = request;
@@ -54,9 +54,9 @@ export default class Fetcher {
     }
     async buildHeaders(request) {
         const requestHeaders = request.headers || {};
-        this.contentType = this.contentType || ContentTypeApplicationJson;
-        if (requestHeaders[ContentType] === undefined) {
-            requestHeaders[ContentType] = this.contentType;
+        const contentType = requestHeaders[ContentType] || ContentTypeApplicationJson;
+        if (contentType === ContentMultipartFormData) {
+            delete requestHeaders[ContentType];
         }
         const headers = new Headers();
         for (const key in requestHeaders) {
@@ -77,14 +77,15 @@ export default class Fetcher {
         return headers;
     }
     buildBody(request) {
-        const { data } = request;
+        const { data, headers } = request;
         if (data === undefined) {
             return undefined;
         }
         if (typeof data === 'string') {
             return data;
         }
-        if (this.contentType?.startsWith(ContentTypeApplicationJson)) {
+        const contentType = headers?.[ContentType];
+        if (contentType?.startsWith(ContentTypeApplicationJson)) {
             return JSON.stringify(data);
         }
         const formData = new FormData();
@@ -123,14 +124,18 @@ export default class Fetcher {
             this.handleError(error);
             return;
         }
-        const data = {
-            headers: response.headers,
-            payload: await this.parseContent(response)
-        };
-        if (this.onData !== undefined) {
-            this.onData(data);
+        if (response.status !== 204) {
+            const data = {
+                headers: response.headers,
+                payload: await this.parseContent(response)
+            };
+            if (this.onData !== undefined) {
+                this.onData(data);
+            }
         }
-        return data;
+        if (this.onSuccess !== undefined) {
+            this.onSuccess();
+        }
     }
     async parseContent(response) {
         let contentType = response.headers.get('content-type');

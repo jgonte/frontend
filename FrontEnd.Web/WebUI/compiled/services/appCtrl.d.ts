@@ -19,6 +19,7 @@ declare class AppCtrl {
     init(): Promise<void>;
     setTheme(theme: string): void;
     showDialog(content: () => NodePatchingData): void;
+    handleSuccess(evt: CustomEvent): void;
     handleError(evt: CustomEvent): void;
 }
 declare const appCtrl: AppCtrl;

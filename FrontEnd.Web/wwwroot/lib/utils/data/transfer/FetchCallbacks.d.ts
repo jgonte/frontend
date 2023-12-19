@@ -1,7 +1,8 @@
-import LoaderData from "../../../components/loader/LoaderData";
+import DataResponse from "./DataResponse";
 import { ErrorResponse } from "./ErrorResponse";
 export interface FetchCallbacks {
     onResponse?: (response: Response) => void;
+    onSuccess?: () => void;
     onError?: (error: ErrorResponse) => void;
-    onData?: (data: LoaderData) => void;
+    onData?: (data: DataResponse) => void;
 }

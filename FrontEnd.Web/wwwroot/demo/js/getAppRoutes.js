@@ -24,9 +24,6 @@ function getAppRoutes() {
         '/dialog': {
             view: `${views}/dialog.html`
         },
-        '/loader': {
-            view: `${views}/loader.html`
-        },
         '/drop-down': {
             view: `${views}/drop-down.html`
         },

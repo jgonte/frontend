@@ -61,6 +61,45 @@
             ];
         }
 
+        function getRemoteColumns() {
+
+            return [
+                {
+                    name: 'name',
+                    display: 'Full Name',
+                    sortable: true
+                },
+                {
+                    name: 'dateOfBirth',
+                    display: 'Date of Birth',
+                    sortable: true,
+                    render: value => new Date(value).toLocaleDateString(navigator.language)
+                },
+                {
+                    name: 'gender',
+                    display: 'Gender',
+                    sortable: true,
+                    render: value => value.toUpperCase()
+                },
+                {
+                    name: 'reputation',
+                    display: 'Reputation',
+                    sortable: true
+                },
+                {
+                    name: 'description',
+                    display: 'Description',
+                    sortable: true
+                },
+                {
+                    name: 'avatar',
+                    display: 'Avatar',
+                    sortable: true,
+                    render: value => html`<img src=${`data:image/gif;base64,${value.content}`} /></div>`
+                }
+            ];
+        }
+
     </script>
 
 </head>
@@ -87,8 +126,20 @@
     <gcs-data-grid id="dg2" id-field="name" columns="getColumnKeys()" data="getData()"></gcs-data-grid> -->
 
     <h4>Data grid with field descriptors</h4>
+    <gcs-data-grid
+        id-field="name" 
+        columns="getColumns()" 
+        data="getData()"
+    >
+    </gcs-data-grid>
 
-    <gcs-data-grid id="dg3" id-field="name" columns="getColumns()" data="getData()"></gcs-data-grid>
+    <h4>Data grid with remote loading</h4>
+    <gcs-data-grid 
+        load-url="https://localhost:7000/api/contacts/"
+        id-field="id"
+        columns="getRemoteColumns()"
+    >
+    </gcs-data-grid>
 
 </body>
 

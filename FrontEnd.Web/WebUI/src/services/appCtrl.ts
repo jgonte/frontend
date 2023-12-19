@@ -7,6 +7,7 @@ import AppConfig from "./AppConfig";
 import Application from "./application/Application";
 import ErrorHandler, { errorEvent } from "./errors/ErrorHandler";
 import IntlProvider from "./intl/IntlProvider";
+import { successEvent } from "./success/notifySuccess";
 import User from "./user/User";
 
 export const AppInitializedEvent = "AppInitializedEvent";
@@ -78,6 +79,8 @@ class AppCtrl {
 
 		console.log('Initializing appCtrl...');
 
+		this.handleSuccess = this.handleSuccess.bind(this);
+
 		this.handleError = this.handleError.bind(this);
 
 		const appConfig = (window as unknown as GenericRecord).appConfig as AppConfig;
@@ -136,6 +139,9 @@ class AppCtrl {
 		// Append the app dialog to post any messages
 		document.body.appendChild(this.dialog);
 
+		// Handle success messages
+		document.addEventListener(successEvent, this.handleSuccess as EventListenerOrEventListenerObject);
+
 		// Handle app errors
 		document.addEventListener(errorEvent, this.handleError as EventListenerOrEventListenerObject);
 
@@ -159,6 +165,17 @@ class AppCtrl {
 		dialog.content = content;
 
 		dialog.showing = true;
+	}
+
+	handleSuccess(evt: CustomEvent): void {
+
+		const {
+			successMessage,
+		} = evt.detail;
+
+		const content = () => html`<gcs-alert kind="success" close>${successMessage}</gcs-alert>`;
+
+		this.showDialog(content);
 	}
 
 	handleError(evt: CustomEvent): void {

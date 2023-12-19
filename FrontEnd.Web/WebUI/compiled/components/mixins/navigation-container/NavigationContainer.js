@@ -1,9 +1,11 @@
 import { DataTypes } from "../../../utils/data/DataTypes";
 import { linkClickedEvent } from "../../navigation/link/NavigationLink";
 import { navigateToRoute } from "../../routers/hash-router/utils/routersRegistry";
+import RemoteLoadableHolder from "../remote-loadable/RemoteLoadable";
 import navigationContainerRegistry from "./navigationContainerRegistry";
 export default function NavigationContainer(Base) {
-    return class NavigationContainerMixin extends Base {
+    return class NavigationContainerMixin extends RemoteLoadableHolder(Base) {
+        dataField = 'links';
         static get properties() {
             return {
                 routerName: {
@@ -26,7 +28,6 @@ export default function NavigationContainer(Base) {
         }
         constructor(...args) {
             super(args);
-            this.isNavigationContainer = true;
             this.updateActiveLink = this.updateActiveLink.bind(this);
         }
         connectedCallback() {

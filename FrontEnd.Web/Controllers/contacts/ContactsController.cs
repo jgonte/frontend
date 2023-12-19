@@ -1,5 +1,4 @@
 ﻿using FrontEnd.Helpers;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Drawing;
 
@@ -119,7 +118,7 @@ public class ContactsController : ControllerBase
         return ms.ToArray();
     }
 
-    // GET api/<ContactsController>/5
+    // GET api/contacts/5
     [HttpGet("{id}")]
     public ContactOutputDto Get(int id)
     {
@@ -179,22 +178,26 @@ public class ContactsController : ControllerBase
         return contacts[id - 1];
     }
 
-    // POST api/<ContactsController>
+    // POST api/contacts
     [HttpPost]
+    [Consumes("multipart/form-data")]
     public IActionResult Post([FromForm] ContactInputDto contact)
     {
         return Ok(new ContactPostOutputDto { Id = 5 });
     }
 
-    // PUT api/<ContactsController>/5
-    [HttpPut()]
-    public void Put([FromForm] ContactInputDto contact)
+    // PUT api/contacts/5
+    [HttpPut("{id}")]
+    [Consumes("multipart/form-data")]
+    public IActionResult Put(int id, [FromForm] ContactInputDto contact)
     {
+        return NoContent();
     }
 
-    // DELETE api/<ContactsController>/5
+    // DELETE api/contacts/5
     [HttpDelete("{id}")]
-    public void Delete(int id)
+    public IActionResult Delete(int id)
     {
+        return NoContent();
     }
 }

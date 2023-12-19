@@ -1,4 +1,4 @@
-import LoaderData from "../../../components/loader/LoaderData";
+import DataResponse from "./DataResponse";
 import { ErrorResponse } from "./ErrorResponse";
 
 /**
@@ -8,7 +8,9 @@ import { ErrorResponse } from "./ErrorResponse";
 
     onResponse?: (response: Response) => void;
 
+    onSuccess?: () => void;
+
     onError?: (error: ErrorResponse) => void;
 
-    onData?: (data: LoaderData) => void;
+    onData?: (data: DataResponse) => void;
 }
