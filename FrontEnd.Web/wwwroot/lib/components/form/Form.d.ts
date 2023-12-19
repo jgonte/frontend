@@ -4,7 +4,7 @@ import { NodePatchingData } from "../../rendering/nodes/NodePatchingData";
 import { ValidationContext } from "../../utils/validation/validators/Validator";
 import Field from "../fields/Field";
 import { DynamicObject, GenericRecord } from "../../utils/types";
-import LoaderData from "../loader/LoaderData";
+import DataResponse from "../../utils/data/transfer/DataResponse";
 export declare const formConnectedEvent = "formConnectedEvent";
 export declare const formDisconnectedEvent = "formDisconnectedEvent";
 declare const Form_base: CustomHTMLElementConstructor;
@@ -19,7 +19,7 @@ export default class Form extends Form_base {
     getSubmitData(): DynamicObject;
     submit(): void;
     createValidationContext(): ValidationContext;
-    handleLoadedData(data: LoaderData): void;
+    handleLoadedData(data: DataResponse): void;
     handleSubmitResponse(data: GenericRecord): void;
     setData(data: DynamicObject, acceptChanges?: boolean): void;
     getData(): DynamicObject;

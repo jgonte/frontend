@@ -2,7 +2,8 @@ import CustomElement from "../../custom-element/CustomElement";
 import CustomElementPropertyMetadata from "../../custom-element/mixins/metadata/types/CustomElementPropertyMetadata";
 import { NodePatchingData } from "../../rendering/nodes/NodePatchingData";
 import { GenericRecord } from "../../utils/types";
-export default class CollectionPanel extends CustomElement {
+declare const CollectionPanel_base: typeof CustomElement;
+export default class CollectionPanel extends CollectionPanel_base {
     private _deleteFetcher?;
     static get properties(): Record<string, CustomElementPropertyMetadata>;
     constructor();
@@ -19,3 +20,4 @@ export default class CollectionPanel extends CustomElement {
     deleteRecord(record: GenericRecord): Promise<void>;
     handleSuccessfulDelete(): void;
 }
+export {};

@@ -33,7 +33,7 @@ export default class DataCell extends CustomElement {
         const name = typeof column === 'string' ?
             column :
             column.name;
-        const value = record[name];
+        const value = record[name] || column.value;
         if (isUndefinedOrNull(value)) {
             throw new Error(`Undefined or null value in column: ${name}`);
         }

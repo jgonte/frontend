@@ -64,10 +64,6 @@ function getAppLinks() {
             text: 'Dialog',
             intlKey: 'dialog'
         },
-        '/loader': {
-            text: 'Loader',
-            intlKey: 'loader'
-        },
         '/drop-down': {
             text: 'Drop Down',
             intlKey: 'drop down'

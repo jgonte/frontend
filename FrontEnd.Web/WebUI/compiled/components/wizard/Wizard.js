@@ -4,7 +4,7 @@ import html from "../../rendering/html";
 import { DataTypes } from "../../utils/data/DataTypes";
 import isClass from "../../utils/isClass";
 import { formConnectedEvent, formDisconnectedEvent } from "../form/Form";
-import Submittable from "../mixins/data/Submittable";
+import Submittable from "../mixins/submittable/Submittable";
 import Errorable from "../mixins/errorable/Errorable";
 export default class Wizard extends Errorable(Submittable(CustomElement)) {
     sharedData = {};

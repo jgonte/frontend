@@ -3,6 +3,7 @@ import { updateRoutes } from "../components/routers/hash-router/utils/routersReg
 import html from "../rendering/html";
 import { errorEvent } from "./errors/ErrorHandler";
 import IntlProvider from "./intl/IntlProvider";
+import { successEvent } from "./success/notifySuccess";
 export const AppInitializedEvent = "AppInitializedEvent";
 class AppCtrl {
     application;
@@ -17,6 +18,7 @@ class AppCtrl {
     routeParams;
     async init() {
         console.log('Initializing appCtrl...');
+        this.handleSuccess = this.handleSuccess.bind(this);
         this.handleError = this.handleError.bind(this);
         const appConfig = window.appConfig;
         if (appConfig !== undefined) {
@@ -38,6 +40,7 @@ class AppCtrl {
         const themeName = window.localStorage.getItem('app-theme') || appCtrl.defaultTheme;
         this.setTheme(themeName);
         document.body.appendChild(this.dialog);
+        document.addEventListener(successEvent, this.handleSuccess);
         document.addEventListener(errorEvent, this.handleError);
         window.addEventListener('hashchange', updateRoutes);
         updateRoutes();
@@ -49,6 +52,11 @@ class AppCtrl {
         const { dialog } = this;
         dialog.content = content;
         dialog.showing = true;
+    }
+    handleSuccess(evt) {
+        const { successMessage, } = evt.detail;
+        const content = () => html `<gcs-alert kind="success" close>${successMessage}</gcs-alert>`;
+        this.showDialog(content);
     }
     handleError(evt) {
         const { errorHandler } = this;

@@ -62,6 +62,27 @@
             return html`Simple template`;
         }
 
+        function getRemoteTemplate(record) {
+
+            const {
+                name,
+                dateOfBirth,
+                gender,
+                reputation,
+                description,
+                avatar
+            } = record;
+
+            return html`<div style="width: 200px; border: thick double #7743DB;">       
+                <div style="background-color: #FFEBD8;"> Full Name: ${name}</div>
+                <div style="background-color: #E5D4FF;"> Date: ${new Date(dateOfBirth).toLocaleDateString(navigator.language)}</div>
+                <div style="background-color: #C7DCA7;font-weight: bold;">Gender: ${gender.toUpperCase()}</div>
+                <div style="background-color: #FFDFDF;font-weight: bold;">Reputation: ${reputation}</div>
+                <div style="background-color: #F9F3CC;font-weight: bold;">Description: ${description}</div>
+                <div style="background-color: #D2E9E9;font-weight: bold;">Avatar: <img src=${`data:image/gif;base64,${avatar.content}`}/></div>
+            </div>`;
+        }
+
         setTimeout(() => {
 
             const element = document.getElementById('changing-template');
@@ -76,37 +97,57 @@
 <body>
 
     <h4>Data as object in the attributes</h4>
-
-    <gcs-data-template data='{
-        "name": "Sarah",
-        "age": 20,
-        "description": "Smart and beautiful",
-        "skills": [
-            {
-                "id": 1,
-                "description": "Artist"
-            },
-            {
-                "id": 2,
-                "description": "Medicine"
-            }
-        ]
-    }' id-field="name" template="getTemplate()">
+    <gcs-data-template 
+        data='{
+            "name": "Sarah",
+            "age": 20,
+            "description": "Smart and beautiful",
+            "skills": [
+                {
+                    "id": 1,
+                    "description": "Artist"
+                },
+                {
+                    "id": 2,
+                    "description": "Medicine"
+                }
+            ]
+        }' 
+        id-field="name" 
+        template="getTemplate()"
+    >
     </gcs-data-template>
 
     <h4>Data as a function in the attributes</h4>
-
-    <gcs-data-template id-field="name" data='getData()' template="getTemplate()">
+    <gcs-data-template 
+        id-field="name" 
+        data='getData()' 
+        template="getTemplate()"
+    >
     </gcs-data-template>
 
     <h4>Simple template</h4>
-
-    <gcs-data-template id-field="name" data='getData()' template="getSimpleTemplate()">
+    <gcs-data-template
+        id-field="name" 
+        data='getData()' 
+        template="getSimpleTemplate()"
+    >
     </gcs-data-template>
 
     <h4>Change content template</h4>
+    <gcs-data-template 
+        id="changing-template"
+        id-field="name"
+        data='getData()'
+        template="getSimpleTemplate()"
+    >
+    </gcs-data-template>
 
-    <gcs-data-template id="changing-template" id-field="name" data='getData()' template="getSimpleTemplate()">
+    <h4>Data template remote loading</h4>
+    <gcs-data-template 
+        load-url="https://localhost:7000/api/contacts/1"
+        template="getRemoteTemplate()"
+    >
     </gcs-data-template>
 
 </body>

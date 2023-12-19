@@ -33,11 +33,6 @@
             ];
         }
 
-        function getColumnKeys() {
-
-            return ["name", "age", "description", "dob"];
-        }
-
         function getColumns() {
 
             return [
@@ -72,6 +67,7 @@
     <gcs-collection-panel 
         columns="getColumns()"
         data="getData()"
+        delete-url="https://localhost:7000/api/contacts/{{id}}"
     >
     </gcs-collection-panel>
 
@@ -79,6 +75,7 @@
     <gcs-collection-panel 
         columns="getColumns()"
         load-url="https://localhost:7000/api/contacts/"
+        delete-url="https://localhost:7000/api/contacts/{{id}}"
     >
     </gcs-collection-panel>
 </body>

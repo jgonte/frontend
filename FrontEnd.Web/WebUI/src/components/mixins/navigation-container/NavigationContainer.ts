@@ -5,6 +5,7 @@ import CustomHTMLElementConstructor from "../../../custom-element/mixins/metadat
 import { DataTypes } from "../../../utils/data/DataTypes";
 import NavigationLink, { linkClickedEvent } from "../../navigation/link/NavigationLink";
 import { navigateToRoute } from "../../routers/hash-router/utils/routersRegistry";
+import RemoteLoadableHolder from "../remote-loadable/RemoteLoadable";
 import navigationContainerRegistry from "./navigationContainerRegistry";
 
 export interface INavigationContainer extends HTMLElement {
@@ -27,7 +28,12 @@ export default function NavigationContainer<TBase extends CustomHTMLElementConst
      */
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
-    return class NavigationContainerMixin extends Base implements INavigationContainer {
+    return class NavigationContainerMixin extends
+        RemoteLoadableHolder(
+            Base
+        ) implements INavigationContainer {
+
+        dataField = 'links';
 
         static get properties(): Record<string, CustomElementPropertyMetadata> {
 
@@ -70,8 +76,6 @@ export default function NavigationContainer<TBase extends CustomHTMLElementConst
         constructor(...args: any[]) {
 
             super(args);
-
-            this.isNavigationContainer = true;
 
             this.updateActiveLink = this.updateActiveLink.bind(this);
         }

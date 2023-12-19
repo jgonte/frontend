@@ -35,7 +35,6 @@ import Center from "./components/center/Center";
 import Overlay from "./components/overlay/Overlay";
 import Row from "./components/row/Row";
 import Panel from "./components/panel/Panel";
-import Loader from "./components/loader/Loader";
 import CloseTool from "./components/tools/close/CloseTool";
 import ExpanderTool from "./components/tools/expander/ExpanderTool";
 import SorterTool from "./components/tools/sorter/SorterTool";
@@ -67,4 +66,4 @@ import ApplicationHeader from "./components/application/view/header/ApplicationH
 import ApplicationView from "./components/application/view/ApplicationView";
 import getNotFoundView from "./components/views/getNotFoundView";
 import { navigateToRoute } from "./components/routers/hash-router/utils/routersRegistry";
-export { CustomHTMLElementConstructor, CustomElement, CustomElementComponentMetadata, CustomElementPropertyMetadata, DataTypes, defineCustomElement, CustomElementStateMetadata, NodePatchingData, html, css, RenderReturnTypes, viewsRegistry, appCtrl, AppInitializedEvent, Theme, Icon, LocalizedText, Alert, Accordion, Pill, Button, ToolTip, DataTemplate, Selector, DropDown, Dialog, WizardStep, Wizard, NavigationLink, NavigationBar, ContentView, RequiredTip, ModifiedTip, HelpTip, Center, Overlay, Row, Panel, Loader, Tool, CloseTool, ExpanderTool, SorterTool, DisplayableField, TextField, TextArea, NumberField, CheckBox, DateField, FileField, ComboBox, HiddenField, Slider, StarRating, PasswordField, FormField, Form, ValidationSummary, DataList, DataHeaderCell, DataHeader, DataCell, DataRow, DataGrid, CollectionPanel, HashRouter, ApplicationHeader, ApplicationView, getNotFoundView, navigateToRoute };
+export { CustomHTMLElementConstructor, CustomElement, CustomElementComponentMetadata, CustomElementPropertyMetadata, DataTypes, defineCustomElement, CustomElementStateMetadata, NodePatchingData, html, css, RenderReturnTypes, viewsRegistry, appCtrl, AppInitializedEvent, Theme, Icon, LocalizedText, Alert, Accordion, Pill, Button, ToolTip, DataTemplate, Selector, DropDown, Dialog, WizardStep, Wizard, NavigationLink, NavigationBar, ContentView, RequiredTip, ModifiedTip, HelpTip, Center, Overlay, Row, Panel, Tool, CloseTool, ExpanderTool, SorterTool, DisplayableField, TextField, TextArea, NumberField, CheckBox, DateField, FileField, ComboBox, HiddenField, Slider, StarRating, PasswordField, FormField, Form, ValidationSummary, DataList, DataHeaderCell, DataHeader, DataCell, DataRow, DataGrid, CollectionPanel, HashRouter, ApplicationHeader, ApplicationView, getNotFoundView, navigateToRoute };

@@ -29,7 +29,6 @@ import Center from "./components/center/Center";
 import Overlay from "./components/overlay/Overlay";
 import Row from "./components/row/Row";
 import Panel from "./components/panel/Panel";
-import Loader from "./components/loader/Loader";
 import CloseTool from "./components/tools/close/CloseTool";
 import ExpanderTool from "./components/tools/expander/ExpanderTool";
 import SorterTool from "./components/tools/sorter/SorterTool";
@@ -64,5 +63,5 @@ import { navigateToRoute } from "./components/routers/hash-router/utils/routersR
 window.appCtrl = appCtrl;
 window.html = html;
 window.viewsRegistry = viewsRegistry;
-export { CustomElement, DataTypes, defineCustomElement, html, css, viewsRegistry, appCtrl, AppInitializedEvent, Theme, Icon, LocalizedText, Alert, Accordion, Pill, Button, ToolTip, DataTemplate, Selector, DropDown, Dialog, WizardStep, Wizard, NavigationLink, NavigationBar, ContentView, RequiredTip, ModifiedTip, HelpTip, Center, Overlay, Row, Panel, Loader, Tool, CloseTool, ExpanderTool, SorterTool, DisplayableField, TextField, TextArea, NumberField, CheckBox, DateField, FileField, ComboBox, HiddenField, Slider, StarRating, PasswordField, FormField, Form, ValidationSummary, DataList, DataHeaderCell, DataHeader, DataCell, DataRow, DataGrid, CollectionPanel, HashRouter, ApplicationHeader, ApplicationView, getNotFoundView, navigateToRoute };
+export { CustomElement, DataTypes, defineCustomElement, html, css, viewsRegistry, appCtrl, AppInitializedEvent, Theme, Icon, LocalizedText, Alert, Accordion, Pill, Button, ToolTip, DataTemplate, Selector, DropDown, Dialog, WizardStep, Wizard, NavigationLink, NavigationBar, ContentView, RequiredTip, ModifiedTip, HelpTip, Center, Overlay, Row, Panel, Tool, CloseTool, ExpanderTool, SorterTool, DisplayableField, TextField, TextArea, NumberField, CheckBox, DateField, FileField, ComboBox, HiddenField, Slider, StarRating, PasswordField, FormField, Form, ValidationSummary, DataList, DataHeaderCell, DataHeader, DataCell, DataRow, DataGrid, CollectionPanel, HashRouter, ApplicationHeader, ApplicationView, getNotFoundView, navigateToRoute };
 //# sourceMappingURL=index.js.map

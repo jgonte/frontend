@@ -1,12 +1,13 @@
+import Sizable from "../mixins/sizable/Sizable";
+import Submittable from "../mixins/submittable/Submittable";
+import Validatable from "../mixins/validatable/Validatable";
+import Loadable from "../mixins/remote-loadable/RemoteLoadable";
+import Successful from "../mixins/successful/Successful";
+import Errorable from "../mixins/errorable/Errorable";
 import CustomElement from "../../custom-element/CustomElement";
 import defineCustomElement from "../../custom-element/defineCustomElement";
 import html from "../../rendering/html";
 import { fieldAddedEvent, changeEvent } from "../fields/Field";
-import Sizable from "../mixins/sizable/Sizable";
-import Submittable from "../mixins/data/Submittable";
-import Validatable from "../mixins/validatable/Validatable";
-import Loadable from "../mixins/data/Loadable";
-import Errorable from "../mixins/errorable/Errorable";
 import { formStyles } from "./Form.styles";
 import labelWidth from "./labelWidth";
 import labelAlign from "./labelAlign";
@@ -14,7 +15,7 @@ import isUndefinedOrNull from "../../utils/isUndefinedOrNull";
 import { DataTypes } from "../../utils/data/DataTypes";
 export const formConnectedEvent = "formConnectedEvent";
 export const formDisconnectedEvent = "formDisconnectedEvent";
-export default class Form extends Sizable(Submittable(Validatable(Loadable(Errorable(CustomElement))))) {
+export default class Form extends Sizable(Submittable(Validatable(Loadable(Successful(Errorable(CustomElement)))))) {
     _fields = new Map();
     modifiedFields = new Set();
     constructor() {
@@ -42,7 +43,6 @@ export default class Form extends Sizable(Submittable(Validatable(Loadable(Error
         return html `<form>
             ${this.renderLoading()}
             ${this.renderSubmitting()}
-            ${this.renderError()}
             <slot label-width=${labelWidth} label-align=${labelAlign} key="form-fields"></slot>
             ${this._renderButton()}
         </form>`;

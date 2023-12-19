@@ -61,7 +61,8 @@ function getErrorMessage(error: AnyError): string {
         else { // Create a message from the error status
 
             switch(error.status) {
-                case 404: return 'Resource not found';
+                case 404: return 'Not Found';
+                case 405: return 'Method Not Allowed';
                 default: throw new Error(`Not implemented for error status: ${error.status}`);
             }
 

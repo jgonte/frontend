@@ -2,11 +2,11 @@ import defineCustomElement from "../../../custom-element/defineCustomElement";
 import html from "../../../rendering/html";
 import { DataTypes } from "../../../utils/data/DataTypes";
 import SelectionContainer from "../../mixins/selection-container/SelectionContainer";
-import DataCollectionHolder from "../../mixins/data/DataCollectionHolder";
+import CollectionDataHolder from "../../mixins/data-holder/CollectionDataHolder";
 import DisplayableField from "../DisplayableField";
 import isPrimitive from "../../../utils/isPrimitive";
 import { changeEvent } from "../Field";
-export default class ComboBox extends SelectionContainer(DataCollectionHolder(DisplayableField)) {
+export default class ComboBox extends SelectionContainer(CollectionDataHolder(DisplayableField)) {
     static get properties() {
         return {
             displayField: {

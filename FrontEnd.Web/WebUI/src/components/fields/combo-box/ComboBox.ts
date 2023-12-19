@@ -6,7 +6,7 @@ import { NodePatchingData } from "../../../rendering/nodes/NodePatchingData";
 import { DataTypes } from "../../../utils/data/DataTypes";
 import { DynamicObject, GenericRecord } from "../../../utils/types";
 import SelectionContainer, { SelectionTypes } from "../../mixins/selection-container/SelectionContainer";
-import DataCollectionHolder from "../../mixins/data/DataCollectionHolder";
+import CollectionDataHolder from "../../mixins/data-holder/CollectionDataHolder";
 import DisplayableField from "../DisplayableField";
 import isPrimitive from "../../../utils/isPrimitive";
 import CustomElement from "../../../custom-element/CustomElement";
@@ -14,7 +14,7 @@ import { changeEvent } from "../Field";
 
 export default class ComboBox extends
     SelectionContainer(
-        DataCollectionHolder(
+        CollectionDataHolder(
             DisplayableField as unknown as CustomHTMLElementConstructor
         )
     ) {

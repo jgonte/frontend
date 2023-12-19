@@ -49,9 +49,6 @@ import Overlay from "./components/overlay/Overlay";
 import Row from "./components/row/Row";
 import Panel from "./components/panel/Panel";
 
-// Data
-import Loader from "./components/loader/Loader";
-
 // Tools
 import CloseTool from "./components/tools/close/CloseTool";
 import ExpanderTool from "./components/tools/expander/ExpanderTool";
@@ -158,9 +155,6 @@ export {
     Overlay,
     Row,
     Panel,
-
-    // Data
-    Loader,
 
     // Tools
     Tool,

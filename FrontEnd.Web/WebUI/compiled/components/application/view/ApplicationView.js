@@ -4,7 +4,7 @@ import mergeStyles from "../../../custom-element/styles/mergeStyles";
 import html from "../../../rendering/html";
 import scriptsRegistry from "../../../services/application/type/module/script/scriptsRegistry";
 import viewsRegistry from "../../../services/application/type/module/script/viewsRegistry";
-import Loadable from "../../mixins/data/Loadable";
+import Loadable from "../../mixins/remote-loadable/RemoteLoadable";
 import Errorable from "../../mixins/errorable/Errorable";
 import { applicationViewStyles } from "./ApplicationView.styles";
 export default class ApplicationView extends Loadable(Errorable(CustomElement)) {

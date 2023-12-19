@@ -8,5 +8,6 @@ export default class DataGrid extends DataGrid_base {
     render(): NodePatchingData;
     renderHeader(): NodePatchingData;
     renderBody(): NodePatchingData[];
+    load(): void;
 }
 export {};

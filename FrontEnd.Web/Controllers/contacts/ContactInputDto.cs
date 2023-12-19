@@ -12,7 +12,7 @@ public class ContactInputDto
 
     public int? Reputation { get; set; }
 
-    public string Description { get; set; }
+    public string? Description { get; set; }
 
-    public IFormFile Avatar { get; set; }
+    public IFormFile? Avatar { get; set; }
 }
