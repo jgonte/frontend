@@ -13,7 +13,6 @@ import Route from "../../../services/application/type/route/Route";
 import { GenericRecord } from "../../../utils/types";
 import DataResponse from "../../../utils/data/transfer/DataResponse";
 import Loadable from "../../mixins/remote-loadable/RemoteLoadable";
-import Errorable from "../../mixins/errorable/Errorable";
 import { applicationViewStyles } from "./ApplicationView.styles";
 
 /**
@@ -21,9 +20,7 @@ import { applicationViewStyles } from "./ApplicationView.styles";
  */
 export default class ApplicationView extends
     Loadable(
-        Errorable(
-            CustomElement as CustomHTMLElementConstructor
-        )
+        CustomElement as CustomHTMLElementConstructor
     ) {
 
     static get styles(): string {
@@ -46,7 +43,9 @@ export default class ApplicationView extends
 
     render(): NodePatchingData | null {
 
-        const application = this.application as Application;
+        const {
+            application
+        } = this;
 
         if (application === null) {
 

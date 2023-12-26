@@ -2,12 +2,10 @@ import CustomElement from "../../../custom-element/CustomElement";
 import defineCustomElement from "../../../custom-element/defineCustomElement";
 import CustomElementPropertyMetadata from "../../../custom-element/mixins/metadata/types/CustomElementPropertyMetadata";
 import CustomElementStateMetadata from "../../../custom-element/mixins/metadata/types/CustomElementStateMetadata";
-import CustomHTMLElementConstructor from "../../../custom-element/mixins/metadata/types/CustomHTMLElementConstructor";
 import mergeStyles from "../../../custom-element/styles/mergeStyles";
 import html from "../../../rendering/html";
 import { NodePatchingData } from "../../../rendering/nodes/NodePatchingData";
 import { DataTypes } from "../../../utils/data/DataTypes";
-import Sizable from "../../mixins/sizable/Sizable";
 import { validationEvent } from "../../mixins/validatable/Validatable";
 import { formFieldStyles } from "./FormField.styles";
 import css from "../../../custom-element/styles/css";
@@ -15,10 +13,7 @@ import labelAlign from "../labelAlign";
 import labelWidth from "../labelWidth";
 import { inputEvent } from "../../fields/DisplayableField";
 
-export default class FormField extends
-    Sizable(
-        CustomElement as CustomHTMLElementConstructor
-    )
+export default class FormField extends CustomElement
 {
 
     static get styles(): string {

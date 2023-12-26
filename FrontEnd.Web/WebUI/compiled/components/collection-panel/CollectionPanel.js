@@ -1,11 +1,11 @@
-import Successful from "../mixins/successful/Successful";
 import CustomElement from "../../custom-element/CustomElement";
 import defineCustomElement from "../../custom-element/defineCustomElement";
 import html from "../../rendering/html";
 import notifyError from "../../services/errors/notifyError";
 import { DataTypes } from "../../utils/data/DataTypes";
 import Fetcher from "../../utils/data/transfer/Fetcher";
-export default class CollectionPanel extends Successful(CustomElement) {
+import notifySuccess from "../../services/success/notifySuccess";
+export default class CollectionPanel extends CustomElement {
     _deleteFetcher;
     static get properties() {
         return {
@@ -35,6 +35,10 @@ export default class CollectionPanel extends Successful(CustomElement) {
                 attribute: 'create-url',
                 type: DataTypes.String
             },
+            loadRecordUrl: {
+                attribute: 'load-record-url',
+                type: DataTypes.String
+            },
             updateUrl: {
                 attribute: 'update-url',
                 type: DataTypes.String
@@ -42,7 +46,12 @@ export default class CollectionPanel extends Successful(CustomElement) {
             deleteUrl: {
                 attribute: 'delete-url',
                 type: DataTypes.String
-            }
+            },
+            formContent: {
+                attribute: 'form-content',
+                type: DataTypes.Function,
+                defer: true
+            },
         };
     }
     constructor() {
@@ -93,12 +102,12 @@ export default class CollectionPanel extends Successful(CustomElement) {
                 ...columns,
                 {
                     value: 'edit',
-                    render: function () {
+                    render: function (_value, record) {
                         return html `
 <gcs-button 
     kind="warning" 
     size="large" 
-    click=${showEditForm}
+    click=${() => showEditForm(record)}
 >
     Edit
 </gcs-button>`;
@@ -135,43 +144,109 @@ export default class CollectionPanel extends Successful(CustomElement) {
 </gcs-data-grid>`;
     }
     renderInsertDialog() {
+        if (!this.createUrl) {
+            return null;
+        }
         return html `
-<gcs-dialog 
-    id="add-dialog" 
+<gcs-overlay 
+    id="add-overlay" 
     slot="body"
 >
-    Add record
-</gcs-dialog>`;
+    <gcs-panel>
+
+        <gcs-panel-header
+            slot="header"
+            icon-name="database-add"
+            close
+        >
+            <gcs-localized-text slot="title">Add Record</gcs-localized-text>
+        </gcs-panel-header>
+        
+        <gcs-form 
+            id="create-form"
+            slot="body"
+            submit-url=${this.createUrl}
+        >
+        ${this.renderFormBody()}
+        </gcs-form>
+        
+    </gcs-panel>
+
+</gcs-overlay>`;
+    }
+    renderFormBody() {
+        const { formContent } = this;
+        if (formContent) {
+            return formContent();
+        }
+        else {
+            return html `
+<gcs-alert 
+    kind="danger" 
+>
+    <gcs-localized-text>No content for the form has been found.</gcs-localized-text>
+</gcs-alert>`;
+        }
     }
     renderUpdateDialog() {
+        if (!this.updateUrl) {
+            return null;
+        }
         return html `
-<gcs-dialog 
-    id="update-dialog" 
+<gcs-overlay 
+    id="update-overlay" 
     slot="body"
 >
-    Generate a dynamic form or use an existing one
-</gcs-dialog>`;
+    <gcs-panel>
+
+        <gcs-panel-header
+            slot="header"
+            icon-name="database-check"
+            close
+        >
+            <localized-label slot="title">Update Record</localized-label>
+        </gcs-panel-header>
+        
+        <gcs-form 
+            id="update-form"
+            slot="body"
+            load-url=${this.loadRecordUrl}
+            auto-load="false"
+            submit-url=${this.createUrl}
+        >
+        ${this.renderFormBody()}
+        </gcs-form>
+        
+    </gcs-panel>
+
+</gcs-overlay>`;
     }
     renderDeleteDialog() {
         return html `
-<gcs-dialog 
-    id="delete-dialog" 
+<gcs-overlay 
+    id="delete-overlay" 
     slot="body"
 >
-</gcs-dialog>`;
+</gcs-overlay>`;
     }
     showAddForm() {
-        const dialog = this.findChild((n) => n.id === 'add-dialog');
-        dialog.showing = true;
+        const overlay = this.findChild((n) => n.id === 'add-overlay');
+        overlay.showing = true;
     }
-    showEditForm() {
-        const dialog = this.findChild((n) => n.id === 'update-dialog');
-        dialog.showing = true;
+    showEditForm(record) {
+        const form = this.findChild((n) => n.id === 'update-form');
+        const { idField } = this;
+        const params = {
+            [idField]: record[idField]
+        };
+        form.loadRemote(params);
+        const overlay = this.findChild((n) => n.id === 'update-overlay');
+        overlay.showing = true;
     }
     showConfirmDelete(record) {
-        const dialog = this.findChild((n) => n.id === 'delete-dialog');
+        const overlay = this.findChild((n) => n.id === 'delete-overlay');
         const { deleteRecord } = this;
-        dialog.content = () => html `
+        overlay.content = () => html `
 <gcs-alert
     kind="danger" 
     close
@@ -188,7 +263,7 @@ export default class CollectionPanel extends Successful(CustomElement) {
         </gcs-button>
     </gcs-row>  
 </gcs-alert>`;
-        dialog.showing = true;
+        overlay.showing = true;
     }
     async deleteRecord(record) {
         const { idField, deleteUrl } = this;
@@ -202,11 +277,11 @@ export default class CollectionPanel extends Successful(CustomElement) {
         });
     }
     handleSuccessfulDelete() {
-        const dialog = this.findChild((n) => n.id === 'delete-dialog');
-        dialog.showing = false;
+        const overlay = this.findChild((n) => n.id === 'delete-overlay');
+        overlay.showing = false;
         const grid = this.findChild((n) => n.id === 'data-grid');
         grid.load();
-        this.renderSuccess('Record was successfully deleted.');
+        notifySuccess(this, 'Record was successfully deleted.');
     }
 }
 defineCustomElement('gcs-collection-panel', CollectionPanel);

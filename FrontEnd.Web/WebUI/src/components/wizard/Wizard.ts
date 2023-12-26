@@ -10,13 +10,10 @@ import { DynamicObject, GenericRecord } from "../../utils/types";
 import Button from "../button/Button";
 import Form, { formConnectedEvent, formDisconnectedEvent } from "../form/Form";
 import Submittable from "../mixins/submittable/Submittable";
-import Errorable from "../mixins/errorable/Errorable";
 
 export default class Wizard extends
-    Errorable(
-        Submittable(
-            CustomElement
-        )
+    Submittable(
+        CustomElement
     ) {
 
     // The shared data of the wizard

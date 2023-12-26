@@ -2,9 +2,8 @@ import CustomElement from "../../custom-element/CustomElement";
 import defineCustomElement from "../../custom-element/defineCustomElement";
 import mergeStyles from "../../custom-element/styles/mergeStyles";
 import html from "../../rendering/html";
-import Sizable from "../mixins/sizable/Sizable";
 import { panelStyles } from "./Panel.styles";
-export default class Panel extends Sizable(CustomElement) {
+export default class Panel extends CustomElement {
     static get styles() {
         return mergeStyles(super.styles, panelStyles);
     }

@@ -2,6 +2,7 @@ import css from "../../../custom-element/styles/css";
 export const formFieldStyles = css `
 :host {
     display: block;
+    margin: var(--gcs-margin);
 }
 
 #labeled-field {

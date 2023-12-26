@@ -4,7 +4,7 @@
   "description": "Web components framework",
   "main": "index.js",
   "scripts": {
-    "clean": "rimraf ../wwwroot/lib",
+    "clean": "rimraf ../wwwroot/lib ./compiled",
     "lint": "eslint ./src/**/*.ts",
     "apiDoc": "yarn api-extractor run --local",
     "build": "npm run clean && tsc && rollup -c && npm run apiDoc",

@@ -1,9 +1,6 @@
-import Sizable from "../mixins/sizable/Sizable";
 import Submittable from "../mixins/submittable/Submittable";
 import Validatable from "../mixins/validatable/Validatable";
 import Loadable from "../mixins/remote-loadable/RemoteLoadable";
-import Successful from "../mixins/successful/Successful";
-import Errorable from "../mixins/errorable/Errorable";
 import CustomElement from "../../custom-element/CustomElement";
 import defineCustomElement from "../../custom-element/defineCustomElement";
 import html from "../../rendering/html";
@@ -13,9 +10,10 @@ import labelWidth from "./labelWidth";
 import labelAlign from "./labelAlign";
 import isUndefinedOrNull from "../../utils/isUndefinedOrNull";
 import { DataTypes } from "../../utils/data/DataTypes";
+import notifyError from "../../services/errors/notifyError";
 export const formConnectedEvent = "formConnectedEvent";
 export const formDisconnectedEvent = "formDisconnectedEvent";
-export default class Form extends Sizable(Submittable(Validatable(Loadable(Successful(Errorable(CustomElement)))))) {
+export default class Form extends Submittable(Validatable(Loadable(CustomElement))) {
     _fields = new Map();
     modifiedFields = new Set();
     constructor() {
@@ -61,7 +59,7 @@ export default class Form extends Sizable(Submittable(Validatable(Loadable(Succe
     }
     submit() {
         if (this.modifiedFields.size === 0) {
-            this.error = 'This form has not been modified';
+            notifyError(this, 'This form has not been modified');
             return;
         }
         if (this.validate()) {

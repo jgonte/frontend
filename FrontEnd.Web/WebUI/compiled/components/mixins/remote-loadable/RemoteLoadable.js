@@ -1,6 +1,7 @@
 import html from "../../../rendering/html";
 import { DataTypes } from "../../../utils/data/DataTypes";
 import Fetcher from "../../../utils/data/transfer/Fetcher";
+import notifyError from "../../../services/errors/notifyError";
 export default function RemoteLoadableHolder(Base) {
     return class RemoteLoadableHolderMixin extends Base {
         _loadFetcher;
@@ -51,14 +52,14 @@ export default function RemoteLoadableHolder(Base) {
                 onError: error => this.handleLoadError(error)
             });
             if (this.autoLoad === true) {
-                setTimeout(() => this.loadRemote(), 0);
+                setTimeout(() => this.loadRemote(undefined), 0);
             }
         }
-        loadRemote() {
-            this.error = undefined;
+        loadRemote(params) {
             this.loading = true;
             this._loadFetcher?.fetch({
-                url: this.loadUrl
+                url: this.loadUrl,
+                params
             });
         }
         async handleLoadData(data) {
@@ -76,8 +77,7 @@ export default function RemoteLoadableHolder(Base) {
         async handleLoadError(error) {
             await this.updateComplete;
             this.loading = false;
-            this.error = error;
-            this.renderError();
+            notifyError(this, error);
         }
     };
 }

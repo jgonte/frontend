@@ -1,5 +1,5 @@
-import DataCell from "../../../../../components/data-grid/body/cell/DataCell";
-import DataRow from "../../../../../components/data-grid/body/row/DataRow";
+import DataGridBodyCell from "../../../../../components/data-grid/body/cell/DataGridBodyCell";
+import DataGridBodyRow from "../../../../../components/data-grid/body/row/DataGridBodyRow";
 import defineCustomElement from "../../../../../custom-element/defineCustomElement";
 import clearCustomElements from "../../../../custom-element/helpers/clearCustomElements";
 import getContentWithoutStyle from "../../../helpers/getContentWithoutStyle";
@@ -8,8 +8,8 @@ beforeEach(() => {
 });
 describe("Data row tests", () => {
     it('should render when the data of the attributes is provided', async () => {
-        defineCustomElement('gcs-data-cell', DataCell);
-        defineCustomElement('gcs-data-row', DataRow);
+        defineCustomElement('gcs-data-cell', DataGridBodyCell);
+        defineCustomElement('gcs-data-row', DataGridBodyRow);
         const fields = [
             "name",
             "age",
@@ -43,8 +43,8 @@ describe("Data row tests", () => {
         window.getFields = function () {
             return ["name", "age", "description"];
         };
-        defineCustomElement('gcs-data-cell', DataCell);
-        defineCustomElement('gcs-data-row', DataRow);
+        defineCustomElement('gcs-data-cell', DataGridBodyCell);
+        defineCustomElement('gcs-data-row', DataGridBodyRow);
         document.body.innerHTML = '<gcs-data-row id="dr2" record="getRecord()" fields="getFields()"></gcs-data-row>';
         const component = document.querySelector('gcs-data-row');
         await component.updateComplete;

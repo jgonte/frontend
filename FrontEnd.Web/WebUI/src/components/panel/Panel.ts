@@ -1,19 +1,14 @@
 import CustomElement from "../../custom-element/CustomElement";
 import defineCustomElement from "../../custom-element/defineCustomElement";
-import CustomHTMLElementConstructor from "../../custom-element/mixins/metadata/types/CustomHTMLElementConstructor";
 import { RenderReturnTypes } from "../../custom-element/mixins/metadata/types/IRenderable";
 import mergeStyles from "../../custom-element/styles/mergeStyles";
 import html from "../../rendering/html";
-import Sizable from "../mixins/sizable/Sizable";
 import { panelStyles } from "./Panel.styles";
 
 /**
  * It is a component that has a header, body and footer
  */
-export default class Panel extends
-    Sizable(
-        CustomElement as CustomHTMLElementConstructor
-    ) {
+export default class Panel extends CustomElement {
 
     static get styles(): string {
 

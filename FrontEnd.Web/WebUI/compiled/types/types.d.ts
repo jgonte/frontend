@@ -7,14 +7,15 @@ export declare class Accordion extends CustomElement {
     renderExpanderIcon(): NodePatchingData;
 }
 
-export declare class Alert extends Nuanced {
+export declare class Alert extends Alert_base {
     static get styles(): string;
     static get properties(): Record<string, CustomElementPropertyMetadata>;
     render(): NodePatchingData;
     private _renderIcon;
     private _getIconName;
-    private _renderCloseTool;
 }
+
+declare const Alert_base: typeof Nuanced;
 
 declare type AnyPatchedNode = PatchedNode | PatchedChildNode | PatchedHTMLElement;
 
@@ -24,7 +25,7 @@ declare class AppCtrl {
     user?: User;
     intlProvider?: IntlProvider;
     iconsPath?: string;
-    dialog: Dialog;
+    overlay: Overlay;
     apiUrl?: string;
     themeNamesUrl?: string;
     defaultTheme?: string;
@@ -97,7 +98,7 @@ export declare class CloseTool extends Tool {
     handleClick(): void;
 }
 
-export declare class CollectionPanel extends CollectionPanel_base {
+export declare class CollectionPanel extends CustomElement {
     private _deleteFetcher?;
     static get properties(): Record<string, CustomElementPropertyMetadata>;
     constructor();
@@ -105,17 +106,16 @@ export declare class CollectionPanel extends CollectionPanel_base {
     render(): NodePatchingData;
     renderToolbar(): NodePatchingData | null;
     renderDataGrid(): NodePatchingData;
-    renderInsertDialog(): NodePatchingData;
-    renderUpdateDialog(): NodePatchingData;
+    renderInsertDialog(): NodePatchingData | null;
+    renderFormBody(): NodePatchingData;
+    renderUpdateDialog(): NodePatchingData | null;
     renderDeleteDialog(): NodePatchingData;
     showAddForm(): void;
-    showEditForm(): void;
+    showEditForm(record: GenericRecord): void;
     showConfirmDelete(record: GenericRecord): void;
     deleteRecord(record: GenericRecord): Promise<void>;
     handleSuccessfulDelete(): void;
 }
-
-declare const CollectionPanel_base: typeof CustomElement;
 
 export declare class ComboBox extends ComboBox_base {
     static get properties(): Record<string, CustomElementPropertyMetadata>;
@@ -251,6 +251,8 @@ export declare class DataGrid extends DataGrid_base {
 
 declare const DataGrid_base: CustomHTMLElementConstructor;
 
+declare const DataGridBodyRow_base: CustomHTMLElementConstructor;
+
 declare interface DataGridColumnDescriptor {
     name: string;
     display: string | (() => NodePatchingData);
@@ -260,7 +262,7 @@ declare interface DataGridColumnDescriptor {
     render: (value: unknown, record: GenericRecord, column: DataGridColumnDescriptor) => NodePatchingData;
 }
 
-export declare class DataHeader extends CustomElement {
+export declare class DataGridHeader extends CustomElement {
     static get styles(): string;
     static get properties(): Record<string, CustomElementPropertyMetadata>;
     render(): NodePatchingData[];
@@ -287,13 +289,11 @@ declare interface DataResponse {
     payload: GenericRecord | string;
 }
 
-export declare class DataRow extends DataRow_base {
+export declare class DataRow extends DataGridBodyRow_base {
     static get styles(): string;
     static get properties(): Record<string, CustomElementPropertyMetadata>;
     render(): NodePatchingData[];
 }
-
-declare const DataRow_base: CustomHTMLElementConstructor;
 
 export declare class DataTemplate extends DataTemplate_base {
     static get properties(): Record<string, CustomElementPropertyMetadata>;
@@ -321,15 +321,6 @@ export declare class DateField extends DisplayableField {
 }
 
 export declare function defineCustomElement(name: string, constructor: CustomElementConstructor | Constructor<HTMLElement>): void;
-
-export declare class Dialog extends CustomElement {
-    static get properties(): Record<string, CustomElementPropertyMetadata>;
-    static get state(): Record<string, CustomElementStateMetadata>;
-    connectedCallback(): void;
-    disconnectedCallback(): void;
-    handleClose(): void;
-    render(): NodePatchingData | null;
-}
 
 export declare abstract class DisplayableField extends DisplayableField_base {
     _initialValue?: unknown;
@@ -427,7 +418,7 @@ export declare class Form extends Form_base {
 
 declare const Form_base: CustomHTMLElementConstructor;
 
-export declare class FormField extends FormField_base {
+export declare class FormField extends CustomElement {
     static get styles(): string;
     static get properties(): Record<string, CustomElementPropertyMetadata>;
     static get state(): Record<string, CustomElementStateMetadata>;
@@ -437,8 +428,6 @@ export declare class FormField extends FormField_base {
     handleInput(event: CustomEvent): Promise<void>;
     handleValidation(event: CustomEvent): Promise<void>;
 }
-
-declare const FormField_base: CustomHTMLElementConstructor;
 
 declare type GenericRecord = Record<string, unknown>;
 
@@ -459,11 +448,9 @@ export declare class HashRouter extends CustomElement {
     rewriteHash(path: string): void;
 }
 
-export declare class HelpTip extends HelpTip_base {
+export declare class HelpTip extends CustomElement {
     render(): NodePatchingData;
 }
-
-declare const HelpTip_base: CustomHTMLElementConstructor;
 
 export declare class HiddenField extends Field {
     render(): NodePatchingData;
@@ -471,13 +458,11 @@ export declare class HiddenField extends Field {
 
 export declare function html(strings: TemplateStringsArray, ...values: NodePatchingDataValues): NodePatchingData;
 
-export declare class Icon extends Icon_base {
+export declare class Icon extends CustomElement {
     static get styles(): string;
     static get properties(): Record<string, CustomElementPropertyMetadata>;
     render(): Promise<NodePatchingData | null>;
 }
-
-declare const Icon_base: CustomHTMLElementConstructor;
 
 declare interface INodePatcher {
     template: HTMLTemplateElement;
@@ -499,7 +484,7 @@ declare interface IRenderable {
     render(): RenderReturnTypes;
 }
 
-export declare class LocalizedText extends LocalizedText_base {
+export declare class LocalizedText extends CustomElement {
     static get styles(): string;
     private _key;
     static get properties(): Record<string, CustomElementPropertyMetadata>;
@@ -509,13 +494,9 @@ export declare class LocalizedText extends LocalizedText_base {
     handleLanguageChanged(provider: IntlProvider): void;
 }
 
-declare const LocalizedText_base: CustomHTMLElementConstructor;
-
-export declare class ModifiedTip extends ModifiedTip_base {
+export declare class ModifiedTip extends CustomElement {
     render(): NodePatchingData;
 }
-
-declare const ModifiedTip_base: CustomHTMLElementConstructor;
 
 declare interface Module {
     name: string;
@@ -592,14 +573,26 @@ declare class Observer {
 
 export declare class Overlay extends CustomElement {
     static get styles(): string;
+    static get properties(): Record<string, CustomElementPropertyMetadata>;
+    static get state(): Record<string, CustomElementStateMetadata>;
+    connectedCallback(): void;
+    disconnectedCallback(): void;
+    handleClose(): void;
+    render(): NodePatchingData | null;
 }
 
-export declare class Panel extends Panel_base {
+export declare class Panel extends CustomElement {
     static get styles(): string;
     render(): RenderReturnTypes;
 }
 
-declare const Panel_base: CustomHTMLElementConstructor;
+export declare class PanelHeader extends PanelHeader_base {
+    static get properties(): Record<string, CustomElementPropertyMetadata>;
+    render(): NodePatchingData;
+    renderIcon(): NodePatchingData | null;
+}
+
+declare const PanelHeader_base: typeof CustomElement;
 
 declare type ParameterlessVoidFunction = () => void;
 
@@ -620,11 +613,9 @@ export declare class Pill extends Nuanced {
 
 export declare type RenderReturnTypes = NodePatchingData | NodePatchingData[] | Promise<NodePatchingData | null> | null;
 
-export declare class RequiredTip extends RequiredTip_base {
+export declare class RequiredTip extends CustomElement {
     render(): NodePatchingData;
 }
-
-declare const RequiredTip_base: CustomHTMLElementConstructor;
 
 declare interface Route {
     module?: string;

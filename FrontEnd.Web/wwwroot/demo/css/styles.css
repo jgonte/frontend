@@ -93,9 +93,7 @@
     */
 
 	/* Font sizes */
-	--gcs-font-size-large: 2.56rem;
-	--gcs-font-size-medium: 1.6rem;
-	--gcs-font-size-small: 1rem;
+	--gcs-font-size: 1.4rem;
 
 	/* Icon sizes */
 	--gcs-icon-size-large: 2.048rem;
@@ -104,17 +102,21 @@
 
 	/* Border */
 	--gcs-border-width: .1em;
-	--gcs-border-radius: 5px;
+	--gcs-border-radius: 0.5rem;
 
 	/* Min height */
 	--gcs-min-height: 1.2em;
 
 	/* Margin */
 	--gcs-margin: .25em;
+
+	/* Padding */
+    --gcs-padding: .25em;
 }
 
 body {
 	font-family: var(--gcs-font-family);
+	font-size: var(--gcs-font-size);
 	background-color: var(--bg-color);
 	color: var(--text-color);
 }

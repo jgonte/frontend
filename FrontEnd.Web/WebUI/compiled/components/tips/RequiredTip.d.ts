@@ -1,7 +1,5 @@
-import CustomHTMLElementConstructor from "../../custom-element/mixins/metadata/types/CustomHTMLElementConstructor";
+import CustomElement from "../../custom-element/CustomElement";
 import { NodePatchingData } from "../../rendering/nodes/NodePatchingData";
-declare const RequiredTip_base: CustomHTMLElementConstructor;
-export default class RequiredTip extends RequiredTip_base {
+export default class RequiredTip extends CustomElement {
     render(): NodePatchingData;
 }
-export {};

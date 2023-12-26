@@ -5,9 +5,8 @@ import html from "../../../rendering/html";
 import scriptsRegistry from "../../../services/application/type/module/script/scriptsRegistry";
 import viewsRegistry from "../../../services/application/type/module/script/viewsRegistry";
 import Loadable from "../../mixins/remote-loadable/RemoteLoadable";
-import Errorable from "../../mixins/errorable/Errorable";
 import { applicationViewStyles } from "./ApplicationView.styles";
-export default class ApplicationView extends Loadable(Errorable(CustomElement)) {
+export default class ApplicationView extends Loadable(CustomElement) {
     static get styles() {
         return mergeStyles(super.styles, applicationViewStyles);
     }
@@ -19,7 +18,7 @@ export default class ApplicationView extends Loadable(Errorable(CustomElement)) 
         };
     }
     render() {
-        const application = this.application;
+        const { application } = this;
         if (application === null) {
             return html `
 <div id="header">

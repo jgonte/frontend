@@ -1,6 +1,5 @@
 import css from "../../custom-element/styles/css";
 export const displayableFieldStyles = css `
-
 input, 
 select,
 textarea {

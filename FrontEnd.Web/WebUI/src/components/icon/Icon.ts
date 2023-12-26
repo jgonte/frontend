@@ -1,20 +1,16 @@
 import CustomElement from "../../custom-element/CustomElement";
 import defineCustomElement from "../../custom-element/defineCustomElement";
 import CustomElementPropertyMetadata from "../../custom-element/mixins/metadata/types/CustomElementPropertyMetadata";
-import CustomHTMLElementConstructor from "../../custom-element/mixins/metadata/types/CustomHTMLElementConstructor";
 import mergeStyles from "../../custom-element/styles/mergeStyles";
 import html from "../../rendering/html";
 import { NodePatchingData } from "../../rendering/nodes/NodePatchingData";
 import appCtrl from "../../services/appCtrl";
 import { DataTypes } from "../../utils/data/DataTypes";
-import Sizable from "../mixins/sizable/Sizable";
 import { iconStyles } from "./Icon.styles";
 
 const iconsCache = new Map<string, string>();
 
-export default class Icon extends Sizable(
-    CustomElement as CustomHTMLElementConstructor
-) {
+export default class Icon extends CustomElement {
 
     static get styles(): string {
 

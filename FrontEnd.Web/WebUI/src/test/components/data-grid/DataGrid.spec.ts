@@ -1,5 +1,5 @@
-import DataCell from "../../../components/data-grid/body/cell/DataCell";
-import DataRow from "../../../components/data-grid/body/row/DataRow";
+import DataGridBodyCell from "../../../components/data-grid/body/cell/DataGridBodyCell";
+import DataGridBodyRow from "../../../components/data-grid/body/row/DataGridBodyRow";
 import DataGrid from "../../../components/data-grid/DataGrid";
 import CustomElement from "../../../custom-element/CustomElement";
 import defineCustomElement from "../../../custom-element/defineCustomElement";
@@ -35,9 +35,9 @@ describe("Data grid tests", () => {
     it('should render when the data of the attributes is provided', async () => {
 
         // Re-register the data grid since all the custom elements are cleared before any test
-        defineCustomElement('gcs-data-cell', DataCell);
+        defineCustomElement('gcs-data-cell', DataGridBodyCell);
 
-        defineCustomElement('gcs-data-row', DataRow);
+        defineCustomElement('gcs-data-row', DataGridBodyRow);
 
         defineCustomElement('gcs-data-grid', DataGrid);
 
@@ -84,9 +84,9 @@ describe("Data grid tests", () => {
         };
 
         // Re-register the data grid since all the custom elements are cleared before any test
-        defineCustomElement('gcs-data-cell', DataCell);
+        defineCustomElement('gcs-data-cell', DataGridBodyCell);
 
-        defineCustomElement('gcs-data-row', DataRow);
+        defineCustomElement('gcs-data-row', DataGridBodyRow);
 
         defineCustomElement('gcs-data-grid', DataGrid);
 
@@ -128,9 +128,9 @@ describe("Data grid tests", () => {
         };
 
         // Re-register the data grid since all the custom elements are cleared before any test
-        defineCustomElement('gcs-data-cell', DataCell);
+        defineCustomElement('gcs-data-cell', DataGridBodyCell);
 
-        defineCustomElement('gcs-data-row', DataRow);
+        defineCustomElement('gcs-data-row', DataGridBodyRow);
 
         defineCustomElement('gcs-data-grid', DataGrid);
 

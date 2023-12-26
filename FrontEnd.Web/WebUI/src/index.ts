@@ -27,7 +27,6 @@ import ToolTip from "./components/tool-tip/ToolTip";
 import DataTemplate from "./components/data-template/DataTemplate";
 import Selector from "./components/selector/Selector";
 import DropDown from "./components/drop-down/DropDown";
-import Dialog from "./components/dialog.ts/Dialog";
 
 // Wizard
 import WizardStep from "./components/wizard/step/WizardStep";
@@ -47,6 +46,7 @@ import RequiredTip from "./components/tips/RequiredTip";
 import Center from "./components/center/Center";
 import Overlay from "./components/overlay/Overlay";
 import Row from "./components/row/Row";
+import PanelHeader from "./components/panel/header/PanelHeader";
 import Panel from "./components/panel/Panel";
 
 // Tools
@@ -76,10 +76,10 @@ import ValidationSummary from "./components/validation-summary/ValidationSummary
 
 // Display
 import DataList from "./components/data-list/DataList";
-import DataCell from "./components/data-grid/body/cell/DataCell";
-import DataRow from "./components/data-grid/body/row/DataRow";
-import DataHeaderCell from "./components/data-grid/header/cell/DataHeaderCell";
-import DataHeader from "./components/data-grid/header/DataHeader";
+import DataGridBodyCell from "./components/data-grid/body/cell/DataGridBodyCell";
+import DataGridBodyRow from "./components/data-grid/body/row/DataGridBodyRow";
+import DataGridHeaderCell from "./components/data-grid/header/cell/DataGridHeaderCell";
+import DataGridHeader from "./components/data-grid/header/DataGridHeader";
 import DataGrid from "./components/data-grid/DataGrid";
 import CollectionPanel from "./components/collection-panel/CollectionPanel";
 
@@ -134,7 +134,6 @@ export {
     DataTemplate,
     Selector,
     DropDown,
-    Dialog,
 
     // Wizard
     WizardStep,
@@ -154,6 +153,7 @@ export {
     Center,
     Overlay,
     Row,
+    PanelHeader,
     Panel,
 
     // Tools
@@ -183,10 +183,10 @@ export {
 
     // Display
     DataList,
-    DataHeaderCell,
-    DataHeader,
-    DataCell,
-    DataRow,
+    DataGridHeaderCell as DataHeaderCell,
+    DataGridHeader,
+    DataGridBodyCell as DataCell,
+    DataGridBodyRow as DataRow,
     DataGrid,
     CollectionPanel,
 

@@ -1904,6 +1904,17 @@ function createKindStyles(ctor) {
                 kinds.forEach(kind => styles.push(createVariantStyles(ctor, kind)));
             }
             break;
+        case "Alert":
+            {
+                console.warn(`Setting default kind styles for element: '${ctor.name}'`);
+                kinds.forEach(kind => styles.push(css `
+:host([kind='${kind}']) { 
+    color: var(${cssVariables.get("color")}${kind}); 
+    background-color: var(${cssVariables.get("background-color")}${kind}); 
+    border-color: var(${cssVariables.get("color")}${kind}); 
+}`));
+            }
+            break;
         default:
             {
                 console.warn(`Setting default kind styles for element: '${ctor.name}'`);
@@ -1935,73 +1946,6 @@ function Kind(Base) {
     };
 }
 
-const sizes = ['large', 'medium', 'small'];
-function createSizeStyles(ctor) {
-    const styles = [];
-    styles.push(css `
-:host {
-    min-height: var(${cssVariables.get("min-height")});
-}`);
-    if (![
-        "CloseTool",
-        "SorterTool",
-        "ExpanderTool"
-    ].includes(ctor.name)) {
-        styles.push(css `
-:host {
-    margin: var(${cssVariables.get("margin")});
-}`);
-    }
-    sizes.forEach(size => {
-        switch (ctor.name) {
-            case "TextField":
-                {
-                    styles.push(css `
-:host([size='${size}']) input[type='text'] {
-    font-size: var(${cssVariables.get("font-size")}${size});
-}`);
-                }
-                break;
-            case "Icon":
-                {
-                    styles.push(css `
-:host([size='${size}']) {
-    font-size: var(${cssVariables.get("icon-size")}${size});
-}`);
-                }
-                break;
-            default:
-                {
-                    styles.push(css `
-:host([size='${size}']) {
-    font-size: var(${cssVariables.get("font-size")}${size});
-}`);
-                }
-                break;
-        }
-    });
-    return css `${styles.join('\n')}`;
-}
-
-function Sizable(Base) {
-    return class SizableMixin extends Base {
-        static get styles() {
-            return mergeStyles(super.styles, createSizeStyles(this));
-        }
-        static get properties() {
-            return {
-                size: {
-                    type: DataTypes.String,
-                    value: sizes[1],
-                    reflect: true,
-                    inherit: true,
-                    options: sizes
-                }
-            };
-        }
-    };
-}
-
 function Variant(Base) {
     return class VariantMixin extends Base {
         static get properties() {
@@ -2018,7 +1962,7 @@ function Variant(Base) {
     };
 }
 
-class Nuanced extends Sizable(Variant(Kind(CustomElement))) {
+class Nuanced extends Variant(Kind(CustomElement)) {
 }
 
 class Tool extends Clickable(Nuanced) {
@@ -2061,7 +2005,25 @@ class CloseTool extends Tool {
 }
 defineCustomElement('gcs-close-tool', CloseTool);
 
-class Dialog extends CustomElement {
+const overlayStyles = css `
+:host {
+    position: absolute;
+    top: 0;
+    right: 0;
+    left: 0;
+    bottom: 0;
+    background-color: var(--gcs-overlay-background-color);
+    transition: 0.3s;
+    /* center */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}`;
+
+class Overlay extends CustomElement {
+    static get styles() {
+        return overlayStyles;
+    }
     static get properties() {
         return {
             content: {
@@ -2094,20 +2056,14 @@ class Dialog extends CustomElement {
             return null;
         }
         if (content) {
-            return html `
-<gcs-overlay>
-    ${content()}
-</gcs-overlay>`;
+            return html `${content()}`;
         }
         else {
-            return html `
-<gcs-overlay>
-    <slot></slot>
-</gcs-overlay>`;
+            return html `<slot></slot>`;
         }
     }
 }
-defineCustomElement('gcs-dialog', Dialog);
+defineCustomElement('gcs-overlay', Overlay);
 
 const routersRegistry = new Map();
 function addRouter(name, router) {
@@ -2211,7 +2167,7 @@ class AppCtrl {
     user;
     intlProvider;
     iconsPath;
-    dialog = new Dialog();
+    overlay = new Overlay();
     apiUrl;
     themeNamesUrl;
     defaultTheme;
@@ -2239,7 +2195,7 @@ class AppCtrl {
         }
         const themeName = window.localStorage.getItem('app-theme') || appCtrl.defaultTheme;
         this.setTheme(themeName);
-        document.body.appendChild(this.dialog);
+        document.body.appendChild(this.overlay);
         document.addEventListener(successEvent, this.handleSuccess);
         document.addEventListener(errorEvent, this.handleError);
         window.addEventListener('hashchange', updateRoutes);
@@ -2249,9 +2205,9 @@ class AppCtrl {
         window.document.firstElementChild.setAttribute('theme', theme);
     }
     showDialog(content) {
-        const { dialog } = this;
-        dialog.content = content;
-        dialog.showing = true;
+        const { overlay } = this;
+        overlay.content = content;
+        overlay.showing = true;
     }
     handleSuccess(evt) {
         const { successMessage, } = evt.detail;
@@ -2289,7 +2245,7 @@ const iconStyles = css `
 }`;
 
 const iconsCache = new Map();
-class Icon extends Sizable(CustomElement) {
+class Icon extends CustomElement {
     static get styles() {
         return mergeStyles(super.styles, iconStyles);
     }
@@ -2343,7 +2299,7 @@ const localizedTextStyles = css `
     overflow-wrap: break-word;
 }`;
 
-class LocalizedText extends Sizable(CustomElement) {
+class LocalizedText extends CustomElement {
     static get styles() {
         return mergeStyles(super.styles, localizedTextStyles);
     }
@@ -2398,21 +2354,51 @@ class LocalizedText extends Sizable(CustomElement) {
 }
 defineCustomElement('gcs-localized-text', LocalizedText);
 
+function Closable(Base) {
+    return class ClosableMixin extends Base {
+        static get properties() {
+            return {
+                close: {
+                    type: [
+                        DataTypes.Function,
+                        DataTypes.Boolean
+                    ],
+                    defer: true
+                }
+            };
+        }
+        renderCloseTool() {
+            const { close } = this;
+            if (close === undefined) {
+                return null;
+            }
+            const handleClose = close === true ?
+                evt => this.dispatchCustomEvent(closingEvent, {
+                    originalEvent: evt
+                }) :
+                evt => this.close(evt);
+            return html `
+    <gcs-close-tool 
+        slot="end"
+        close=${handleClose}
+    >
+    </gcs-close-tool>`;
+        }
+    };
+}
+
 const alertStyles = css `
 :host {
-    display: flex;
-    max-width: 80%;
-    max-height: 80%;
-    align-items: center;  
-    justify-content: space-between;
     border-style: solid;
     border-width: var(--gcs-border-width);
-    column-gap: 1rem;
     border-radius: var(--gcs-border-radius);
-    z-index: 10000;
+}
+
+.bordered {
+    border: var(--gcs-border-width) solid;
 }`;
 
-class Alert extends Nuanced {
+class Alert extends Closable(Nuanced) {
     static get styles() {
         return mergeStyles(super.styles, alertStyles);
     }
@@ -2422,26 +2408,17 @@ class Alert extends Nuanced {
                 attribute: 'show-icon',
                 type: DataTypes.Boolean,
                 value: true
-            },
-            close: {
-                type: [
-                    DataTypes.Function,
-                    DataTypes.Boolean
-                ],
-                defer: true
             }
         };
     }
     render() {
         return html `
-<gcs-row>
+<gcs-row class="bordered">
     ${this._renderIcon()}
-    <div 
-        slot="middle" 
-        style="word-wrap: break-word; max-height: 80vh; overflow: auto;">
+    <span slot="middle">
         <slot></slot>
-    </div>
-    ${this._renderCloseTool()}
+    </span>
+    ${this.renderCloseTool()}
 </gcs-row>`;
     }
     _renderIcon() {
@@ -2463,23 +2440,6 @@ class Alert extends Nuanced {
             case "error": return "exclamation-circle-fill";
             default: return "info-circle-fill";
         }
-    }
-    _renderCloseTool() {
-        const { close } = this;
-        if (close === undefined) {
-            return html `<span></span>`;
-        }
-        const handleClose = close === true ?
-            evt => this.dispatchCustomEvent(closingEvent, {
-                originalEvent: evt
-            }) :
-            evt => this.close(evt);
-        return html `
-<gcs-close-tool 
-    slot="end"
-    close=${handleClose}
->
-</gcs-close-tool>`;
     }
 }
 defineCustomElement('gcs-alert', Alert);
@@ -2570,8 +2530,10 @@ button {
     justify-content: start;
     user-select: none;
     cursor: pointer;
+    font-size: inherit;
     border-width: var(--gcs-border-width);
     border-radius: var(--gcs-border-radius);
+    margin: var(--gcs-margin);
     
     /* outline: 0;
       margin-right: 8px;
@@ -3028,6 +2990,53 @@ class Fetcher {
     }
 }
 
+function notifyError(element, error) {
+    element.dispatchCustomEvent(errorEvent, {
+        error: {
+            ...error,
+            message: getErrorMessage(error)
+        }
+    });
+}
+function getErrorMessage(error) {
+    if (typeof error === 'string') {
+        return error;
+    }
+    if (error instanceof Error) {
+        return error.message || error.statusText;
+    }
+    else {
+        if (error.payload) {
+            if (typeof error.payload === 'string') {
+                return error.payload;
+            }
+            else if (Array.isArray(error.payload)) {
+                return error.payload.join('\n');
+            }
+            else {
+                const payload = JSON.parse(error.payload);
+                if (payload.errors !== undefined) {
+                    return Object.values(payload.errors).join('\n');
+                }
+                else if (payload.title !== undefined) {
+                    return payload.title;
+                }
+            }
+        }
+        else if (error.statusText) {
+            return error.statusText;
+        }
+        else {
+            switch (error.status) {
+                case 404: return 'Not Found';
+                case 405: return 'Method Not Allowed';
+                default: throw new Error(`Not implemented for error status: ${error.status}`);
+            }
+        }
+    }
+    throw new Error(`getErrorMessage - Unhandled error: ${error}`);
+}
+
 function RemoteLoadableHolder(Base) {
     return class RemoteLoadableHolderMixin extends Base {
         _loadFetcher;
@@ -3078,14 +3087,14 @@ function RemoteLoadableHolder(Base) {
                 onError: error => this.handleLoadError(error)
             });
             if (this.autoLoad === true) {
-                setTimeout(() => this.loadRemote(), 0);
+                setTimeout(() => this.loadRemote(undefined), 0);
             }
         }
-        loadRemote() {
-            this.error = undefined;
+        loadRemote(params) {
             this.loading = true;
             this._loadFetcher?.fetch({
-                url: this.loadUrl
+                url: this.loadUrl,
+                params
             });
         }
         async handleLoadData(data) {
@@ -3103,8 +3112,7 @@ function RemoteLoadableHolder(Base) {
         async handleLoadError(error) {
             await this.updateComplete;
             this.loading = false;
-            this.error = error;
-            this.renderError();
+            notifyError(this, error);
         }
     };
 }
@@ -3449,7 +3457,6 @@ function Submittable(Base) {
             });
         }
         submit() {
-            this.error = undefined;
             this.submitting = true;
             const data = this.getSubmitData();
             this._submitFetcher.fetch({
@@ -3481,12 +3488,11 @@ function Submittable(Base) {
         }
         handleSuccess(successMessage) {
             this.submitting = false;
-            this.renderSuccess(successMessage);
+            notifySuccess(this, successMessage);
         }
         handleSubmitError(error) {
             this.submitting = false;
-            this.error = error;
-            this.renderError();
+            notifyError(this, error);
         }
     };
 }
@@ -3621,53 +3627,6 @@ class CompareValidator extends RecordValidator {
     }
 }
 
-function notifyError(element, error) {
-    element.dispatchCustomEvent(errorEvent, {
-        error: {
-            ...error,
-            message: getErrorMessage(error)
-        }
-    });
-}
-function getErrorMessage(error) {
-    if (typeof error === 'string') {
-        return error;
-    }
-    if (error instanceof Error) {
-        return error.message || error.statusText;
-    }
-    else {
-        if (error.payload) {
-            if (typeof error.payload === 'string') {
-                return error.payload;
-            }
-            else if (Array.isArray(error.payload)) {
-                return error.payload.join('\n');
-            }
-            else {
-                const payload = JSON.parse(error.payload);
-                if (payload.errors !== undefined) {
-                    return Object.values(payload.errors).join('\n');
-                }
-                else if (payload.title !== undefined) {
-                    return payload.title;
-                }
-            }
-        }
-        else if (error.statusText) {
-            return error.statusText;
-        }
-        else {
-            switch (error.status) {
-                case 404: return 'Not Found';
-                case 405: return 'Method Not Allowed';
-                default: throw new Error(`Not implemented for error status: ${error.status}`);
-            }
-        }
-    }
-    throw new Error(`getErrorMessage - Unhandled error: ${error}`);
-}
-
 class ServerFieldValidator extends SingleValueFieldValidator {
     url;
     constructor(options = {}) {
@@ -3760,33 +3719,6 @@ function Validatable(Base) {
                 }
             }
             return validators;
-        }
-    };
-}
-
-function Successful(Base) {
-    return class SuccessfulMixin extends Base {
-        renderSuccess(successMessage) {
-            notifySuccess(this, successMessage);
-        }
-    };
-}
-
-function Errorable(Base) {
-    return class ErrorableMixin extends Base {
-        static get state() {
-            return {
-                error: {
-                    value: undefined
-                }
-            };
-        }
-        renderError() {
-            const { error } = this;
-            if (error !== undefined) {
-                notifyError(this, error);
-                this.error = undefined;
-            }
         }
     };
 }
@@ -3957,7 +3889,8 @@ class Field extends Validatable(CustomElement) {
 
 const formStyles = css `
 :host {
-    display: block;    
+    display: block;   
+    margin: var(--gcs-margin); 
 }
 
 form {
@@ -3985,7 +3918,7 @@ const labelAlign = {
 
 const formConnectedEvent = "formConnectedEvent";
 const formDisconnectedEvent = "formDisconnectedEvent";
-class Form extends Sizable(Submittable(Validatable(RemoteLoadableHolder(Successful(Errorable(CustomElement)))))) {
+class Form extends Submittable(Validatable(RemoteLoadableHolder(CustomElement))) {
     _fields = new Map();
     modifiedFields = new Set();
     constructor() {
@@ -4031,7 +3964,7 @@ class Form extends Sizable(Submittable(Validatable(RemoteLoadableHolder(Successf
     }
     submit() {
         if (this.modifiedFields.size === 0) {
-            this.error = 'This form has not been modified';
+            notifyError(this, 'This form has not been modified');
             return;
         }
         if (this.validate()) {
@@ -4139,7 +4072,7 @@ class Form extends Sizable(Submittable(Validatable(RemoteLoadableHolder(Successf
 }
 defineCustomElement('gcs-form', Form);
 
-class Wizard extends Errorable(Submittable(CustomElement)) {
+class Wizard extends Submittable(CustomElement) {
     sharedData = {};
     _forms = new Map();
     static get properties() {
@@ -4661,7 +4594,7 @@ function renderTip(kind, trigger, text = '') {
     </gcs-tool-tip>`;
 }
 
-class HelpTip extends Sizable(CustomElement) {
+class HelpTip extends CustomElement {
     render() {
         const textNode = getContentTextNode(this);
         const content = textNode?.textContent || 'Help content not set';
@@ -4670,7 +4603,7 @@ class HelpTip extends Sizable(CustomElement) {
 }
 defineCustomElement('gcs-help-tip', HelpTip);
 
-class ModifiedTip extends Sizable(CustomElement) {
+class ModifiedTip extends CustomElement {
     render() {
         const textNode = getContentTextNode(this);
         const content = textNode?.textContent || 'This field has been modified';
@@ -4679,7 +4612,7 @@ class ModifiedTip extends Sizable(CustomElement) {
 }
 defineCustomElement('gcs-modified-tip', ModifiedTip);
 
-class RequiredTip extends Sizable(CustomElement) {
+class RequiredTip extends CustomElement {
     render() {
         const textNode = getContentTextNode(this);
         const content = textNode?.textContent || 'This field is required';
@@ -4702,35 +4635,24 @@ class Center extends CustomElement {
 }
 defineCustomElement('gcs-center', Center);
 
-const overlayStyles = css `
-:host {
-    position: absolute;
-    top: 0;
-    right: 0;
-    left: 0;
-    bottom: 0;
-    background-color: var(--gcs-overlay-background-color);
-    transition: 0.3s;
-    /* center */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}`;
-
-class Overlay extends CustomElement {
-    static get styles() {
-        return overlayStyles;
-    }
-}
-defineCustomElement('gcs-overlay', Overlay);
-
 const rowStyles = css `
 :host {
     display: flex;
+    flex-direction: row;
     justify-content: space-between;
-    justify-items: center;
-    width: 100%;
-    padding: 1rem;
+    background-color: inherit;
+    border-color: inherit;
+    border-radius: inherit;
+}
+
+.item {
+    padding: var(--gcs-padding);
+}
+
+.middle {
+    word-wrap: break-word; 
+    max-height: 80vh; 
+    overflow: auto;
 }`;
 
 class Row extends CustomElement {
@@ -4739,23 +4661,66 @@ class Row extends CustomElement {
     }
     render() {
         return html `
-<span>
+<span class="item">
     <slot name="start"></slot>
 </span>
-<span>
+<span class="item middle">
     <slot name="middle"></slot>
 </span>
-<span>
+<span class="item">
     <slot name="end"></slot>
 </span>`;
     }
 }
 defineCustomElement('gcs-row', Row);
 
+class PanelHeader extends Closable(CustomElement) {
+    static get properties() {
+        return {
+            iconName: {
+                attribute: 'icon-name',
+                type: [
+                    DataTypes.String
+                ]
+            }
+        };
+    }
+    render() {
+        return html `
+<gcs-row>
+    ${this.renderIcon()}
+    <span slot="middle">
+        <slot name="title"></slot>
+    </span>
+    <span slot="end">
+        <slot name="tools"></slot>
+    </span>
+    ${this.renderCloseTool()}
+</gcs-row>`;
+    }
+    renderIcon() {
+        const { iconName } = this;
+        if (iconName) {
+            return html `
+                <gcs-icon 
+                    slot="start" 
+                    name=${this.iconName}
+                >
+                </gcs-icon>`;
+        }
+        else {
+            return null;
+        }
+    }
+}
+defineCustomElement('gcs-panel-header', PanelHeader);
+
 const panelStyles = css `
 :host {
     display: grid;
     grid-template-rows: auto 1fr auto;
+    background-color: var(--bg-color);
+    border-radius: var(--gcs-border-radius)
 }
 
 #header,
@@ -4764,7 +4729,7 @@ const panelStyles = css `
     color: var(--header-text-color);
 }`;
 
-class Panel extends Sizable(CustomElement) {
+class Panel extends CustomElement {
     static get styles() {
         return mergeStyles(super.styles, panelStyles);
     }
@@ -4822,7 +4787,6 @@ class SorterTool extends Tool {
 defineCustomElement('gcs-sorter-tool', SorterTool);
 
 const displayableFieldStyles = css `
-
 input, 
 select,
 textarea {
@@ -4850,7 +4814,7 @@ select:focus {
 }`;
 
 const inputEvent = "inputEvent";
-class DisplayableField extends Disableable(Sizable(Field)) {
+class DisplayableField extends Disableable(Field) {
     _initialValue = null;
     static get styles() {
         return mergeStyles(super.styles, displayableFieldStyles);
@@ -5597,6 +5561,7 @@ defineCustomElement('gcs-password-field', PasswordField);
 const formFieldStyles = css `
 :host {
     display: block;
+    margin: var(--gcs-margin);
 }
 
 #labeled-field {
@@ -5630,7 +5595,7 @@ const formFieldStyles = css `
     /* background-color: lightseagreen; */ 
 }`;
 
-class FormField extends Sizable(CustomElement) {
+class FormField extends CustomElement {
     static get styles() {
         return mergeStyles(super.styles, formFieldStyles);
     }
@@ -5783,7 +5748,7 @@ class DataList extends SelectionContainer(RemoteLoadableHolder(CollectionDataHol
 }
 defineCustomElement('gcs-data-list', DataList);
 
-const dataCellStyles = css `
+const dataGridBodyCellStyles = css `
 :host {
     display: flex;
     flex-flow: row nowrap;
@@ -5797,9 +5762,9 @@ const dataCellStyles = css `
     white-space: nowrap;
 }`;
 
-class DataCell extends CustomElement {
+class DataGridBodyCell extends CustomElement {
     static get styles() {
-        return mergeStyles(super.styles, dataCellStyles);
+        return mergeStyles(super.styles, dataGridBodyCellStyles);
     }
     static get properties() {
         return {
@@ -5837,9 +5802,9 @@ class DataCell extends CustomElement {
         }
     }
 }
-defineCustomElement('gcs-data-cell', DataCell);
+defineCustomElement('gcs-data-cell', DataGridBodyCell);
 
-const dataRowStyles = css `
+const dataGridBodyRowStyles = css `
 :host {
     width: 100%;
     display: flex;
@@ -5855,9 +5820,9 @@ const dataRowStyles = css `
     background-color: var(--bg-color);
 }`;
 
-class DataRow extends Selectable(CustomElement) {
+class DataGridBodyRow extends Selectable(CustomElement) {
     static get styles() {
-        return mergeStyles(super.styles, dataRowStyles);
+        return mergeStyles(super.styles, dataGridBodyRowStyles);
     }
     static get properties() {
         return {
@@ -5887,13 +5852,13 @@ class DataRow extends Selectable(CustomElement) {
     </gcs-data-cell>`);
     }
 }
-defineCustomElement('gcs-data-row', DataRow);
+defineCustomElement('gcs-data-row', DataGridBodyRow);
 
 function getStyle(props) {
     return Object.keys(props).reduce((acc, key) => (acc + key.split(/(?=[A-Z])/).join('-').toLowerCase() + ':' + props[key] + ';'), '');
 }
 
-const dataHeaderCellStyles = css `
+const dataGridHeaderCellStyles = css `
 :host {
     display: flex;
     flex-flow: row nowrap;
@@ -5911,9 +5876,9 @@ const dataHeaderCellStyles = css `
     font-weight: 700;
 }`;
 
-class DataHeaderCell extends CustomElement {
+class DataGridHeaderCell extends CustomElement {
     static get styles() {
-        return mergeStyles(super.styles, dataHeaderCellStyles);
+        return mergeStyles(super.styles, dataGridHeaderCellStyles);
     }
     static get properties() {
         return {
@@ -5967,9 +5932,9 @@ class DataHeaderCell extends CustomElement {
         return html `<gcs-sorter-tool column=${column.name}></gcs-sorter-tool>`;
     }
 }
-defineCustomElement('gcs-data-header-cell', DataHeaderCell);
+defineCustomElement('gcs-data-header-cell', DataGridHeaderCell);
 
-const dataHeaderStyles = css `
+const dataGridHeaderStyles = css `
 :host {
     width: 100%;
     display: flex;
@@ -5979,9 +5944,9 @@ const dataHeaderStyles = css `
     color: var(--header-text-color)
 }`;
 
-class DataHeader extends CustomElement {
+class DataGridHeader extends CustomElement {
     static get styles() {
-        return mergeStyles(super.styles, dataHeaderStyles);
+        return mergeStyles(super.styles, dataGridHeaderStyles);
     }
     static get properties() {
         return {
@@ -6000,7 +5965,7 @@ class DataHeader extends CustomElement {
         });
     }
 }
-defineCustomElement('gcs-data-header', DataHeader);
+defineCustomElement('gcs-data-header', DataGridHeader);
 
 const dataGridStyles = css `
 :host {
@@ -6059,7 +6024,7 @@ class DataGrid extends RemoteLoadableHolder(CollectionDataHolder(CustomElement))
 }
 defineCustomElement('gcs-data-grid', DataGrid);
 
-class CollectionPanel extends Successful(CustomElement) {
+class CollectionPanel extends CustomElement {
     _deleteFetcher;
     static get properties() {
         return {
@@ -6089,6 +6054,10 @@ class CollectionPanel extends Successful(CustomElement) {
                 attribute: 'create-url',
                 type: DataTypes.String
             },
+            loadRecordUrl: {
+                attribute: 'load-record-url',
+                type: DataTypes.String
+            },
             updateUrl: {
                 attribute: 'update-url',
                 type: DataTypes.String
@@ -6096,7 +6065,12 @@ class CollectionPanel extends Successful(CustomElement) {
             deleteUrl: {
                 attribute: 'delete-url',
                 type: DataTypes.String
-            }
+            },
+            formContent: {
+                attribute: 'form-content',
+                type: DataTypes.Function,
+                defer: true
+            },
         };
     }
     constructor() {
@@ -6147,12 +6121,12 @@ class CollectionPanel extends Successful(CustomElement) {
                 ...columns,
                 {
                     value: 'edit',
-                    render: function () {
+                    render: function (_value, record) {
                         return html `
 <gcs-button 
     kind="warning" 
     size="large" 
-    click=${showEditForm}
+    click=${() => showEditForm(record)}
 >
     Edit
 </gcs-button>`;
@@ -6189,43 +6163,109 @@ class CollectionPanel extends Successful(CustomElement) {
 </gcs-data-grid>`;
     }
     renderInsertDialog() {
+        if (!this.createUrl) {
+            return null;
+        }
         return html `
-<gcs-dialog 
-    id="add-dialog" 
+<gcs-overlay 
+    id="add-overlay" 
     slot="body"
 >
-    Add record
-</gcs-dialog>`;
+    <gcs-panel>
+
+        <gcs-panel-header
+            slot="header"
+            icon-name="database-add"
+            close
+        >
+            <gcs-localized-text slot="title">Add Record</gcs-localized-text>
+        </gcs-panel-header>
+        
+        <gcs-form 
+            id="create-form"
+            slot="body"
+            submit-url=${this.createUrl}
+        >
+        ${this.renderFormBody()}
+        </gcs-form>
+        
+    </gcs-panel>
+
+</gcs-overlay>`;
+    }
+    renderFormBody() {
+        const { formContent } = this;
+        if (formContent) {
+            return formContent();
+        }
+        else {
+            return html `
+<gcs-alert 
+    kind="danger" 
+>
+    <gcs-localized-text>No content for the form has been found.</gcs-localized-text>
+</gcs-alert>`;
+        }
     }
     renderUpdateDialog() {
+        if (!this.updateUrl) {
+            return null;
+        }
         return html `
-<gcs-dialog 
-    id="update-dialog" 
+<gcs-overlay 
+    id="update-overlay" 
     slot="body"
 >
-    Generate a dynamic form or use an existing one
-</gcs-dialog>`;
+    <gcs-panel>
+
+        <gcs-panel-header
+            slot="header"
+            icon-name="database-check"
+            close
+        >
+            <localized-label slot="title">Update Record</localized-label>
+        </gcs-panel-header>
+        
+        <gcs-form 
+            id="update-form"
+            slot="body"
+            load-url=${this.loadRecordUrl}
+            auto-load="false"
+            submit-url=${this.createUrl}
+        >
+        ${this.renderFormBody()}
+        </gcs-form>
+        
+    </gcs-panel>
+
+</gcs-overlay>`;
     }
     renderDeleteDialog() {
         return html `
-<gcs-dialog 
-    id="delete-dialog" 
+<gcs-overlay 
+    id="delete-overlay" 
     slot="body"
 >
-</gcs-dialog>`;
+</gcs-overlay>`;
     }
     showAddForm() {
-        const dialog = this.findChild((n) => n.id === 'add-dialog');
-        dialog.showing = true;
+        const overlay = this.findChild((n) => n.id === 'add-overlay');
+        overlay.showing = true;
     }
-    showEditForm() {
-        const dialog = this.findChild((n) => n.id === 'update-dialog');
-        dialog.showing = true;
+    showEditForm(record) {
+        const form = this.findChild((n) => n.id === 'update-form');
+        const { idField } = this;
+        const params = {
+            [idField]: record[idField]
+        };
+        form.loadRemote(params);
+        const overlay = this.findChild((n) => n.id === 'update-overlay');
+        overlay.showing = true;
     }
     showConfirmDelete(record) {
-        const dialog = this.findChild((n) => n.id === 'delete-dialog');
+        const overlay = this.findChild((n) => n.id === 'delete-overlay');
         const { deleteRecord } = this;
-        dialog.content = () => html `
+        overlay.content = () => html `
 <gcs-alert
     kind="danger" 
     close
@@ -6242,7 +6282,7 @@ class CollectionPanel extends Successful(CustomElement) {
         </gcs-button>
     </gcs-row>  
 </gcs-alert>`;
-        dialog.showing = true;
+        overlay.showing = true;
     }
     async deleteRecord(record) {
         const { idField, deleteUrl } = this;
@@ -6256,11 +6296,11 @@ class CollectionPanel extends Successful(CustomElement) {
         });
     }
     handleSuccessfulDelete() {
-        const dialog = this.findChild((n) => n.id === 'delete-dialog');
-        dialog.showing = false;
+        const overlay = this.findChild((n) => n.id === 'delete-overlay');
+        overlay.showing = false;
         const grid = this.findChild((n) => n.id === 'data-grid');
         grid.load();
-        this.renderSuccess('Record was successfully deleted.');
+        notifySuccess(this, 'Record was successfully deleted.');
     }
 }
 defineCustomElement('gcs-collection-panel', CollectionPanel);
@@ -6563,7 +6603,7 @@ const applicationViewStyles = css `
   	overflow-y: scroll;
 }`;
 
-class ApplicationView extends RemoteLoadableHolder(Errorable(CustomElement)) {
+class ApplicationView extends RemoteLoadableHolder(CustomElement) {
     static get styles() {
         return mergeStyles(super.styles, applicationViewStyles);
     }
@@ -6575,7 +6615,7 @@ class ApplicationView extends RemoteLoadableHolder(Errorable(CustomElement)) {
         };
     }
     render() {
-        const application = this.application;
+        const { application } = this;
         if (application === null) {
             return html `
 <div id="header">
@@ -6681,4 +6721,4 @@ window.appCtrl = appCtrl;
 window.html = html;
 window.viewsRegistry = viewsRegistry;
 
-export { Accordion, Alert, AppInitializedEvent, ApplicationHeader, ApplicationView, Button, Center, CheckBox, CloseTool, CollectionPanel, ComboBox, ContentView, CustomElement, DataCell, DataGrid, DataHeader, DataHeaderCell, DataList, DataRow, DataTemplate, DataTypes, DateField, Dialog, DisplayableField, DropDown, ExpanderTool, FileField, Form, FormField, HashRouter, HelpTip, HiddenField, Icon, LocalizedText, ModifiedTip, NavigationBar, NavigationLink, NumberField, Overlay, Panel, PasswordField, Pill, RequiredTip, Row, Selector, Slider, SorterTool, StarRating, TextArea, TextField, Theme, Tool, ToolTip, ValidationSummary, Wizard, WizardStep, appCtrl, css, defineCustomElement, getNotFoundView, html, navigateToRoute, viewsRegistry };
+export { Accordion, Alert, AppInitializedEvent, ApplicationHeader, ApplicationView, Button, Center, CheckBox, CloseTool, CollectionPanel, ComboBox, ContentView, CustomElement, DataGridBodyCell as DataCell, DataGrid, DataGridHeader, DataGridHeaderCell as DataHeaderCell, DataList, DataGridBodyRow as DataRow, DataTemplate, DataTypes, DateField, DisplayableField, DropDown, ExpanderTool, FileField, Form, FormField, HashRouter, HelpTip, HiddenField, Icon, LocalizedText, ModifiedTip, NavigationBar, NavigationLink, NumberField, Overlay, Panel, PanelHeader, PasswordField, Pill, RequiredTip, Row, Selector, Slider, SorterTool, StarRating, TextArea, TextField, Theme, Tool, ToolTip, ValidationSummary, Wizard, WizardStep, appCtrl, css, defineCustomElement, getNotFoundView, html, navigateToRoute, viewsRegistry };

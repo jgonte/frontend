@@ -1,3 +1,4 @@
+import Closable from "../mixins/closable/Closable";
 import Nuanced from "../Nuanced";
 import defineCustomElement from "../../custom-element/defineCustomElement";
 import CustomElementPropertyMetadata from "../../custom-element/mixins/metadata/types/CustomElementPropertyMetadata";
@@ -6,9 +7,11 @@ import html from "../../rendering/html";
 import { NodePatchingData } from "../../rendering/nodes/NodePatchingData";
 import { alertStyles } from "./Alert.styles";
 import { DataTypes } from "../../utils/data/DataTypes";
-import { closingEvent } from "../tools/close/CloseTool";
 
-export default class Alert extends Nuanced {
+export default class Alert extends
+    Closable(
+        Nuanced
+    ) {
 
     static get styles(): string {
 
@@ -26,18 +29,6 @@ export default class Alert extends Nuanced {
                 attribute: 'show-icon',
                 type: DataTypes.Boolean,
                 value: true
-            },
-
-            /**
-             * What action to execute when the alert has been closed
-             * If it is not defined, then the close tool will not be shown
-             */
-            close: {
-                type: [
-                    DataTypes.Function, // If the function is provided, then call it
-                    DataTypes.Boolean // If true, then dispatch a closing event
-                ],
-                defer: true
             }
         };
     }
@@ -45,14 +36,12 @@ export default class Alert extends Nuanced {
     render(): NodePatchingData {
 
         return html`
-<gcs-row>
+<gcs-row class="bordered">
     ${this._renderIcon()}
-    <div 
-        slot="middle" 
-        style="word-wrap: break-word; max-height: 80vh; overflow: auto;">
+    <span slot="middle">
         <slot></slot>
-    </div>
-    ${this._renderCloseTool()}
+    </span>
+    ${this.renderCloseTool()}
 </gcs-row>`;
     }
 
@@ -84,31 +73,6 @@ export default class Alert extends Nuanced {
             case "error": return "exclamation-circle-fill";
             default: return "info-circle-fill";
         }
-    }
-
-    private _renderCloseTool(): NodePatchingData | null {
-
-        const {
-            close
-        } = this;
-
-        if (close === undefined) {
-
-            return html`<span></span>`; // Return an empty element so the flexbox keeps the position
-        }
-
-        const handleClose: (evt: Event) => void = close === true ?
-            evt => this.dispatchCustomEvent(closingEvent, {
-                originalEvent: evt
-            }) :
-            evt => this.close(evt);
-
-        return html`
-<gcs-close-tool 
-    slot="end"
-    close=${handleClose}
->
-</gcs-close-tool>`;
     }
 }
 

@@ -6,6 +6,8 @@ import { DataTypes } from "../../../utils/data/DataTypes";
 import { ErrorResponse } from "../../../utils/data/transfer/ErrorResponse";
 import Fetcher from "../../../utils/data/transfer/Fetcher";
 import DataResponse from "../../../utils/data/transfer/DataResponse";
+import { DynamicObject } from "../../../utils/types";
+import notifyError from "../../../services/errors/notifyError";
 
 export default function RemoteLoadableHolder<TBase extends CustomHTMLElementConstructor>(Base: TBase): TBase {
 
@@ -96,18 +98,17 @@ export default function RemoteLoadableHolder<TBase extends CustomHTMLElementCons
 
             if (this.autoLoad === true) { // Wait until all the fields were added
 
-                setTimeout(() => this.loadRemote(), 0); // Wait for the next refresh to load
+                setTimeout(() => this.loadRemote(undefined), 0); // Wait for the next refresh to load
             }
         }
 
-        loadRemote() {
-
-            this.error = undefined; // Clear any previous error
+        loadRemote(params: DynamicObject | undefined) {
 
             this.loading = true;
 
             this._loadFetcher?.fetch({
-                url: this.loadUrl
+                url: this.loadUrl,
+                params
             });
         }
 
@@ -138,9 +139,7 @@ export default function RemoteLoadableHolder<TBase extends CustomHTMLElementCons
 
             this.loading = false;
 
-            this.error = error;
-
-            this.renderError();
+            notifyError(this, error);
         }
     }
 }

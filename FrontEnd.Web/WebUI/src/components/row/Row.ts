@@ -18,13 +18,13 @@ export default class Row extends CustomElement {
     render(): NodePatchingData {
 
         return html`
-<span>
+<span class="item">
     <slot name="start"></slot>
 </span>
-<span>
+<span class="item middle">
     <slot name="middle"></slot>
 </span>
-<span>
+<span class="item">
     <slot name="end"></slot>
 </span>`;
     }
