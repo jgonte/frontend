@@ -2,6 +2,8 @@ import CustomElementPropertyMetadata from "../../../custom-element/mixins/metada
 import CustomElementStateMetadata from "../../../custom-element/mixins/metadata/types/CustomElementStateMetadata";
 import CustomHTMLElementConstructor from "../../../custom-element/mixins/metadata/types/CustomHTMLElementConstructor";
 import html from "../../../rendering/html";
+import notifyError from "../../../services/errors/notifyError";
+import notifySuccess from "../../../services/success/notifySuccess";
 import { DataTypes } from "../../../utils/data/DataTypes";
 import { ErrorResponse } from "../../../utils/data/transfer/ErrorResponse";
 import Fetcher, { ContentMultipartFormData, ContentTypeApplicationJson } from "../../../utils/data/transfer/Fetcher";
@@ -73,8 +75,6 @@ export default function Submittable<TBase extends CustomHTMLElementConstructor>(
 
         submit() {
 
-            this.error = undefined; // Clear any previous error
-
             this.submitting = true;
 
             const data = this.getSubmitData(); // Overriden by the derived classes
@@ -127,16 +127,14 @@ export default function Submittable<TBase extends CustomHTMLElementConstructor>(
 
             this.submitting = false;
 
-            this.renderSuccess(successMessage);
+            notifySuccess(this, successMessage);
         }
 
         handleSubmitError(error: ErrorResponse) {
 
             this.submitting = false;
 
-            this.error = error;
-
-            this.renderError();
+            notifyError(this, error);
         }
     }
 }

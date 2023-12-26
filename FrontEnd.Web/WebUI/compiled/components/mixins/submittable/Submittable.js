@@ -1,4 +1,6 @@
 import html from "../../../rendering/html";
+import notifyError from "../../../services/errors/notifyError";
+import notifySuccess from "../../../services/success/notifySuccess";
 import { DataTypes } from "../../../utils/data/DataTypes";
 import Fetcher, { ContentMultipartFormData, ContentTypeApplicationJson } from "../../../utils/data/transfer/Fetcher";
 export default function Submittable(Base) {
@@ -44,7 +46,6 @@ export default function Submittable(Base) {
             });
         }
         submit() {
-            this.error = undefined;
             this.submitting = true;
             const data = this.getSubmitData();
             this._submitFetcher.fetch({
@@ -76,12 +77,11 @@ export default function Submittable(Base) {
         }
         handleSuccess(successMessage) {
             this.submitting = false;
-            this.renderSuccess(successMessage);
+            notifySuccess(this, successMessage);
         }
         handleSubmitError(error) {
             this.submitting = false;
-            this.error = error;
-            this.renderError();
+            notifyError(this, error);
         }
     };
 }

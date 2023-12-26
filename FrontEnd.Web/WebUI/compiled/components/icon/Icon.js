@@ -4,10 +4,9 @@ import mergeStyles from "../../custom-element/styles/mergeStyles";
 import html from "../../rendering/html";
 import appCtrl from "../../services/appCtrl";
 import { DataTypes } from "../../utils/data/DataTypes";
-import Sizable from "../mixins/sizable/Sizable";
 import { iconStyles } from "./Icon.styles";
 const iconsCache = new Map();
-export default class Icon extends Sizable(CustomElement) {
+export default class Icon extends CustomElement {
     static get styles() {
         return mergeStyles(super.styles, iconStyles);
     }

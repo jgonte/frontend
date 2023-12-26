@@ -60,6 +60,63 @@
             ];
         }
 
+        function displayNameTextFieldPropertyChanged(name, value) {
+
+            if (name === 'required') {
+
+                //alert(`Property has changed: name: '${name}' value: '${value}'`);
+            }
+        }
+
+        function getFormContent() {
+
+            return html`
+<gcs-hidden-field name="id" is-id="true"></gcs-hidden-field>
+
+<gcs-form-field required>
+    <gcs-localized-text slot="label">Full Name</gcs-localized-text>
+    <gcs-help-tip slot="tools">Here it goes the first, middle and last name of the person</gcs-help-tip>
+    <gcs-text-field 
+        slot="field"
+        name="name"
+        property-changed="displayNameTextFieldPropertyChanged()"
+    >
+</gcs-text-field>
+</gcs-form-field>
+
+<gcs-form-field required help="This is the gender of the person">
+    <gcs-localized-text slot="label">Gender</gcs-localized-text>
+    <gcs-combo-box slot="field" name="gender" data='[
+        {
+            "code": "M",
+            "description": "Male"
+        },
+        {
+            "code": "F",
+            "description": "Female"
+        }
+    ]' id-field="code" display-field="description">
+    </gcs-combo-box>
+</gcs-form-field>
+
+<gcs-form-field required>
+    <gcs-localized-text slot="label">Date of Birth</gcs-localized-text>
+    <gcs-date-field slot="field" name="dateOfBirth"></gcs-date-field>
+</gcs-form-field>
+
+<gcs-form-field required>
+    <gcs-localized-text slot="label">Single</gcs-localized-text>
+    <span slot="tools">!</span>
+    <gcs-check-box slot="field" name="single"></gcs-check-box>
+</gcs-form-field>
+
+<gcs-form-field required>
+    <gcs-localized-text slot="label">Avatar</gcs-localized-text>
+    <span slot="tools">!</span>
+    <gcs-file-field slot="field" name="avatar"></gcs-file-field>
+</gcs-form-field>`;
+        }
+
     </script>
 </head>
 <body>
@@ -74,8 +131,13 @@
     <h4>Collection panel with remote data</h4>
     <gcs-collection-panel 
         columns="getColumns()"
+        form-content="getFormContent()"
         load-url="https://localhost:7000/api/contacts/"
-        delete-url="https://localhost:7000/api/contacts/{{id}}"
+        create-url="https://localhost:7000/api/contacts/"
+        update-url="https://localhost:7000/api/contacts/{{id}}"
+        load-record-url="https://localhost:7000/api/contacts/{{id}}"
+        delete-url="https://localhost:7000/api/contacts/{{id}}"   
+        confirm-delete-message="Sasha ... are you sure you want to delete?"
     >
     </gcs-collection-panel>
 </body>

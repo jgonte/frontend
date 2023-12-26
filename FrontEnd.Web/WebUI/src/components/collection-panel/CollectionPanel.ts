@@ -1,4 +1,3 @@
-import Successful from "../mixins/successful/Successful";
 import CustomElement from "../../custom-element/CustomElement";
 import defineCustomElement from "../../custom-element/defineCustomElement";
 import CustomElementPropertyMetadata from "../../custom-element/mixins/metadata/types/CustomElementPropertyMetadata";
@@ -9,15 +8,13 @@ import { DataTypes } from "../../utils/data/DataTypes";
 import Fetcher from "../../utils/data/transfer/Fetcher";
 import { GenericRecord } from "../../utils/types";
 import DataGrid from "../data-grid/DataGrid";
-import Dialog from "../dialog.ts/Dialog";
+import Overlay from "../overlay/Overlay";
+import notifySuccess from "../../services/success/notifySuccess";
 
 /**
  * Panel to handle adding, updating and deleting a collection of records
  */
-export default class CollectionPanel extends
-    Successful(
-        CustomElement
-    ) {
+export default class CollectionPanel extends CustomElement {
 
     private _deleteFetcher?: Fetcher;
 
@@ -74,6 +71,13 @@ export default class CollectionPanel extends
             },
 
             /**
+             * The URL to load the data single record to be updated in the update form
+             */
+            loadRecordUrl: {
+                attribute: 'load-record-url',
+                type: DataTypes.String
+            },
+            /**
              * The URL to post the data to update
              */
             updateUrl: {
@@ -87,7 +91,16 @@ export default class CollectionPanel extends
             deleteUrl: {
                 attribute: 'delete-url',
                 type: DataTypes.String
-            }
+            },
+
+            /**
+             * The content of the create/update form to render
+             */
+            formContent: {
+                attribute: 'form-content',
+                type: DataTypes.Function,
+                defer: true
+            },
         };
     }
 
@@ -170,12 +183,12 @@ export default class CollectionPanel extends
                 ...columns,
                 {
                     value: 'edit',
-                    render: function (/*value: unknown, record: unknown*/) {
+                    render: function (_value: unknown, record: GenericRecord) {
                         return html`
 <gcs-button 
     kind="warning" 
     size="large" 
-    click=${showEditForm}
+    click=${() => showEditForm(record)}
 >
     Edit
 </gcs-button>`
@@ -215,61 +228,145 @@ export default class CollectionPanel extends
 </gcs-data-grid>`;
     }
 
-    renderInsertDialog(): NodePatchingData {
+    renderInsertDialog(): NodePatchingData | null {
+
+        if (!this.createUrl) {
+
+            return null;
+        }
 
         return html`
-<gcs-dialog 
-    id="add-dialog" 
+<gcs-overlay 
+    id="add-overlay" 
     slot="body"
 >
-    Add record
-</gcs-dialog>`;
+    <gcs-panel>
+
+        <gcs-panel-header
+            slot="header"
+            icon-name="database-add"
+            close
+        >
+            <gcs-localized-text slot="title">Add Record</gcs-localized-text>
+        </gcs-panel-header>
+        
+        <gcs-form 
+            id="create-form"
+            slot="body"
+            submit-url=${this.createUrl}
+        >
+        ${this.renderFormBody()}
+        </gcs-form>
+        
+    </gcs-panel>
+
+</gcs-overlay>`;
     }
 
-    renderUpdateDialog(): NodePatchingData {
+    renderFormBody(): NodePatchingData {
+
+        const {
+            formContent
+        } = this;
+
+        if (formContent) {
+
+            return formContent();
+        }
+        else {
+
+            return html`
+<gcs-alert 
+    kind="danger" 
+>
+    <gcs-localized-text>No content for the form has been found.</gcs-localized-text>
+</gcs-alert>`;
+        }
+    }
+
+    renderUpdateDialog(): NodePatchingData | null {
+
+        if (!this.updateUrl) {
+
+            return null;
+        }
 
         return html`
-<gcs-dialog 
-    id="update-dialog" 
+<gcs-overlay 
+    id="update-overlay" 
     slot="body"
 >
-    Generate a dynamic form or use an existing one
-</gcs-dialog>`;
+    <gcs-panel>
+
+        <gcs-panel-header
+            slot="header"
+            icon-name="database-check"
+            close
+        >
+            <localized-label slot="title">Update Record</localized-label>
+        </gcs-panel-header>
+        
+        <gcs-form 
+            id="update-form"
+            slot="body"
+            load-url=${this.loadRecordUrl}
+            auto-load="false"
+            submit-url=${this.createUrl}
+        >
+        ${this.renderFormBody()}
+        </gcs-form>
+        
+    </gcs-panel>
+
+</gcs-overlay>`;
     }
 
     renderDeleteDialog(): NodePatchingData {
 
         return html`
-<gcs-dialog 
-    id="delete-dialog" 
+<gcs-overlay 
+    id="delete-overlay" 
     slot="body"
 >
-</gcs-dialog>`;
+</gcs-overlay>`;
     }
 
     showAddForm() {
 
-        const dialog = this.findChild((n: { id: string; }) => n.id === 'add-dialog');
+        const overlay = this.findChild((n: { id: string; }) => n.id === 'add-overlay');
 
-        (dialog as Dialog).showing = true;
+        (overlay as Overlay).showing = true;
     }
 
-    showEditForm() {
+    showEditForm(record: GenericRecord) {
 
-        const dialog = this.findChild((n: { id: string; }) => n.id === 'update-dialog');
+        const form = this.findChild((n: { id: string; }) => n.id === 'update-form');
 
-        (dialog as Dialog).showing = true;
+        const {
+            idField
+        } = this;
+
+        const params =
+        {
+            [idField]: record[idField]
+        };
+
+        form.loadRemote(params);
+
+        const overlay = this.findChild((n: { id: string; }) => n.id === 'update-overlay');
+
+        (overlay as Overlay).showing = true;
     }
 
     showConfirmDelete(record: GenericRecord) {
 
-        const dialog = this.findChild((n: { id: string; }) => n.id === 'delete-dialog') as Dialog;
+        const overlay = this.findChild((n: { id: string; }) => n.id === 'delete-overlay') as Overlay;
 
         const {
             deleteRecord
         } = this;
 
-        dialog.content = () => html`
+        overlay.content = () => html`
 <gcs-alert
     kind="danger" 
     close
@@ -287,7 +384,7 @@ export default class CollectionPanel extends
     </gcs-row>  
 </gcs-alert>`;
 
-        dialog.showing = true;
+        overlay.showing = true;
     }
 
     async deleteRecord(record: GenericRecord) {
@@ -310,15 +407,15 @@ export default class CollectionPanel extends
 
     handleSuccessfulDelete() {
 
-        const dialog = this.findChild((n: { id: string; }) => n.id === 'delete-dialog') as Dialog;
+        const overlay = this.findChild((n: { id: string; }) => n.id === 'delete-overlay') as Overlay;
 
-        dialog.showing = false;
+        overlay.showing = false;
 
         const grid = this.findChild((n: { id: string; }) => n.id === 'data-grid') as DataGrid;
 
         grid.load();
 
-        this.renderSuccess('Record was successfully deleted.');
+        notifySuccess(this, 'Record was successfully deleted.');
     }
 }
 

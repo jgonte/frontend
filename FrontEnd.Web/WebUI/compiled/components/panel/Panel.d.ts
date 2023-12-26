@@ -1,8 +1,6 @@
-import CustomHTMLElementConstructor from "../../custom-element/mixins/metadata/types/CustomHTMLElementConstructor";
+import CustomElement from "../../custom-element/CustomElement";
 import { RenderReturnTypes } from "../../custom-element/mixins/metadata/types/IRenderable";
-declare const Panel_base: CustomHTMLElementConstructor;
-export default class Panel extends Panel_base {
+export default class Panel extends CustomElement {
     static get styles(): string;
     render(): RenderReturnTypes;
 }
-export {};

@@ -1,11 +1,11 @@
+import Closable from "../mixins/closable/Closable";
 import Nuanced from "../Nuanced";
 import defineCustomElement from "../../custom-element/defineCustomElement";
 import mergeStyles from "../../custom-element/styles/mergeStyles";
 import html from "../../rendering/html";
 import { alertStyles } from "./Alert.styles";
 import { DataTypes } from "../../utils/data/DataTypes";
-import { closingEvent } from "../tools/close/CloseTool";
-export default class Alert extends Nuanced {
+export default class Alert extends Closable(Nuanced) {
     static get styles() {
         return mergeStyles(super.styles, alertStyles);
     }
@@ -15,26 +15,17 @@ export default class Alert extends Nuanced {
                 attribute: 'show-icon',
                 type: DataTypes.Boolean,
                 value: true
-            },
-            close: {
-                type: [
-                    DataTypes.Function,
-                    DataTypes.Boolean
-                ],
-                defer: true
             }
         };
     }
     render() {
         return html `
-<gcs-row>
+<gcs-row class="bordered">
     ${this._renderIcon()}
-    <div 
-        slot="middle" 
-        style="word-wrap: break-word; max-height: 80vh; overflow: auto;">
+    <span slot="middle">
         <slot></slot>
-    </div>
-    ${this._renderCloseTool()}
+    </span>
+    ${this.renderCloseTool()}
 </gcs-row>`;
     }
     _renderIcon() {
@@ -56,23 +47,6 @@ export default class Alert extends Nuanced {
             case "error": return "exclamation-circle-fill";
             default: return "info-circle-fill";
         }
-    }
-    _renderCloseTool() {
-        const { close } = this;
-        if (close === undefined) {
-            return html `<span></span>`;
-        }
-        const handleClose = close === true ?
-            evt => this.dispatchCustomEvent(closingEvent, {
-                originalEvent: evt
-            }) :
-            evt => this.close(evt);
-        return html `
-<gcs-close-tool 
-    slot="end"
-    close=${handleClose}
->
-</gcs-close-tool>`;
     }
 }
 defineCustomElement('gcs-alert', Alert);

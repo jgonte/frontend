@@ -1,5 +1,4 @@
 import Disableable from "../mixins/disableable/Disableable";
-import Sizable from "../mixins/sizable/Sizable";
 import Field from "./Field";
 import CustomHTMLElementConstructor from "../../custom-element/mixins/metadata/types/CustomHTMLElementConstructor";
 import mergeStyles from "../../custom-element/styles/mergeStyles";
@@ -12,9 +11,7 @@ export const inputEvent = "inputEvent";
 
 export default abstract class DisplayableField extends
     Disableable(
-        Sizable(
-            Field as unknown as CustomHTMLElementConstructor
-        )
+        Field as unknown as CustomHTMLElementConstructor
     ) {
 
     /** 
@@ -59,7 +56,7 @@ export default abstract class DisplayableField extends
 
             super.handleInput(event);
         }
-        
+
         this.dispatchCustomEvent(inputEvent, {
             field: this,
             modified: !areEquivalent(this._initialValue, this._tempValue) // Notify the parent whether the value has changed or not

@@ -5,9 +5,8 @@ import mergeStyles from "../../custom-element/styles/mergeStyles";
 import html from "../../rendering/html";
 import appCtrl from "../../services/appCtrl";
 import { DataTypes } from "../../utils/data/DataTypes";
-import Sizable from "../mixins/sizable/Sizable";
 import { localizedTextStyles } from "./LocalizedText.styles";
-export default class LocalizedText extends Sizable(CustomElement) {
+export default class LocalizedText extends CustomElement {
     static get styles() {
         return mergeStyles(super.styles, localizedTextStyles);
     }

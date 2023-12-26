@@ -1,4 +1,4 @@
-import Dialog from "../components/dialog.ts/Dialog";
+import Overlay from "../components/overlay/Overlay";
 import { NodePatchingData } from "../rendering/nodes/NodePatchingData";
 import Application from "./application/Application";
 import ErrorHandler from "./errors/ErrorHandler";
@@ -11,7 +11,7 @@ declare class AppCtrl {
     user?: User;
     intlProvider?: IntlProvider;
     iconsPath?: string;
-    dialog: Dialog;
+    overlay: Overlay;
     apiUrl?: string;
     themeNamesUrl?: string;
     defaultTheme?: string;

@@ -1,4 +1,4 @@
-import DataHeaderCell from "../../../../../components/data-grid/header/cell/DataHeaderCell";
+import DataGridHeaderCell from "../../../../../components/data-grid/header/cell/DataGridHeaderCell";
 import CustomElement from "../../../../../custom-element/CustomElement";
 import defineCustomElement from "../../../../../custom-element/defineCustomElement";
 import { GenericRecord } from "../../../../../utils/types";
@@ -28,7 +28,7 @@ describe("Data cell tests", () => {
     it('should render when the data of the attributes is provided', async () => {
 
         // Re-register the data cell since all the custom elements are cleared before any test
-        defineCustomElement('gcs-data-header-cell', DataHeaderCell);
+        defineCustomElement('gcs-data-header-cell', DataGridHeaderCell);
 
         // Attach it to the DOM
         document.body.innerHTML = '<gcs-data-header-cell id="dc1" field="name"></gcs-data-header-cell>';
@@ -52,7 +52,7 @@ describe("Data cell tests", () => {
         };
 
         // Re-register the data cell since all the custom elements are cleared before any test
-        defineCustomElement('gcs-data-header-cell', DataHeaderCell);
+        defineCustomElement('gcs-data-header-cell', DataGridHeaderCell);
 
         // Attach it to the DOM
         document.body.innerHTML = '<gcs-data-header-cell id="dc2" field="getField()"></gcs-data-header-cell>';

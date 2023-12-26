@@ -1,5 +1,5 @@
-import DataCell from "../../../components/data-grid/body/cell/DataCell";
-import DataRow from "../../../components/data-grid/body/row/DataRow";
+import DataGridBodyCell from "../../../components/data-grid/body/cell/DataGridBodyCell";
+import DataGridBodyRow from "../../../components/data-grid/body/row/DataGridBodyRow";
 import DataGrid from "../../../components/data-grid/DataGrid";
 import defineCustomElement from "../../../custom-element/defineCustomElement";
 import clearCustomElements from "../../custom-element/helpers/clearCustomElements";
@@ -9,8 +9,8 @@ beforeEach(() => {
 });
 describe("Data grid tests", () => {
     it('should render when the data of the attributes is provided', async () => {
-        defineCustomElement('gcs-data-cell', DataCell);
-        defineCustomElement('gcs-data-row', DataRow);
+        defineCustomElement('gcs-data-cell', DataGridBodyCell);
+        defineCustomElement('gcs-data-row', DataGridBodyRow);
         defineCustomElement('gcs-data-grid', DataGrid);
         document.body.innerHTML = `
         <gcs-data-grid id="dg1" id-field="name" 
@@ -41,8 +41,8 @@ describe("Data grid tests", () => {
         window.getFields = function () {
             return ["name", "age", "description"];
         };
-        defineCustomElement('gcs-data-cell', DataCell);
-        defineCustomElement('gcs-data-row', DataRow);
+        defineCustomElement('gcs-data-cell', DataGridBodyCell);
+        defineCustomElement('gcs-data-row', DataGridBodyRow);
         defineCustomElement('gcs-data-grid', DataGrid);
         document.body.innerHTML = '<gcs-data-grid id="dg2" id-field="name" data="getData()" fields="getFields()"></gcs-data-grid>';
         const component = document.querySelector('gcs-data-grid');
@@ -68,8 +68,8 @@ describe("Data grid tests", () => {
         window.getFields = function () {
             return ["name", "age", "description"];
         };
-        defineCustomElement('gcs-data-cell', DataCell);
-        defineCustomElement('gcs-data-row', DataRow);
+        defineCustomElement('gcs-data-cell', DataGridBodyCell);
+        defineCustomElement('gcs-data-row', DataGridBodyRow);
         defineCustomElement('gcs-data-grid', DataGrid);
         document.body.innerHTML = '<gcs-data-grid id="dg2" id-field="name" data="getData()" fields="getFields()"></gcs-data-grid>';
         const component = document.querySelector('gcs-data-grid');

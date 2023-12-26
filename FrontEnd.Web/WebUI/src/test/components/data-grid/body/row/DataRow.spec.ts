@@ -1,5 +1,5 @@
-import DataCell from "../../../../../components/data-grid/body/cell/DataCell";
-import DataRow from "../../../../../components/data-grid/body/row/DataRow";
+import DataGridBodyCell from "../../../../../components/data-grid/body/cell/DataGridBodyCell";
+import DataGridBodyRow from "../../../../../components/data-grid/body/row/DataGridBodyRow";
 import CustomElement from "../../../../../custom-element/CustomElement";
 import defineCustomElement from "../../../../../custom-element/defineCustomElement";
 import { GenericRecord } from "../../../../../utils/types";
@@ -31,9 +31,9 @@ describe("Data row tests", () => {
     it('should render when the data of the attributes is provided', async () => {
 
         // Re-register the data row since all the custom elements are cleared before any test
-        defineCustomElement('gcs-data-cell', DataCell);
+        defineCustomElement('gcs-data-cell', DataGridBodyCell);
 
-        defineCustomElement('gcs-data-row', DataRow);
+        defineCustomElement('gcs-data-row', DataGridBodyRow);
 
         const fields = [
             "name", 
@@ -85,9 +85,9 @@ describe("Data row tests", () => {
         };
 
         // Re-register the data row since all the custom elements are cleared before any test
-        defineCustomElement('gcs-data-cell', DataCell);
+        defineCustomElement('gcs-data-cell', DataGridBodyCell);
 
-        defineCustomElement('gcs-data-row', DataRow);
+        defineCustomElement('gcs-data-row', DataGridBodyRow);
 
         // Attach it to the DOM
         document.body.innerHTML = '<gcs-data-row id="dr2" record="getRecord()" fields="getFields()"></gcs-data-row>';

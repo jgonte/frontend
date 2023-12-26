@@ -6,6 +6,11 @@
 
     <script>
 
+        function onButtonClicked() {
+
+            alert('Button clicked!');
+        }
+
         function onCloseAlert() {
 
             alert('Trying to close alert!');
@@ -29,6 +34,9 @@
     <gcs-alert kind="danger" size="small" close="onCloseAlert()">Lorem ipsum dolor, sit amet consectetur adipisicing
         elit. Ipsam aspernatur amet, nesciunt illum fugiat accusamus quasi accusantium, officiis nobis totam iste sequi!
         Sed iure sunt earum eveniet placeat velit? Accusamus! danger alert
+        <gcs-button id="b2" click="onButtonClicked()" kind="primary" variant="contained" size="large">
+        Contained
+    </gcs-button>
     </gcs-alert>
 
     <h4>Icon and localized text</h4>

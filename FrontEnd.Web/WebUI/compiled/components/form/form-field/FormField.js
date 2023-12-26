@@ -3,14 +3,13 @@ import defineCustomElement from "../../../custom-element/defineCustomElement";
 import mergeStyles from "../../../custom-element/styles/mergeStyles";
 import html from "../../../rendering/html";
 import { DataTypes } from "../../../utils/data/DataTypes";
-import Sizable from "../../mixins/sizable/Sizable";
 import { validationEvent } from "../../mixins/validatable/Validatable";
 import { formFieldStyles } from "./FormField.styles";
 import css from "../../../custom-element/styles/css";
 import labelAlign from "../labelAlign";
 import labelWidth from "../labelWidth";
 import { inputEvent } from "../../fields/DisplayableField";
-export default class FormField extends Sizable(CustomElement) {
+export default class FormField extends CustomElement {
     static get styles() {
         return mergeStyles(super.styles, formFieldStyles);
     }

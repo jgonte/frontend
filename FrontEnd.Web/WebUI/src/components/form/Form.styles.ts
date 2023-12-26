@@ -2,7 +2,8 @@ import css from "../../custom-element/styles/css";
 
 export const formStyles = css`
 :host {
-    display: block;    
+    display: block;   
+    margin: var(--gcs-margin); 
 }
 
 form {

@@ -1,4 +1,4 @@
-import Dialog from "../components/dialog.ts/Dialog";
+import Overlay from "../components/overlay/Overlay";
 import { updateRoutes } from "../components/routers/hash-router/utils/routersRegistry";
 import html from "../rendering/html";
 import { errorEvent } from "./errors/ErrorHandler";
@@ -11,7 +11,7 @@ class AppCtrl {
     user;
     intlProvider;
     iconsPath;
-    dialog = new Dialog();
+    overlay = new Overlay();
     apiUrl;
     themeNamesUrl;
     defaultTheme;
@@ -39,7 +39,7 @@ class AppCtrl {
         }
         const themeName = window.localStorage.getItem('app-theme') || appCtrl.defaultTheme;
         this.setTheme(themeName);
-        document.body.appendChild(this.dialog);
+        document.body.appendChild(this.overlay);
         document.addEventListener(successEvent, this.handleSuccess);
         document.addEventListener(errorEvent, this.handleError);
         window.addEventListener('hashchange', updateRoutes);
@@ -49,9 +49,9 @@ class AppCtrl {
         window.document.firstElementChild.setAttribute('theme', theme);
     }
     showDialog(content) {
-        const { dialog } = this;
-        dialog.content = content;
-        dialog.showing = true;
+        const { overlay } = this;
+        overlay.content = content;
+        overlay.showing = true;
     }
     handleSuccess(evt) {
         const { successMessage, } = evt.detail;

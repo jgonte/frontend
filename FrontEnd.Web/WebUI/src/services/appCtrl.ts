@@ -1,4 +1,4 @@
-import Dialog from "../components/dialog.ts/Dialog";
+import Overlay from "../components/overlay/Overlay";
 import { updateRoutes } from "../components/routers/hash-router/utils/routersRegistry";
 import html from "../rendering/html";
 import { NodePatchingData } from "../rendering/nodes/NodePatchingData";
@@ -48,9 +48,9 @@ class AppCtrl {
 	iconsPath?: string;
 
 	/**
-	 * The dialog to show the messages for the application
+	 * The overlay to show the messages for the application
 	 */
-	dialog: Dialog = new Dialog();
+	overlay: Overlay = new Overlay();
 
 	/**
 	 * The url to the APIs
@@ -136,8 +136,8 @@ class AppCtrl {
 		// Set the theme
 		this.setTheme(themeName as string);
 
-		// Append the app dialog to post any messages
-		document.body.appendChild(this.dialog);
+		// Append the app overlay to post any messages
+		document.body.appendChild(this.overlay);
 
 		// Handle success messages
 		document.addEventListener(successEvent, this.handleSuccess as EventListenerOrEventListenerObject);
@@ -159,12 +159,12 @@ class AppCtrl {
 	showDialog(content: () => NodePatchingData) {
 
 		const {
-			dialog
+			overlay
 		} = this;
 
-		dialog.content = content;
+		overlay.content = content;
 
-		dialog.showing = true;
+		overlay.showing = true;
 	}
 
 	handleSuccess(evt: CustomEvent): void {

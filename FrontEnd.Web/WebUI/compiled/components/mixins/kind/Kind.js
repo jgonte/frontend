@@ -22,6 +22,17 @@ function createKindStyles(ctor) {
                 kinds.forEach(kind => styles.push(createVariantStyles(ctor, kind)));
             }
             break;
+        case "Alert":
+            {
+                console.warn(`Setting default kind styles for element: '${ctor.name}'`);
+                kinds.forEach(kind => styles.push(css `
+:host([kind='${kind}']) { 
+    color: var(${cssVariables.get("color")}${kind}); 
+    background-color: var(${cssVariables.get("background-color")}${kind}); 
+    border-color: var(${cssVariables.get("color")}${kind}); 
+}`));
+            }
+            break;
         default:
             {
                 console.warn(`Setting default kind styles for element: '${ctor.name}'`);

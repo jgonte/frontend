@@ -1,9 +1,6 @@
-import Sizable from "../mixins/sizable/Sizable";
 import Submittable from "../mixins/submittable/Submittable";
 import Validatable from "../mixins/validatable/Validatable";
 import Loadable from "../mixins/remote-loadable/RemoteLoadable";
-import Successful from "../mixins/successful/Successful";
-import Errorable from "../mixins/errorable/Errorable";
 import CustomElement from "../../custom-element/CustomElement";
 import defineCustomElement from "../../custom-element/defineCustomElement";
 import CustomElementPropertyMetadata from "../../custom-element/mixins/metadata/types/CustomElementPropertyMetadata";
@@ -19,22 +16,17 @@ import labelAlign from "./labelAlign";
 import isUndefinedOrNull from "../../utils/isUndefinedOrNull";
 import DataResponse from "../../utils/data/transfer/DataResponse";
 import { DataTypes } from "../../utils/data/DataTypes";
+import notifyError from "../../services/errors/notifyError";
 
 export const formConnectedEvent = "formConnectedEvent";
 
 export const formDisconnectedEvent = "formDisconnectedEvent";
 
 export default class Form extends
-    Sizable(
-        Submittable(
-            Validatable(
-                Loadable(
-                    Successful(
-                        Errorable(
-                            CustomElement as CustomHTMLElementConstructor
-                        )
-                    )
-                )
+    Submittable(
+        Validatable(
+            Loadable(
+                CustomElement as CustomHTMLElementConstructor
             )
         )
     ) {
@@ -119,7 +111,7 @@ export default class Form extends
 
         if (this.modifiedFields.size === 0) {
 
-            this.error = 'This form has not been modified';
+            notifyError(this, 'This form has not been modified');
 
             return;
         }

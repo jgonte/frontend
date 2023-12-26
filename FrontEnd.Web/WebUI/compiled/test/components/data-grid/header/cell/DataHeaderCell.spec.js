@@ -1,4 +1,4 @@
-import DataHeaderCell from "../../../../../components/data-grid/header/cell/DataHeaderCell";
+import DataGridHeaderCell from "../../../../../components/data-grid/header/cell/DataGridHeaderCell";
 import defineCustomElement from "../../../../../custom-element/defineCustomElement";
 import clearCustomElements from "../../../../custom-element/helpers/clearCustomElements";
 import getContentWithoutStyle from "../../../helpers/getContentWithoutStyle";
@@ -7,7 +7,7 @@ beforeEach(() => {
 });
 describe("Data cell tests", () => {
     it('should render when the data of the attributes is provided', async () => {
-        defineCustomElement('gcs-data-header-cell', DataHeaderCell);
+        defineCustomElement('gcs-data-header-cell', DataGridHeaderCell);
         document.body.innerHTML = '<gcs-data-header-cell id="dc1" field="name"></gcs-data-header-cell>';
         const component = document.querySelector('gcs-data-header-cell');
         await component.updateComplete;
@@ -18,7 +18,7 @@ describe("Data cell tests", () => {
         window.getField = function () {
             return "name";
         };
-        defineCustomElement('gcs-data-header-cell', DataHeaderCell);
+        defineCustomElement('gcs-data-header-cell', DataGridHeaderCell);
         document.body.innerHTML = '<gcs-data-header-cell id="dc2" field="getField()"></gcs-data-header-cell>';
         const component = document.querySelector('gcs-data-header-cell');
         await component.updateComplete;

@@ -91,6 +91,9 @@
 
     /* Margin */
     --gcs-margin: .25em;
+
+    /* Padding */
+    --gcs-padding: .25em;
 }
 
 * {
