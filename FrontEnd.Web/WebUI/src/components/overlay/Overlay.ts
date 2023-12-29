@@ -1,10 +1,12 @@
 import CustomElement from "../../custom-element/CustomElement";
 import defineCustomElement from "../../custom-element/defineCustomElement";
+import zIndexManager from "../../custom-element/managers/zIndexManager";
 import CustomElementPropertyMetadata from "../../custom-element/mixins/metadata/types/CustomElementPropertyMetadata";
 import CustomElementStateMetadata from "../../custom-element/mixins/metadata/types/CustomElementStateMetadata";
 import html from "../../rendering/html";
 import { NodePatchingData } from "../../rendering/nodes/NodePatchingData";
 import { DataTypes } from "../../utils/data/DataTypes";
+import isUndefinedOrNull from "../../utils/isUndefinedOrNull";
 import { closingEvent } from "../tools/close/CloseTool";
 import { overlayStyles } from "./Overlay.styles";
 
@@ -32,7 +34,23 @@ export default class Overlay extends CustomElement {
         return {
 
             showing: {
-                value: false
+                value: false,
+                afterChange: function (value: unknown, oldValue: unknown): void {
+
+                    if (isUndefinedOrNull(oldValue)) {
+
+                        return; // Initial value
+                    }
+                    
+                    if (value === true) {
+
+                        zIndexManager.add(this as unknown as Overlay);
+                    }
+                    else {
+
+                        zIndexManager.remove(this as unknown as Overlay);
+                    }
+                }
             }
         };
     }

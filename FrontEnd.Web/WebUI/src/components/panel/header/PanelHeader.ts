@@ -1,5 +1,7 @@
 import Closable from "../../mixins/closable/Closable";
 import CustomElement from "../../../custom-element/CustomElement";
+import mergeStyles from "../../../custom-element/styles/mergeStyles";
+import { panelHeaderStyles } from "./PanelHeader.style";
 import defineCustomElement from "../../../custom-element/defineCustomElement";
 import CustomElementPropertyMetadata from "../../../custom-element/mixins/metadata/types/CustomElementPropertyMetadata";
 import html from "../../../rendering/html";
@@ -10,6 +12,11 @@ export default class PanelHeader extends
     Closable(
         CustomElement
     ) {
+
+    static get styles(): string {
+
+        return mergeStyles(super.styles, panelHeaderStyles);
+    }
 
     static get properties(): Record<string, CustomElementPropertyMetadata> {
 
@@ -30,16 +37,16 @@ export default class PanelHeader extends
     render(): NodePatchingData {
 
         return html`
-<gcs-row>
+<span class="item">
     ${this.renderIcon()}
-    <span slot="middle">
-        <slot name="title"></slot>
-    </span>
-    <span slot="end">
-        <slot name="tools"></slot>
-    </span>
+</span> 
+<span class="item">
+    <slot name="title"></slot>
+</span>
+<span class="item">
+    <slot name="tools"></slot>
     ${this.renderCloseTool()}
-</gcs-row>`;
+</span>`;
     }
 
     renderIcon() {
@@ -51,11 +58,11 @@ export default class PanelHeader extends
         if (iconName) {
 
             return html`
-                <gcs-icon 
-                    slot="start" 
-                    name=${this.iconName}
-                >
-                </gcs-icon>`;
+<gcs-icon 
+    slot="start" 
+    name=${this.iconName}
+>
+</gcs-icon>`;
         }
         else {
 

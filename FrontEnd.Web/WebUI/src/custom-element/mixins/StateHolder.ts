@@ -58,7 +58,8 @@ export default function StateHolder<TBase extends CustomHTMLElementConstructor>(
             }
 
             const {
-                options
+                options,
+                afterChange
             } = stateMetadata;
 
             ensureValueIsInOptions(value, options);
@@ -71,6 +72,9 @@ export default function StateHolder<TBase extends CustomHTMLElementConstructor>(
             }
 
             this._state[key] = value;
+
+            // Call any afterChange value on the property
+            afterChange?.call(this, value, oldValue);
 
             return true;
         }

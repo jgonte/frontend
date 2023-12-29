@@ -126,13 +126,14 @@ function StateHolder(Base) {
             if (stateMetadata === undefined) {
                 throw new Error(`There is no configured property for state: '${key}' in type: '${this.constructor.name}'`);
             }
-            const { options } = stateMetadata;
+            const { options, afterChange } = stateMetadata;
             ensureValueIsInOptions(value, options);
             const oldValue = this._state[key];
             if (oldValue === value) {
                 return false;
             }
             this._state[key] = value;
+            afterChange?.call(this, value, oldValue);
             return true;
         }
     };
@@ -527,9 +528,7 @@ function PropertiesHolder(Base) {
         }
         callAfterUpdate() {
             this._changedProperties.forEach(p => {
-                if (p.afterUpdate !== undefined) {
-                    p.afterUpdate.call(this);
-                }
+                p.afterUpdate?.call(this);
             });
         }
         clearChangedProperties() {
@@ -1674,6 +1673,30 @@ function css(strings, ...values) {
 
 const viewsRegistry = new Map();
 
+const _zIndexInitial = 1000;
+const _zIndexIncrement = 10;
+const _elements = [];
+const zIndexManager = {
+    add(element) {
+        const el = _elements[_elements.length - 1];
+        if (el) {
+            const zIndex = parseInt(el.style.zIndex) + _zIndexIncrement;
+            element.style.zIndex = zIndex.toString();
+        }
+        else {
+            element.style.zIndex = _zIndexInitial.toString();
+        }
+        _elements.push(element);
+    },
+    remove(element) {
+        const el = _elements.pop();
+        if (el &&
+            el !== element) {
+            console.error('Removed element must be the last one');
+        }
+    }
+};
+
 function mergeStyles(style1, style2) {
     if (style1 === undefined) {
         return `
@@ -2035,7 +2058,18 @@ class Overlay extends CustomElement {
     static get state() {
         return {
             showing: {
-                value: false
+                value: false,
+                afterChange: function (value, oldValue) {
+                    if (isUndefinedOrNull(oldValue)) {
+                        return;
+                    }
+                    if (value === true) {
+                        zIndexManager.add(this);
+                    }
+                    else {
+                        zIndexManager.remove(this);
+                    }
+                }
             }
         };
     }
@@ -2237,6 +2271,10 @@ class Theme {
 }
 
 const iconStyles = css `
+:host {
+    margin: var(--gcs-margin);
+}
+
 :host svg {
     display: inline-block;
     width: 1em;
@@ -2296,6 +2334,7 @@ function getContentTextNode(element) {
 
 const localizedTextStyles = css `
 :host {
+    margin: var(--gcs-margin);
     overflow-wrap: break-word;
 }`;
 
@@ -2361,41 +2400,57 @@ function Closable(Base) {
                 close: {
                     type: [
                         DataTypes.Function,
-                        DataTypes.Boolean
+                        DataTypes.String
                     ],
                     defer: true
                 }
             };
         }
+        handleClose() {
+            if (typeof this.close === "function") {
+                this.close();
+            }
+            else if (typeof this.close === "string") {
+                this.dispatchCustomEvent(closingEvent, {
+                    source: this.close
+                });
+            }
+            else {
+                throw new Error("Unknown close type in Closable::handleClose");
+            }
+        }
         renderCloseTool() {
-            const { close } = this;
-            if (close === undefined) {
+            if (this.close === undefined) {
                 return null;
             }
-            const handleClose = close === true ?
-                evt => this.dispatchCustomEvent(closingEvent, {
-                    originalEvent: evt
-                }) :
-                evt => this.close(evt);
             return html `
-    <gcs-close-tool 
-        slot="end"
-        close=${handleClose}
-    >
-    </gcs-close-tool>`;
+<gcs-close-tool
+    close=${() => this.handleClose()}
+>
+</gcs-close-tool>`;
         }
     };
 }
 
 const alertStyles = css `
 :host {
-    border-style: solid;
-    border-width: var(--gcs-border-width);
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    background-color: inherit;
+    border: var(--gcs-border-width) solid;
     border-radius: var(--gcs-border-radius);
+    max-width: 90vw;
 }
 
-.bordered {
-    border: var(--gcs-border-width) solid;
+.item {
+    margin: var(--gcs-margin);
+}
+
+.middle {
+    word-wrap: break-word; 
+    max-height: 80vh; 
+    overflow: auto;
 }`;
 
 class Alert extends Closable(Nuanced) {
@@ -2413,22 +2468,24 @@ class Alert extends Closable(Nuanced) {
     }
     render() {
         return html `
-<gcs-row class="bordered">
+<span class="item">
     ${this._renderIcon()}
-    <span slot="middle">
-        <slot></slot>
-    </span>
+</span>
+<span class="item middle">
+    <slot></slot>
+</span>
+<span class="item">
     ${this.renderCloseTool()}
-</gcs-row>`;
+</span>
+`;
     }
     _renderIcon() {
         const { showIcon, } = this;
         if (showIcon !== true) {
-            return null;
+            return html `<span></span>`;
         }
         return html `
 <gcs-icon 
-    slot="start" 
     name=${this._getIconName()}
 >
 </gcs-icon>`;
@@ -2538,7 +2595,6 @@ button {
     /* outline: 0;
       margin-right: 8px;
       margin-bottom: 12px;
-      line-height: 1.5715;
       position: relative;
     
       font-weight: 400;
@@ -2598,9 +2654,10 @@ class Button extends Hideable(Disableable(Nuanced)) {
     }
     render() {
         const { disabled, click } = this;
-        return html `<button disabled=${disabled} onClick=${click}>
-            <slot></slot>
-        </button>`;
+        return html `
+<button disabled=${disabled} onClick=${click}>
+    <slot></slot>
+</button>`;
     }
 }
 defineCustomElement('gcs-button', Button);
@@ -3428,7 +3485,17 @@ function Submittable(Base) {
                         DataTypes.String,
                         DataTypes.Function
                     ],
-                    options: ['post', 'put']
+                    options: ['POST', 'PUT']
+                },
+                idField: {
+                    attribute: 'id-field',
+                    type: DataTypes.String,
+                    value: 'id'
+                },
+                submitSuccess: {
+                    attribute: 'submit-success',
+                    type: DataTypes.Function,
+                    defer: true
                 }
             };
         }
@@ -3444,25 +3511,35 @@ function Submittable(Base) {
             if (submitting === false) {
                 return null;
             }
-            return html `<gcs-overlay>
-                <gcs-alert kind="info" >...Submitting</gcs-alert>
-            </gcs-overlay>`;
+            return html `
+<gcs-overlay>
+    <gcs-alert kind="info" >...Submitting</gcs-alert>
+</gcs-overlay>`;
         }
         connectedCallback() {
             super.connectedCallback?.();
             this._submitFetcher = new Fetcher({
                 onData: data => this.handleSubmitData(data),
-                onSuccess: () => this.handleSuccess('Record was successfully submitted.'),
+                onSuccess: () => this.handleSubmitSuccess('Record was successfully submitted.'),
                 onError: error => this.handleSubmitError(error)
             });
         }
         submit() {
             this.submitting = true;
             const data = this.getSubmitData();
+            const method = this.getMethod(data);
+            let params = undefined;
+            if (method.toUpperCase() === 'PUT') {
+                const id = data[this.idField];
+                params = {
+                    [this.idField]: id
+                };
+            }
             this._submitFetcher.fetch({
                 url: this.submitUrl,
-                method: this.getMethod(data),
+                method,
                 contentType: this.getContentType(),
+                params,
                 data
             });
         }
@@ -3480,14 +3557,15 @@ function Submittable(Base) {
                     method() :
                     method;
             }
-            return data.id !== undefined ? 'PUT' : 'POST';
+            return data[this.idField] !== undefined ? 'PUT' : 'POST';
         }
         handleSubmitData(data) {
             this.submitting = false;
             this.handleSubmitResponse(data);
         }
-        handleSuccess(successMessage) {
+        handleSubmitSuccess(successMessage) {
             this.submitting = false;
+            this.submitSuccess?.();
             notifySuccess(this, successMessage);
         }
         handleSubmitError(error) {
@@ -3885,6 +3963,9 @@ class Field extends Validatable(CustomElement) {
     acceptChanges() {
         this._initialValue = this.value;
     }
+    reset() {
+        this.value = this._initialValue;
+    }
 }
 
 const formStyles = css `
@@ -3943,21 +4024,23 @@ class Form extends Submittable(Validatable(RemoteLoadableHolder(CustomElement)))
     }
     render() {
         const { labelWidth, labelAlign } = this;
-        return html `<form>
-            ${this.renderLoading()}
-            ${this.renderSubmitting()}
-            <slot label-width=${labelWidth} label-align=${labelAlign} key="form-fields"></slot>
-            ${this._renderButton()}
-        </form>`;
+        return html `
+<form>
+    ${this.renderLoading()}
+    ${this.renderSubmitting()}
+    <slot label-width=${labelWidth} label-align=${labelAlign} key="form-fields"></slot>
+    ${this._renderButton()}
+</form>`;
     }
     _renderButton() {
         if (this.hideSubmitButton) {
             return null;
         }
-        return html `<gcs-button key="submit-button" kind="primary" variant="contained" click=${() => this.submit()}>
-           <gcs-localized-text>Submit</gcs-localized-text>
-           <gcs-icon name="box-arrow-right"></gcs-icon>
-        </gcs-button>`;
+        return html `
+<gcs-button key="submit-button" kind="primary" variant="contained" click=${() => this.submit()}>
+    <gcs-localized-text>Submit</gcs-localized-text>
+    <gcs-icon name="box-arrow-right"></gcs-icon>
+</gcs-button>`;
     }
     getSubmitData() {
         return this.getData();
@@ -4068,6 +4151,10 @@ class Form extends Submittable(Validatable(RemoteLoadableHolder(CustomElement)))
                 window.removeEventListener('beforeunload', this.handleBeforeUnload);
             }
         });
+    }
+    reset() {
+        Array.from(this.modifiedFields).forEach(f => f.reset());
+        this.modifiedFields.clear();
     }
 }
 defineCustomElement('gcs-form', Form);
@@ -4284,6 +4371,7 @@ const navigationLinkStyles = css `
     flex-wrap: nowrap;
     background-color: var(--bg-color);
     color: var(--text-color);
+    margin: var(--gcs-margin);
     transition: all 0.3s ease;
 }
 
@@ -4635,46 +4723,23 @@ class Center extends CustomElement {
 }
 defineCustomElement('gcs-center', Center);
 
-const rowStyles = css `
+const panelHeaderStyles = css `
 :host {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-    background-color: inherit;
-    border-color: inherit;
-    border-radius: inherit;
+    border: solid transparent;
+    border-radius: var(--gcs-border-radius);
 }
 
 .item {
-    padding: var(--gcs-padding);
-}
-
-.middle {
-    word-wrap: break-word; 
-    max-height: 80vh; 
-    overflow: auto;
+    margin: var(--gcs-margin);
 }`;
 
-class Row extends CustomElement {
-    static get styles() {
-        return mergeStyles(super.styles, rowStyles);
-    }
-    render() {
-        return html `
-<span class="item">
-    <slot name="start"></slot>
-</span>
-<span class="item middle">
-    <slot name="middle"></slot>
-</span>
-<span class="item">
-    <slot name="end"></slot>
-</span>`;
-    }
-}
-defineCustomElement('gcs-row', Row);
-
 class PanelHeader extends Closable(CustomElement) {
+    static get styles() {
+        return mergeStyles(super.styles, panelHeaderStyles);
+    }
     static get properties() {
         return {
             iconName: {
@@ -4687,26 +4752,26 @@ class PanelHeader extends Closable(CustomElement) {
     }
     render() {
         return html `
-<gcs-row>
+<span class="item">
     ${this.renderIcon()}
-    <span slot="middle">
-        <slot name="title"></slot>
-    </span>
-    <span slot="end">
-        <slot name="tools"></slot>
-    </span>
+</span> 
+<span class="item">
+    <slot name="title"></slot>
+</span>
+<span class="item">
+    <slot name="tools"></slot>
     ${this.renderCloseTool()}
-</gcs-row>`;
+</span>`;
     }
     renderIcon() {
         const { iconName } = this;
         if (iconName) {
             return html `
-                <gcs-icon 
-                    slot="start" 
-                    name=${this.iconName}
-                >
-                </gcs-icon>`;
+<gcs-icon 
+    slot="start" 
+    name=${this.iconName}
+>
+</gcs-icon>`;
         }
         else {
             return null;
@@ -4940,7 +5005,13 @@ function SelectionContainer(Base) {
         selectByValue(value) {
             const selectors = (this?.shadowRoot).querySelectorAll('gcs-selector');
             const selector = Array.from(selectors).filter(c => c.selectValue[this.idField] === value)[0];
-            selector.setSelected(true);
+            if (selector) {
+                selector.setSelected(true);
+            }
+            else {
+                this.selectedChildren = [];
+                this.selection = [];
+            }
         }
     };
 }
@@ -5056,10 +5127,11 @@ class ComboBox extends SelectionContainer(CollectionDataHolder(DisplayableField)
         this.onSelectionChanged = this.onSelectionChanged.bind(this);
     }
     render() {
-        return html `<gcs-drop-down>
-            ${this.renderHeader()}
-            ${this.renderContent()}
-        </gcs-drop-down>`;
+        return html `
+<gcs-drop-down>
+    ${this.renderHeader()}
+    ${this.renderContent()}
+</gcs-drop-down>`;
     }
     renderHeader() {
         const { selection, multiple } = this;
@@ -5221,6 +5293,9 @@ class DateField extends DisplayableField {
         />`;
     }
     beforeValueSet(value) {
+        if (isUndefinedOrNull(value)) {
+            return undefined;
+        }
         const date = new Date(value);
         date.setHours(0, 0, 0, 0);
         return date;
@@ -5378,21 +5453,29 @@ class NumberField extends DisplayableField {
 defineCustomElement('gcs-number-field', NumberField);
 
 class CheckBox extends DisplayableField {
-    value = false;
     static getFieldType() {
         return DataTypes.Boolean;
     }
     render() {
         const { name, value, disabled } = this;
-        return html `<input
-            type="checkbox"
-            name=${name}
-            value=${value}
-            onInput=${event => this.handleInput(event)}
-            onChange=${event => this.handleChange(event)}
-            onBlur=${() => this.handleBlur()}
-            disabled=${disabled}
-        />`;
+        return html `
+<input
+    type="checkbox"
+    name=${name}
+    value=${value}
+    onInput=${event => this.handleInput(event)}
+    onChange=${event => this.handleChange(event)}
+    onBlur=${() => this.handleBlur()}
+    disabled=${disabled}
+/>`;
+    }
+    onValueChanged(value, _oldValue) {
+        if (value === true) {
+            this.checked = true;
+        }
+        else {
+            this.checked = false;
+        }
     }
 }
 defineCustomElement('gcs-check-box', CheckBox);
@@ -5700,22 +5783,33 @@ class ValidationSummary extends CustomElement {
         };
     }
     render() {
-        return html `${this.renderWarnings()}
-            ${this.renderErrors()}`;
+        return html `
+${this.renderWarnings()}
+${this.renderErrors()}`;
     }
     renderWarnings() {
         const { warnings } = this;
         if (warnings === undefined) {
             return null;
         }
-        return warnings.map((warning) => html `<gcs-alert kind="warning">${warning}</gcs-alert>`);
+        return warnings.map((warning) => html `
+<gcs-alert 
+    kind="warning"
+>
+    <gcs-localized-text>${warning}</gcs-localized-text>   
+</gcs-alert>`);
     }
     renderErrors() {
         const { errors } = this;
         if (errors === undefined) {
             return null;
         }
-        return errors.map((error) => html `<gcs-alert kind="danger">${error}</gcs-alert>`);
+        return errors.map((error) => html `
+<gcs-alert 
+    kind="danger"
+>
+    <gcs-localized-text>${error}</gcs-localized-text>   
+</gcs-alert>`);
     }
 }
 defineCustomElement('gcs-validation-summary', ValidationSummary);
@@ -5754,7 +5848,6 @@ const dataGridBodyCellStyles = css `
     flex-flow: row nowrap;
     flex-grow: 1;
     flex-basis: 0;
-    padding: 0.5em;
     word-break: break-word;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -5809,7 +5902,6 @@ const dataGridBodyRowStyles = css `
     width: 100%;
     display: flex;
     flex-flow: row nowrap;
-    line-height: 1.5;
 }
 
 :host(:nth-of-type(even)) {
@@ -5939,7 +6031,6 @@ const dataGridHeaderStyles = css `
     width: 100%;
     display: flex;
     flex-flow: row nowrap;
-    line-height: 1.5;
     background-color: var(--header-bg-color);
     color: var(--header-text-color)
 }`;
@@ -6075,7 +6166,6 @@ class CollectionPanel extends CustomElement {
     }
     constructor() {
         super();
-        this.showAddForm = this.showAddForm.bind(this);
         this.showEditForm = this.showEditForm.bind(this);
         this.showConfirmDelete = this.showConfirmDelete.bind(this);
         this.deleteRecord = this.deleteRecord.bind(this);
@@ -6086,6 +6176,21 @@ class CollectionPanel extends CustomElement {
             onSuccess: () => this.handleSuccessfulDelete(),
             onError: error => notifyError(this, error)
         });
+        this.addEventListener(closingEvent, this.handleClose);
+    }
+    disconnectedCallback() {
+        super.disconnectedCallback?.();
+        this.removeEventListener(closingEvent, this.handleClose);
+    }
+    handleClose(event) {
+        const { source } = event.detail;
+        switch (source) {
+            case 'add-overlay':
+                {
+                    this.resetForm('create-form');
+                }
+                break;
+        }
     }
     render() {
         return html `
@@ -6099,14 +6204,14 @@ class CollectionPanel extends CustomElement {
 `;
     }
     renderToolbar() {
-        const { createUrl, showAddForm } = this;
+        const { createUrl } = this;
         if (!createUrl) {
             return null;
         }
         return html `
 <div slot="header">
     <gcs-button 
-        click=${showAddForm}
+        click=${() => this.showOverlay('add-overlay', true)}
         kind="primary">
         <gcs-icon name="person-add"></gcs-icon>
         <gcs-localized-text>Add</gcs-localized-text>
@@ -6176,7 +6281,7 @@ class CollectionPanel extends CustomElement {
         <gcs-panel-header
             slot="header"
             icon-name="database-add"
-            close
+            close="add-overlay"
         >
             <gcs-localized-text slot="title">Add Record</gcs-localized-text>
         </gcs-panel-header>
@@ -6185,13 +6290,24 @@ class CollectionPanel extends CustomElement {
             id="create-form"
             slot="body"
             submit-url=${this.createUrl}
-        >
+            submit-success=${() => {
+            this.showOverlay('add-overlay', false);
+            this.resetForm('create-form');
+        }}>
         ${this.renderFormBody()}
         </gcs-form>
         
     </gcs-panel>
 
 </gcs-overlay>`;
+    }
+    showOverlay(id, show) {
+        const overlay = this.findChild((n) => n.id === id);
+        overlay.showing = show;
+    }
+    resetForm(id) {
+        const form = this.findChild((n) => n.id === id);
+        form.reset();
     }
     renderFormBody() {
         const { formContent } = this;
@@ -6221,7 +6337,7 @@ class CollectionPanel extends CustomElement {
         <gcs-panel-header
             slot="header"
             icon-name="database-check"
-            close
+            close="update-overlay"
         >
             <localized-label slot="title">Update Record</localized-label>
         </gcs-panel-header>
@@ -6229,9 +6345,10 @@ class CollectionPanel extends CustomElement {
         <gcs-form 
             id="update-form"
             slot="body"
+            id-field=${this.idField}
             load-url=${this.loadRecordUrl}
             auto-load="false"
-            submit-url=${this.createUrl}
+            submit-url=${this.updateUrl}
         >
         ${this.renderFormBody()}
         </gcs-form>
@@ -6248,10 +6365,6 @@ class CollectionPanel extends CustomElement {
 >
 </gcs-overlay>`;
     }
-    showAddForm() {
-        const overlay = this.findChild((n) => n.id === 'add-overlay');
-        overlay.showing = true;
-    }
     showEditForm(record) {
         const form = this.findChild((n) => n.id === 'update-form');
         const { idField } = this;
@@ -6259,8 +6372,7 @@ class CollectionPanel extends CustomElement {
             [idField]: record[idField]
         };
         form.loadRemote(params);
-        const overlay = this.findChild((n) => n.id === 'update-overlay');
-        overlay.showing = true;
+        this.showOverlay('update-overlay', true);
     }
     showConfirmDelete(record) {
         const overlay = this.findChild((n) => n.id === 'delete-overlay');
@@ -6268,11 +6380,11 @@ class CollectionPanel extends CustomElement {
         overlay.content = () => html `
 <gcs-alert
     kind="danger" 
-    close
+    close="delete-overlay"
 >
     <gcs-localized-text>Are you sure you want to delete the record?</gcs-localized-text>
-    <gcs-row>
-        <gcs-button slot="middle"
+    <div>
+        <gcs-button
             click=${async () => await deleteRecord(record)} 
             kind="danger"
             variant="outlined"
@@ -6280,7 +6392,7 @@ class CollectionPanel extends CustomElement {
             <gcs-localized-text>Delete</gcs-localized-text>
             <gcs-icon name="trash"></gcs-icon>
         </gcs-button>
-    </gcs-row>  
+    </div>
 </gcs-alert>`;
         overlay.showing = true;
     }
@@ -6291,13 +6403,12 @@ class CollectionPanel extends CustomElement {
             url: deleteUrl,
             method: 'DELETE',
             params: {
-                'id': id
+                [idField]: id
             }
         });
     }
     handleSuccessfulDelete() {
-        const overlay = this.findChild((n) => n.id === 'delete-overlay');
-        overlay.showing = false;
+        this.showOverlay('delete-overlay', false);
         const grid = this.findChild((n) => n.id === 'data-grid');
         grid.load();
         notifySuccess(this, 'Record was successfully deleted.');
@@ -6721,4 +6832,4 @@ window.appCtrl = appCtrl;
 window.html = html;
 window.viewsRegistry = viewsRegistry;
 
-export { Accordion, Alert, AppInitializedEvent, ApplicationHeader, ApplicationView, Button, Center, CheckBox, CloseTool, CollectionPanel, ComboBox, ContentView, CustomElement, DataGridBodyCell as DataCell, DataGrid, DataGridHeader, DataGridHeaderCell as DataHeaderCell, DataList, DataGridBodyRow as DataRow, DataTemplate, DataTypes, DateField, DisplayableField, DropDown, ExpanderTool, FileField, Form, FormField, HashRouter, HelpTip, HiddenField, Icon, LocalizedText, ModifiedTip, NavigationBar, NavigationLink, NumberField, Overlay, Panel, PanelHeader, PasswordField, Pill, RequiredTip, Row, Selector, Slider, SorterTool, StarRating, TextArea, TextField, Theme, Tool, ToolTip, ValidationSummary, Wizard, WizardStep, appCtrl, css, defineCustomElement, getNotFoundView, html, navigateToRoute, viewsRegistry };
+export { Accordion, Alert, AppInitializedEvent, ApplicationHeader, ApplicationView, Button, Center, CheckBox, CloseTool, CollectionPanel, ComboBox, ContentView, CustomElement, DataGridBodyCell as DataCell, DataGrid, DataGridHeader, DataGridHeaderCell as DataHeaderCell, DataList, DataGridBodyRow as DataRow, DataTemplate, DataTypes, DateField, DisplayableField, DropDown, ExpanderTool, FileField, Form, FormField, HashRouter, HelpTip, HiddenField, Icon, LocalizedText, ModifiedTip, NavigationBar, NavigationLink, NumberField, Overlay, Panel, PanelHeader, PasswordField, Pill, RequiredTip, Selector, Slider, SorterTool, StarRating, TextArea, TextField, Theme, Tool, ToolTip, ValidationSummary, Wizard, WizardStep, appCtrl, css, defineCustomElement, getNotFoundView, html, navigateToRoute, viewsRegistry };

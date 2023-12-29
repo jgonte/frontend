@@ -14,7 +14,6 @@ button {
     /* outline: 0;
       margin-right: 8px;
       margin-bottom: 12px;
-      line-height: 1.5715;
       position: relative;
     
       font-weight: 400;

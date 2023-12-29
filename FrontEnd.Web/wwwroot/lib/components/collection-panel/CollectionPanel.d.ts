@@ -7,14 +7,17 @@ export default class CollectionPanel extends CustomElement {
     static get properties(): Record<string, CustomElementPropertyMetadata>;
     constructor();
     connectedCallback(): void;
+    disconnectedCallback(): void;
+    handleClose(event: Event): void;
     render(): NodePatchingData;
     renderToolbar(): NodePatchingData | null;
     renderDataGrid(): NodePatchingData;
     renderInsertDialog(): NodePatchingData | null;
+    showOverlay(id: string, show: boolean): void;
+    resetForm(id: string): void;
     renderFormBody(): NodePatchingData;
     renderUpdateDialog(): NodePatchingData | null;
     renderDeleteDialog(): NodePatchingData;
-    showAddForm(): void;
     showEditForm(record: GenericRecord): void;
     showConfirmDelete(record: GenericRecord): void;
     deleteRecord(record: GenericRecord): Promise<void>;

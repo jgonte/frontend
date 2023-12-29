@@ -166,5 +166,8 @@ export default class Field extends Validatable(CustomElement) {
     acceptChanges() {
         this._initialValue = this.value;
     }
+    reset() {
+        this.value = this._initialValue;
+    }
 }
 //# sourceMappingURL=Field.js.map

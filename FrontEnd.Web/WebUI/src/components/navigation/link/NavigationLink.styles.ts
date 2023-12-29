@@ -6,6 +6,7 @@ export const navigationLinkStyles = css`
     flex-wrap: nowrap;
     background-color: var(--bg-color);
     color: var(--text-color);
+    margin: var(--gcs-margin);
     transition: all 0.3s ease;
 }
 

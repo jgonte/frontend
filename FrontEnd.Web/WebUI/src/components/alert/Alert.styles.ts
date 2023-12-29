@@ -2,11 +2,21 @@ import css from "../../custom-element/styles/css";
 
 export const alertStyles = css`
 :host {
-    border-style: solid;
-    border-width: var(--gcs-border-width);
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    background-color: inherit;
+    border: var(--gcs-border-width) solid;
     border-radius: var(--gcs-border-radius);
+    max-width: 90vw;
 }
 
-.bordered {
-    border: var(--gcs-border-width) solid;
+.item {
+    margin: var(--gcs-margin);
+}
+
+.middle {
+    word-wrap: break-word; 
+    max-height: 80vh; 
+    overflow: auto;
 }`;

@@ -21,13 +21,14 @@ export default function StateHolder(Base) {
             if (stateMetadata === undefined) {
                 throw new Error(`There is no configured property for state: '${key}' in type: '${this.constructor.name}'`);
             }
-            const { options } = stateMetadata;
+            const { options, afterChange } = stateMetadata;
             ensureValueIsInOptions(value, options);
             const oldValue = this._state[key];
             if (oldValue === value) {
                 return false;
             }
             this._state[key] = value;
+            afterChange?.call(this, value, oldValue);
             return true;
         }
     };

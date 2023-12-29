@@ -16,8 +16,8 @@
             alert('Trying to close alert!');
         }
 
-        document.addEventListener('closingEvent', () =>
-            alert('Trying to close alert dispatched an event!')
+        document.addEventListener('closingEvent', evt =>
+            alert(`Trying to close alert dispatched a closing event: ${evt.detail.source}!`)
         );
 
     </script>
@@ -28,8 +28,8 @@
 
 <body>
     <h4>Icon and plain text</h4>
-    <gcs-alert size="large" kind="info" close="onCloseAlert()">Some info alert</gcs-alert>
-    <gcs-alert kind="success" close="onCloseAlert()" show-icon="false">Some success alert</gcs-alert>
+    <gcs-alert size="large" kind="info" close="info-alert">Some info alert</gcs-alert>
+    <gcs-alert kind="success" close show-icon="false">Some success alert</gcs-alert>
     <gcs-alert kind="warning" dir="rtl" close="onCloseAlert()">Some warning alert</gcs-alert>
     <gcs-alert kind="danger" size="small" close="onCloseAlert()">Lorem ipsum dolor, sit amet consectetur adipisicing
         elit. Ipsam aspernatur amet, nesciunt illum fugiat accusamus quasi accusantium, officiis nobis totam iste sequi!

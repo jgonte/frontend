@@ -1,7 +1,6 @@
 import CustomElement from "../../custom-element/CustomElement";
 import CustomElementPropertyMetadata from "../../custom-element/mixins/metadata/types/CustomElementPropertyMetadata";
 import CustomHTMLElement from "../../custom-element/mixins/metadata/types/CustomHTMLElement";
-import CustomHTMLElementConstructor from "../../custom-element/mixins/metadata/types/CustomHTMLElementConstructor";
 import { DataTypes } from "../../utils/data/DataTypes";
 import RequiredValidator from "../../utils/validation/validators/field/RequiredValidator";
 import SingleValueFieldValidator, { FieldValidationContext } from "../../utils/validation/validators/field/SingleValueFieldValidator";
@@ -59,7 +58,7 @@ function getNewValue(input: HTMLInputElement): unknown {
 
 export default abstract class Field extends
     Validatable(
-        CustomElement as CustomHTMLElementConstructor
+        CustomElement
     ) {
 
     /**
@@ -284,5 +283,10 @@ export default abstract class Field extends
     acceptChanges(): void {
 
         this._initialValue = this.value;
+    }
+
+    reset(): void {
+        
+        this.value = this._initialValue;
     }
 }

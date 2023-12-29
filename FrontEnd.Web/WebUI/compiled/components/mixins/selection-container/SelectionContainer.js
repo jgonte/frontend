@@ -98,7 +98,13 @@ export default function SelectionContainer(Base) {
         selectByValue(value) {
             const selectors = (this?.shadowRoot).querySelectorAll('gcs-selector');
             const selector = Array.from(selectors).filter(c => c.selectValue[this.idField] === value)[0];
-            selector.setSelected(true);
+            if (selector) {
+                selector.setSelected(true);
+            }
+            else {
+                this.selectedChildren = [];
+                this.selection = [];
+            }
         }
     };
 }

@@ -20,9 +20,10 @@ export default class Button extends Hideable(Disableable(Nuanced)) {
     }
     render() {
         const { disabled, click } = this;
-        return html `<button disabled=${disabled} onClick=${click}>
-            <slot></slot>
-        </button>`;
+        return html `
+<button disabled=${disabled} onClick=${click}>
+    <slot></slot>
+</button>`;
     }
 }
 defineCustomElement('gcs-button', Button);

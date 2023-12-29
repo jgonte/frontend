@@ -4,7 +4,6 @@ export const dataGridBodyRowStyles = css `
     width: 100%;
     display: flex;
     flex-flow: row nowrap;
-    line-height: 1.5;
 }
 
 :host(:nth-of-type(even)) {

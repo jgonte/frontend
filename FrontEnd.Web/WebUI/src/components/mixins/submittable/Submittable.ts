@@ -18,7 +18,7 @@ export default function Submittable<TBase extends CustomHTMLElementConstructor>(
             return {
 
                 /**
-                 * The URL to post the data to
+                 * The URL to post/put the data to
                  */
                 submitUrl: {
                     attribute: 'submit-url',
@@ -31,7 +31,25 @@ export default function Submittable<TBase extends CustomHTMLElementConstructor>(
                         DataTypes.String,
                         DataTypes.Function
                     ],
-                    options: ['post', 'put']
+                    options: ['POST', 'PUT']
+                },
+
+                /**
+                 * The name of the field that contains the ID of the record
+                 */
+                idField: {
+                    attribute: 'id-field',
+                    type: DataTypes.String,
+                    value: 'id'
+                },
+
+                /**
+                 * Callback on success
+                 */
+                submitSuccess: {
+                    attribute: 'submit-success',
+                    type: DataTypes.Function,
+                    defer: true
                 }
             };
         }
@@ -57,9 +75,10 @@ export default function Submittable<TBase extends CustomHTMLElementConstructor>(
                 return null;
             }
 
-            return html`<gcs-overlay>
-                <gcs-alert kind="info" >...Submitting</gcs-alert>
-            </gcs-overlay>`;
+            return html`
+<gcs-overlay>
+    <gcs-alert kind="info" >...Submitting</gcs-alert>
+</gcs-overlay>`;
         }
 
         connectedCallback() {
@@ -68,7 +87,7 @@ export default function Submittable<TBase extends CustomHTMLElementConstructor>(
 
             this._submitFetcher = new Fetcher({
                 onData: data => this.handleSubmitData(data as unknown as GenericRecord),
-                onSuccess: () => this.handleSuccess('Record was successfully submitted.'),
+                onSuccess: () => this.handleSubmitSuccess('Record was successfully submitted.'),
                 onError: error => this.handleSubmitError(error)
             });
         }
@@ -79,10 +98,24 @@ export default function Submittable<TBase extends CustomHTMLElementConstructor>(
 
             const data = this.getSubmitData(); // Overriden by the derived classes
 
+            const method = this.getMethod(data);
+
+            let params = undefined;
+
+            if (method.toUpperCase() === 'PUT') {
+
+                const id = data[this.idField];
+
+                params = {
+                    [this.idField]: id
+                };
+            }
+
             this._submitFetcher.fetch({
                 url: this.submitUrl,
-                method: this.getMethod(data),
+                method,
                 contentType: this.getContentType(),
+                params,
                 data
             });
         }
@@ -113,7 +146,7 @@ export default function Submittable<TBase extends CustomHTMLElementConstructor>(
             }
 
             // Use conventions
-            return data.id !== undefined ? 'PUT' : 'POST';
+            return data[this.idField] !== undefined ? 'PUT' : 'POST';
         }
 
         handleSubmitData(data: GenericRecord) {
@@ -123,9 +156,11 @@ export default function Submittable<TBase extends CustomHTMLElementConstructor>(
             this.handleSubmitResponse(data);
         }
 
-        handleSuccess(successMessage: string) {
+        handleSubmitSuccess(successMessage: string) {
 
             this.submitting = false;
+
+            this.submitSuccess?.();
 
             notifySuccess(this, successMessage);
         }

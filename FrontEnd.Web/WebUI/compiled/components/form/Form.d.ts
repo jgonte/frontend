@@ -1,5 +1,5 @@
+import CustomElement from "../../custom-element/CustomElement";
 import CustomElementPropertyMetadata from "../../custom-element/mixins/metadata/types/CustomElementPropertyMetadata";
-import CustomHTMLElementConstructor from "../../custom-element/mixins/metadata/types/CustomHTMLElementConstructor";
 import { NodePatchingData } from "../../rendering/nodes/NodePatchingData";
 import { ValidationContext } from "../../utils/validation/validators/Validator";
 import Field from "../fields/Field";
@@ -7,7 +7,7 @@ import { DynamicObject, GenericRecord } from "../../utils/types";
 import DataResponse from "../../utils/data/transfer/DataResponse";
 export declare const formConnectedEvent = "formConnectedEvent";
 export declare const formDisconnectedEvent = "formDisconnectedEvent";
-declare const Form_base: CustomHTMLElementConstructor;
+declare const Form_base: typeof CustomElement;
 export default class Form extends Form_base {
     private _fields;
     modifiedFields: Set<Field>;
@@ -29,5 +29,6 @@ export default class Form extends Form_base {
     handleBeforeUnload(evt: BeforeUnloadEvent): void;
     handleFieldAdded(event: CustomEvent): void;
     handleChange(event: CustomEvent): void;
+    reset(): void;
 }
 export {};
