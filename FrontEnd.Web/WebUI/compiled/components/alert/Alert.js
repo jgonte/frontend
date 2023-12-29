@@ -20,22 +20,24 @@ export default class Alert extends Closable(Nuanced) {
     }
     render() {
         return html `
-<gcs-row class="bordered">
+<span class="item">
     ${this._renderIcon()}
-    <span slot="middle">
-        <slot></slot>
-    </span>
+</span>
+<span class="item middle">
+    <slot></slot>
+</span>
+<span class="item">
     ${this.renderCloseTool()}
-</gcs-row>`;
+</span>
+`;
     }
     _renderIcon() {
         const { showIcon, } = this;
         if (showIcon !== true) {
-            return null;
+            return html `<span></span>`;
         }
         return html `
 <gcs-icon 
-    slot="start" 
     name=${this._getIconName()}
 >
 </gcs-icon>`;

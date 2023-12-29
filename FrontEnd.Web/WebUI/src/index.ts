@@ -45,7 +45,6 @@ import RequiredTip from "./components/tips/RequiredTip";
 // Layout
 import Center from "./components/center/Center";
 import Overlay from "./components/overlay/Overlay";
-import Row from "./components/row/Row";
 import PanelHeader from "./components/panel/header/PanelHeader";
 import Panel from "./components/panel/Panel";
 
@@ -152,7 +151,6 @@ export {
     // Layout
     Center,
     Overlay,
-    Row,
     PanelHeader,
     Panel,
 

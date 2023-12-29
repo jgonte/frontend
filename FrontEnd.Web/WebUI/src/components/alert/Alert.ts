@@ -36,13 +36,16 @@ export default class Alert extends
     render(): NodePatchingData {
 
         return html`
-<gcs-row class="bordered">
+<span class="item">
     ${this._renderIcon()}
-    <span slot="middle">
-        <slot></slot>
-    </span>
+</span>
+<span class="item middle">
+    <slot></slot>
+</span>
+<span class="item">
     ${this.renderCloseTool()}
-</gcs-row>`;
+</span>
+`;
     }
 
     private _renderIcon(): NodePatchingData | null {
@@ -53,12 +56,11 @@ export default class Alert extends
 
         if (showIcon !== true) {
 
-            return null;
+            return html`<span></span>`;
         }
 
         return html`
 <gcs-icon 
-    slot="start" 
     name=${this._getIconName()}
 >
 </gcs-icon>`;

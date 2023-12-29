@@ -204,7 +204,16 @@ export default function SelectionContainer<TBase extends CustomHTMLElementConstr
 
             const selector = Array.from(selectors).filter(c => (c as Selector).selectValue[this.idField] === value)[0] as Selector;
 
-            selector.setSelected(true);
+            if (selector) {
+
+                selector.setSelected(true);
+            }
+            else {
+
+                this.selectedChildren = []; // Clear the selection
+
+                this.selection = [];
+            }
         }
     }
 }

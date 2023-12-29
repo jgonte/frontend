@@ -1,11 +1,11 @@
+import CustomElement from "../../custom-element/CustomElement";
 import CustomElementPropertyMetadata from "../../custom-element/mixins/metadata/types/CustomElementPropertyMetadata";
 import CustomHTMLElement from "../../custom-element/mixins/metadata/types/CustomHTMLElement";
-import CustomHTMLElementConstructor from "../../custom-element/mixins/metadata/types/CustomHTMLElementConstructor";
 import { DataTypes } from "../../utils/data/DataTypes";
 import { FieldValidationContext } from "../../utils/validation/validators/field/SingleValueFieldValidator";
 export declare const changeEvent = "changeEvent";
 export declare const fieldAddedEvent = "fieldAddedEvent";
-declare const Field_base: CustomHTMLElementConstructor;
+declare const Field_base: typeof CustomElement;
 export default abstract class Field extends Field_base {
     static dataFieldType: DataTypes;
     private _tempValue;
@@ -23,5 +23,6 @@ export default abstract class Field extends Field_base {
     getLabel(): string;
     handleChange(): void;
     acceptChanges(): void;
+    reset(): void;
 }
 export {};

@@ -90,10 +90,11 @@ export default class ComboBox extends
 
     render(): NodePatchingData {
 
-        return html`<gcs-drop-down>
-            ${this.renderHeader()}
-            ${this.renderContent()}
-        </gcs-drop-down>`;
+        return html`
+<gcs-drop-down>
+    ${this.renderHeader()}
+    ${this.renderContent()}
+</gcs-drop-down>`;
     }
 
     renderHeader(): NodePatchingData {

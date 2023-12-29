@@ -10,6 +10,8 @@ import { GenericRecord } from "../../utils/types";
 import DataGrid from "../data-grid/DataGrid";
 import Overlay from "../overlay/Overlay";
 import notifySuccess from "../../services/success/notifySuccess";
+import { closingEvent } from "../tools/close/CloseTool";
+import Form from "../form/Form";
 
 /**
  * Panel to handle adding, updating and deleting a collection of records
@@ -108,8 +110,6 @@ export default class CollectionPanel extends CustomElement {
 
         super();
 
-        this.showAddForm = this.showAddForm.bind(this);
-
         this.showEditForm = this.showEditForm.bind(this);
 
         this.showConfirmDelete = this.showConfirmDelete.bind(this);
@@ -125,6 +125,42 @@ export default class CollectionPanel extends CustomElement {
             onSuccess: () => this.handleSuccessfulDelete(),
             onError: error => notifyError(this, error)
         });
+
+        this.addEventListener(closingEvent, this.handleClose);
+    }
+
+    disconnectedCallback() {
+
+        super.disconnectedCallback?.();
+
+        this.removeEventListener(closingEvent, this.handleClose);
+    }
+
+    handleClose(event: Event) {
+
+        const {
+            source
+        } = (event as CustomEvent).detail;
+
+        switch (source) {
+
+            case 'add-overlay':
+                {
+                    this.resetForm('create-form');
+                }
+                break;
+            case 'update-overlay':
+                {
+                    // No need to reset since the form is loaded on show
+                    //this.resetForm('update-form');
+                }
+                break;
+            default:
+                {
+                    // Do nothing
+                }
+                break;
+        }
     }
 
     render(): NodePatchingData {
@@ -143,8 +179,7 @@ export default class CollectionPanel extends CustomElement {
     renderToolbar(): NodePatchingData | null {
 
         const {
-            createUrl,
-            showAddForm
+            createUrl
         } = this;
 
         if (!createUrl) {
@@ -155,7 +190,7 @@ export default class CollectionPanel extends CustomElement {
         return html`
 <div slot="header">
     <gcs-button 
-        click=${showAddForm}
+        click=${() => this.showOverlay('add-overlay', true)}
         kind="primary">
         <gcs-icon name="person-add"></gcs-icon>
         <gcs-localized-text>Add</gcs-localized-text>
@@ -245,7 +280,7 @@ export default class CollectionPanel extends CustomElement {
         <gcs-panel-header
             slot="header"
             icon-name="database-add"
-            close
+            close="add-overlay"
         >
             <gcs-localized-text slot="title">Add Record</gcs-localized-text>
         </gcs-panel-header>
@@ -254,13 +289,32 @@ export default class CollectionPanel extends CustomElement {
             id="create-form"
             slot="body"
             submit-url=${this.createUrl}
-        >
+            submit-success=${() => {
+
+                this.showOverlay('add-overlay', false);
+
+                this.resetForm('create-form');
+            }}>
         ${this.renderFormBody()}
         </gcs-form>
         
     </gcs-panel>
 
 </gcs-overlay>`;
+    }
+
+    showOverlay(id: string, show: boolean) {
+
+        const overlay = this.findChild((n: { id: string; }) => n.id === id) as Overlay;
+
+        overlay.showing = show;
+    }
+
+    resetForm(id: string) {
+
+        const form = this.findChild((n: { id: string; }) => n.id === id) as Form;
+
+        form.reset();      
     }
 
     renderFormBody(): NodePatchingData {
@@ -301,7 +355,7 @@ export default class CollectionPanel extends CustomElement {
         <gcs-panel-header
             slot="header"
             icon-name="database-check"
-            close
+            close="update-overlay"
         >
             <localized-label slot="title">Update Record</localized-label>
         </gcs-panel-header>
@@ -309,9 +363,10 @@ export default class CollectionPanel extends CustomElement {
         <gcs-form 
             id="update-form"
             slot="body"
+            id-field=${this.idField}
             load-url=${this.loadRecordUrl}
             auto-load="false"
-            submit-url=${this.createUrl}
+            submit-url=${this.updateUrl}
         >
         ${this.renderFormBody()}
         </gcs-form>
@@ -331,13 +386,6 @@ export default class CollectionPanel extends CustomElement {
 </gcs-overlay>`;
     }
 
-    showAddForm() {
-
-        const overlay = this.findChild((n: { id: string; }) => n.id === 'add-overlay');
-
-        (overlay as Overlay).showing = true;
-    }
-
     showEditForm(record: GenericRecord) {
 
         const form = this.findChild((n: { id: string; }) => n.id === 'update-form');
@@ -353,9 +401,7 @@ export default class CollectionPanel extends CustomElement {
 
         form.loadRemote(params);
 
-        const overlay = this.findChild((n: { id: string; }) => n.id === 'update-overlay');
-
-        (overlay as Overlay).showing = true;
+        this.showOverlay('update-overlay', true);
     }
 
     showConfirmDelete(record: GenericRecord) {
@@ -369,11 +415,11 @@ export default class CollectionPanel extends CustomElement {
         overlay.content = () => html`
 <gcs-alert
     kind="danger" 
-    close
+    close="delete-overlay"
 >
     <gcs-localized-text>Are you sure you want to delete the record?</gcs-localized-text>
-    <gcs-row>
-        <gcs-button slot="middle"
+    <div>
+        <gcs-button
             click=${async () => await deleteRecord(record)} 
             kind="danger"
             variant="outlined"
@@ -381,7 +427,7 @@ export default class CollectionPanel extends CustomElement {
             <gcs-localized-text>Delete</gcs-localized-text>
             <gcs-icon name="trash"></gcs-icon>
         </gcs-button>
-    </gcs-row>  
+    </div>
 </gcs-alert>`;
 
         overlay.showing = true;
@@ -400,16 +446,14 @@ export default class CollectionPanel extends CustomElement {
             url: deleteUrl,
             method: 'DELETE',
             params: {
-                'id': id
+                [idField]: id
             }
         });
     }
 
     handleSuccessfulDelete() {
 
-        const overlay = this.findChild((n: { id: string; }) => n.id === 'delete-overlay') as Overlay;
-
-        overlay.showing = false;
+        this.showOverlay('delete-overlay', false);
 
         const grid = this.findChild((n: { id: string; }) => n.id === 'data-grid') as DataGrid;
 

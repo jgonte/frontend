@@ -19,37 +19,44 @@ export default function Closable<TBase extends CustomHTMLElementConstructor>(Bas
                  */
                 close: {
                     type: [
-                        DataTypes.Function, // If the function is provided, then call it
-                        DataTypes.Boolean // If true, then dispatch a closing event
+                        DataTypes.Function, // If the function is provided, then call it                   
+                        DataTypes.String // Allow to specify a source value
                     ],
                     defer: true
                 }
             }
         }
 
-        renderCloseTool(): NodePatchingData | null {
+        handleClose() {
 
-            const {
-                close
-            } = this;
+            if (typeof this.close === "function") {
+
+                this.close();
+            }
+            else if (typeof this.close === "string") {
+
+                this.dispatchCustomEvent(closingEvent, {
+                    source: this.close
+                });
+            }
+            else {
+
+                throw new Error("Unknown close type in Closable::handleClose");
+            }
+        }
+
+        renderCloseTool(): NodePatchingData | null {
     
-            if (close === undefined) {
+            if (this.close === undefined) {
     
                 return null;
             }
     
-            const handleClose: (evt: Event) => void = close === true ?
-                evt => this.dispatchCustomEvent(closingEvent, {
-                    originalEvent: evt
-                }) :
-                evt => this.close(evt);
-    
             return html`
-    <gcs-close-tool 
-        slot="end"
-        close=${handleClose}
-    >
-    </gcs-close-tool>`;
+<gcs-close-tool
+    close=${() => this.handleClose()}
+>
+</gcs-close-tool>`;
         }
     }
 }

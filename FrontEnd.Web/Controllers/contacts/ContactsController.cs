@@ -75,7 +75,7 @@ public class ContactsController : ControllerBase
         return ImageToByteArray(image);
     }
 
-    public Image DrawText(String text, Font font, Color textColor, Color backColor)
+    private Image DrawText(String text, Font font, Color textColor, Color backColor)
     {
         //first, create a dummy bitmap just to get a graphics object  
         Image img = new Bitmap(1, 1);
@@ -109,7 +109,7 @@ public class ContactsController : ControllerBase
         return img;
 
     }
-    public byte[] ImageToByteArray(Image image)
+    private byte[] ImageToByteArray(Image image)
     {
         MemoryStream ms = new MemoryStream();
 

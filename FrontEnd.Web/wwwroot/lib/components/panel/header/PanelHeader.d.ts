@@ -3,6 +3,7 @@ import CustomElementPropertyMetadata from "../../../custom-element/mixins/metada
 import { NodePatchingData } from "../../../rendering/nodes/NodePatchingData";
 declare const PanelHeader_base: typeof CustomElement;
 export default class PanelHeader extends PanelHeader_base {
+    static get styles(): string;
     static get properties(): Record<string, CustomElementPropertyMetadata>;
     render(): NodePatchingData;
     renderIcon(): NodePatchingData | null;

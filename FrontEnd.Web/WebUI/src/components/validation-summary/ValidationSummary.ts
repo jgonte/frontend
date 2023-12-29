@@ -31,8 +31,9 @@ export default class ValidationSummary extends CustomElement {
 
     render(): NodePatchingData {
 
-        return html`${this.renderWarnings()}
-            ${this.renderErrors()}`;
+        return html`
+${this.renderWarnings()}
+${this.renderErrors()}`;
     }
 
     renderWarnings() {
@@ -46,7 +47,13 @@ export default class ValidationSummary extends CustomElement {
             return null;
         }
 
-        return warnings.map((warning: string) => html`<gcs-alert kind="warning">${warning}</gcs-alert>`);
+        return warnings.map((warning: string) => html`
+<gcs-alert 
+    kind="warning"
+>
+    <gcs-localized-text>${warning}</gcs-localized-text>   
+</gcs-alert>`
+        );
     }
 
     renderErrors() {
@@ -60,7 +67,12 @@ export default class ValidationSummary extends CustomElement {
             return null;
         }
 
-        return errors.map((error: string) => html`<gcs-alert kind="danger">${error}</gcs-alert>`);
+        return errors.map((error: string) => html`
+<gcs-alert 
+    kind="danger"
+>
+    <gcs-localized-text>${error}</gcs-localized-text>   
+</gcs-alert>`);
     }
 }
 

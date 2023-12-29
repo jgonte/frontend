@@ -87,9 +87,9 @@ export declare class Center extends CustomElement {
 }
 
 export declare class CheckBox extends DisplayableField {
-    value: boolean;
     static getFieldType(): DataTypes;
     render(): NodePatchingData;
+    onValueChanged(value: unknown, _oldValue: unknown): void;
 }
 
 export declare class CloseTool extends Tool {
@@ -103,14 +103,17 @@ export declare class CollectionPanel extends CustomElement {
     static get properties(): Record<string, CustomElementPropertyMetadata>;
     constructor();
     connectedCallback(): void;
+    disconnectedCallback(): void;
+    handleClose(event: Event): void;
     render(): NodePatchingData;
     renderToolbar(): NodePatchingData | null;
     renderDataGrid(): NodePatchingData;
     renderInsertDialog(): NodePatchingData | null;
+    showOverlay(id: string, show: boolean): void;
+    resetForm(id: string): void;
     renderFormBody(): NodePatchingData;
     renderUpdateDialog(): NodePatchingData | null;
     renderDeleteDialog(): NodePatchingData;
-    showAddForm(): void;
     showEditForm(record: GenericRecord): void;
     showConfirmDelete(record: GenericRecord): void;
     deleteRecord(record: GenericRecord): Promise<void>;
@@ -192,6 +195,7 @@ export declare interface CustomElementStateMetadata {
     name?: string;
     value?: unknown;
     options?: unknown[];
+    afterChange?: (value: unknown, oldValue: unknown) => void;
 }
 
 declare interface CustomHTMLElement extends HTMLElement {
@@ -316,7 +320,7 @@ export declare enum DataTypes {
 export declare class DateField extends DisplayableField {
     static getFieldType(): DataTypes;
     render(): NodePatchingData;
-    beforeValueSet(value: string): Date;
+    beforeValueSet(value: string): Date | undefined;
     serializeValue(): string | null;
 }
 
@@ -377,9 +381,10 @@ declare abstract class Field extends Field_base {
     getLabel(): string;
     handleChange(): void;
     acceptChanges(): void;
+    reset(): void;
 }
 
-declare const Field_base: CustomHTMLElementConstructor;
+declare const Field_base: typeof CustomElement;
 
 declare interface FieldValidationContext extends ValidationContext {
     label: string;
@@ -414,9 +419,10 @@ export declare class Form extends Form_base {
     handleBeforeUnload(evt: BeforeUnloadEvent): void;
     handleFieldAdded(event: CustomEvent): void;
     handleChange(event: CustomEvent): void;
+    reset(): void;
 }
 
-declare const Form_base: CustomHTMLElementConstructor;
+declare const Form_base: typeof CustomElement;
 
 export declare class FormField extends CustomElement {
     static get styles(): string;
@@ -587,6 +593,7 @@ export declare class Panel extends CustomElement {
 }
 
 export declare class PanelHeader extends PanelHeader_base {
+    static get styles(): string;
     static get properties(): Record<string, CustomElementPropertyMetadata>;
     render(): NodePatchingData;
     renderIcon(): NodePatchingData | null;
@@ -622,11 +629,6 @@ declare interface Route {
     name: string;
     path: string;
     view: string;
-}
-
-export declare class Row extends CustomElement {
-    static get styles(): string;
-    render(): NodePatchingData;
 }
 
 declare interface Script {

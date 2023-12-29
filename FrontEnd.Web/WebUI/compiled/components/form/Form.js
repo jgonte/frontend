@@ -38,21 +38,23 @@ export default class Form extends Submittable(Validatable(Loadable(CustomElement
     }
     render() {
         const { labelWidth, labelAlign } = this;
-        return html `<form>
-            ${this.renderLoading()}
-            ${this.renderSubmitting()}
-            <slot label-width=${labelWidth} label-align=${labelAlign} key="form-fields"></slot>
-            ${this._renderButton()}
-        </form>`;
+        return html `
+<form>
+    ${this.renderLoading()}
+    ${this.renderSubmitting()}
+    <slot label-width=${labelWidth} label-align=${labelAlign} key="form-fields"></slot>
+    ${this._renderButton()}
+</form>`;
     }
     _renderButton() {
         if (this.hideSubmitButton) {
             return null;
         }
-        return html `<gcs-button key="submit-button" kind="primary" variant="contained" click=${() => this.submit()}>
-           <gcs-localized-text>Submit</gcs-localized-text>
-           <gcs-icon name="box-arrow-right"></gcs-icon>
-        </gcs-button>`;
+        return html `
+<gcs-button key="submit-button" kind="primary" variant="contained" click=${() => this.submit()}>
+    <gcs-localized-text>Submit</gcs-localized-text>
+    <gcs-icon name="box-arrow-right"></gcs-icon>
+</gcs-button>`;
     }
     getSubmitData() {
         return this.getData();
@@ -163,6 +165,10 @@ export default class Form extends Submittable(Validatable(Loadable(CustomElement
                 window.removeEventListener('beforeunload', this.handleBeforeUnload);
             }
         });
+    }
+    reset() {
+        Array.from(this.modifiedFields).forEach(f => f.reset());
+        this.modifiedFields.clear();
     }
 }
 defineCustomElement('gcs-form', Form);

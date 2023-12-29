@@ -23,6 +23,9 @@ export default class DateField extends DisplayableField {
         />`;
     }
     beforeValueSet(value) {
+        if (isUndefinedOrNull(value)) {
+            return undefined;
+        }
         const date = new Date(value);
         date.setHours(0, 0, 0, 0);
         return date;

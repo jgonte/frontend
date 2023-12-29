@@ -1,7 +1,9 @@
 import CustomElement from "../../custom-element/CustomElement";
 import defineCustomElement from "../../custom-element/defineCustomElement";
+import zIndexManager from "../../custom-element/managers/zIndexManager";
 import html from "../../rendering/html";
 import { DataTypes } from "../../utils/data/DataTypes";
+import isUndefinedOrNull from "../../utils/isUndefinedOrNull";
 import { closingEvent } from "../tools/close/CloseTool";
 import { overlayStyles } from "./Overlay.styles";
 export default class Overlay extends CustomElement {
@@ -19,7 +21,18 @@ export default class Overlay extends CustomElement {
     static get state() {
         return {
             showing: {
-                value: false
+                value: false,
+                afterChange: function (value, oldValue) {
+                    if (isUndefinedOrNull(oldValue)) {
+                        return;
+                    }
+                    if (value === true) {
+                        zIndexManager.add(this);
+                    }
+                    else {
+                        zIndexManager.remove(this);
+                    }
+                }
             }
         };
     }

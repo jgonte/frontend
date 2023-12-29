@@ -42,9 +42,10 @@ export default class Button extends
             click
         } = this;
 
-        return html`<button disabled=${disabled} onClick=${click}>
-            <slot></slot>
-        </button>`;
+        return html`
+<button disabled=${disabled} onClick=${click}>
+    <slot></slot>
+</button>`;
     }
 
 }

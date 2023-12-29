@@ -47,10 +47,11 @@ export default class ComboBox extends SelectionContainer(CollectionDataHolder(Di
         this.onSelectionChanged = this.onSelectionChanged.bind(this);
     }
     render() {
-        return html `<gcs-drop-down>
-            ${this.renderHeader()}
-            ${this.renderContent()}
-        </gcs-drop-down>`;
+        return html `
+<gcs-drop-down>
+    ${this.renderHeader()}
+    ${this.renderContent()}
+</gcs-drop-down>`;
     }
     renderHeader() {
         const { selection, multiple } = this;

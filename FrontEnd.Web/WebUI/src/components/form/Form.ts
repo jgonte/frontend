@@ -4,7 +4,6 @@ import Loadable from "../mixins/remote-loadable/RemoteLoadable";
 import CustomElement from "../../custom-element/CustomElement";
 import defineCustomElement from "../../custom-element/defineCustomElement";
 import CustomElementPropertyMetadata from "../../custom-element/mixins/metadata/types/CustomElementPropertyMetadata";
-import CustomHTMLElementConstructor from "../../custom-element/mixins/metadata/types/CustomHTMLElementConstructor";
 import html from "../../rendering/html";
 import { NodePatchingData } from "../../rendering/nodes/NodePatchingData";
 import { ValidationContext } from "../../utils/validation/validators/Validator";
@@ -26,7 +25,7 @@ export default class Form extends
     Submittable(
         Validatable(
             Loadable(
-                CustomElement as CustomHTMLElementConstructor
+                CustomElement
             )
         )
     ) {
@@ -80,12 +79,13 @@ export default class Form extends
             labelAlign
         } = this;
 
-        return html`<form>
-            ${this.renderLoading()}
-            ${this.renderSubmitting()}
-            <slot label-width=${labelWidth} label-align=${labelAlign} key="form-fields"></slot>
-            ${this._renderButton()}
-        </form>`;
+        return html`
+<form>
+    ${this.renderLoading()}
+    ${this.renderSubmitting()}
+    <slot label-width=${labelWidth} label-align=${labelAlign} key="form-fields"></slot>
+    ${this._renderButton()}
+</form>`;
     }
 
     private _renderButton(): NodePatchingData | null {
@@ -96,10 +96,11 @@ export default class Form extends
         }
 
         // Doing onClick=${this.submit} binds the button instead of the form to the submit function
-        return html`<gcs-button key="submit-button" kind="primary" variant="contained" click=${() => this.submit()}>
-           <gcs-localized-text>Submit</gcs-localized-text>
-           <gcs-icon name="box-arrow-right"></gcs-icon>
-        </gcs-button>`;
+        return html`
+<gcs-button key="submit-button" kind="primary" variant="contained" click=${() => this.submit()}>
+    <gcs-localized-text>Submit</gcs-localized-text>
+    <gcs-icon name="box-arrow-right"></gcs-icon>
+</gcs-button>`;
     }
 
     getSubmitData(): DynamicObject {
@@ -299,6 +300,13 @@ export default class Form extends
                 window.removeEventListener('beforeunload', this.handleBeforeUnload);
             }
         });
+    }
+
+    reset() {
+
+        Array.from(this.modifiedFields).forEach(f => f.reset());
+
+        this.modifiedFields.clear();
     }
 }
 

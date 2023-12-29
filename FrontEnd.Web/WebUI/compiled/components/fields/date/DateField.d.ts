@@ -4,6 +4,6 @@ import DisplayableField from "../DisplayableField";
 export default class DateField extends DisplayableField {
     static getFieldType(): DataTypes;
     render(): NodePatchingData;
-    beforeValueSet(value: string): Date;
+    beforeValueSet(value: string): Date | undefined;
     serializeValue(): string | null;
 }

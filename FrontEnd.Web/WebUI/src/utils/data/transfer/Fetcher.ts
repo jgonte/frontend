@@ -139,7 +139,7 @@ export default class Fetcher implements FetchCallbacks {
             }
         }
 
-        
+
         // Add the authorization header
         if (request.authProvider !== undefined) {
 
@@ -250,18 +250,18 @@ export default class Fetcher implements FetchCallbacks {
                 headers: response.headers,
                 payload: await this.parseContent(response)
             }
-    
+
             if (this.onData !== undefined) {
-    
+
                 this.onData(data);
             }
         }
 
         if (this.onSuccess !== undefined) {
-    
+
             this.onSuccess();
         }
-  
+
     }
 
     /**

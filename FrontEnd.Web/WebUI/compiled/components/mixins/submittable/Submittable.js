@@ -17,7 +17,17 @@ export default function Submittable(Base) {
                         DataTypes.String,
                         DataTypes.Function
                     ],
-                    options: ['post', 'put']
+                    options: ['POST', 'PUT']
+                },
+                idField: {
+                    attribute: 'id-field',
+                    type: DataTypes.String,
+                    value: 'id'
+                },
+                submitSuccess: {
+                    attribute: 'submit-success',
+                    type: DataTypes.Function,
+                    defer: true
                 }
             };
         }
@@ -33,25 +43,35 @@ export default function Submittable(Base) {
             if (submitting === false) {
                 return null;
             }
-            return html `<gcs-overlay>
-                <gcs-alert kind="info" >...Submitting</gcs-alert>
-            </gcs-overlay>`;
+            return html `
+<gcs-overlay>
+    <gcs-alert kind="info" >...Submitting</gcs-alert>
+</gcs-overlay>`;
         }
         connectedCallback() {
             super.connectedCallback?.();
             this._submitFetcher = new Fetcher({
                 onData: data => this.handleSubmitData(data),
-                onSuccess: () => this.handleSuccess('Record was successfully submitted.'),
+                onSuccess: () => this.handleSubmitSuccess('Record was successfully submitted.'),
                 onError: error => this.handleSubmitError(error)
             });
         }
         submit() {
             this.submitting = true;
             const data = this.getSubmitData();
+            const method = this.getMethod(data);
+            let params = undefined;
+            if (method.toUpperCase() === 'PUT') {
+                const id = data[this.idField];
+                params = {
+                    [this.idField]: id
+                };
+            }
             this._submitFetcher.fetch({
                 url: this.submitUrl,
-                method: this.getMethod(data),
+                method,
                 contentType: this.getContentType(),
+                params,
                 data
             });
         }
@@ -69,14 +89,15 @@ export default function Submittable(Base) {
                     method() :
                     method;
             }
-            return data.id !== undefined ? 'PUT' : 'POST';
+            return data[this.idField] !== undefined ? 'PUT' : 'POST';
         }
         handleSubmitData(data) {
             this.submitting = false;
             this.handleSubmitResponse(data);
         }
-        handleSuccess(successMessage) {
+        handleSubmitSuccess(successMessage) {
             this.submitting = false;
+            this.submitSuccess?.();
             notifySuccess(this, successMessage);
         }
         handleSubmitError(error) {

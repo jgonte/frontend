@@ -42,11 +42,15 @@ export default class DateField extends DisplayableField {
      * @param value 
      * @returns 
      */
-    beforeValueSet(value: string): Date {
+    beforeValueSet(value: string): Date | undefined {
 
+        if (isUndefinedOrNull(value)) {
+
+            return undefined;
+        }
         const date = new Date(value);
 
-        // Reset the time part
+        // Zero the time part
         date.setHours(0, 0, 0, 0);
 
         return date;

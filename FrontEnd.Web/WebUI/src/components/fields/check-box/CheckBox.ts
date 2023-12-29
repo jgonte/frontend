@@ -6,9 +6,6 @@ import DisplayableField from "../DisplayableField";
 
 export default class CheckBox extends DisplayableField {
 
-    // Set the initial value of the checkbox
-    value = false;
-
     static getFieldType(): DataTypes {
 
         return DataTypes.Boolean;
@@ -23,15 +20,28 @@ export default class CheckBox extends DisplayableField {
             disabled
         } = this;
 
-        return html`<input
-            type="checkbox"
-            name=${name}
-            value=${value}
-            onInput=${event => this.handleInput(event)}
-            onChange=${event => this.handleChange(event)}
-            onBlur=${() => this.handleBlur()}
-            disabled=${disabled}
-        />`;
+        return html`
+<input
+    type="checkbox"
+    name=${name}
+    value=${value}
+    onInput=${event => this.handleInput(event)}
+    onChange=${event => this.handleChange(event)}
+    onBlur=${() => this.handleBlur()}
+    disabled=${disabled}
+/>`;
+    }
+
+    onValueChanged(value: unknown, _oldValue: unknown): void {
+
+        if (value === true) {
+
+            this.checked = true;
+        }
+        else {
+
+            this.checked = false;
+        }
     }
 }
 
