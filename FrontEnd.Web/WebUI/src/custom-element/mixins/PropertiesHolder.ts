@@ -475,10 +475,7 @@ export default function PropertiesHolder<TBase extends CustomHTMLElementConstruc
          */
         protected callAfterUpdate() {
 
-            this._changedProperties.forEach(p => {
-
-                p.afterUpdate?.call(this);
-            });
+            this._changedProperties.forEach(p => p.afterUpdate?.call(this));
         }
 
         /**

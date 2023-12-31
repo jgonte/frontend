@@ -6,9 +6,13 @@ import { displayableFieldStyles } from "./DisplayableField.styles";
 import CustomElementPropertyMetadata from "../../custom-element/mixins/metadata/types/CustomElementPropertyMetadata";
 import { DataTypes } from "../../utils/data/DataTypes";
 import areEquivalent from "../../utils/areEquivalent";
+import { validationEvent } from "../mixins/validatable/Validatable";
 
 export const inputEvent = "inputEvent";
 
+/**
+ * Fields that are displayed on a form (not a hidden field, for example)
+ */
 export default abstract class DisplayableField extends
     Disableable(
         Field as unknown as CustomHTMLElementConstructor
@@ -47,7 +51,8 @@ export default abstract class DisplayableField extends
     }
 
     /**
-     * Called every time the input changes
+     * Called every time the input changes.
+     * Used to trigger validation and flagging the parent form field (if any) as modified
      * @param event The event of the element with the change
      */
     handleInput(event: Event): void {
@@ -60,6 +65,43 @@ export default abstract class DisplayableField extends
         this.dispatchCustomEvent(inputEvent, {
             field: this,
             modified: !areEquivalent(this._initialValue, this._tempValue) // Notify the parent whether the value has changed or not
+        });
+    }
+
+    /**
+     * Whether the field was modified
+     */
+    get isModified(): boolean {
+
+        return this.value !== this._initialValue;
+    }
+
+    acceptChanges(): void {
+
+        this._initialValue = this.value;
+
+        this.dispatchCustomEvent(inputEvent, {
+            field: this,
+            modified: false
+        });
+    }
+
+    /**
+     * Resets the field
+     */
+    reset(): void {
+        
+        this.value = this._initialValue;
+
+        this.dispatchCustomEvent(inputEvent, {
+            field: this,
+            modified: false
+        });
+
+        // Clear the validation messages of the form field
+        this.dispatchCustomEvent(validationEvent, {
+            warnings: [],
+            errors: []
         });
     }
 }

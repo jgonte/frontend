@@ -271,22 +271,12 @@ export default abstract class Field extends
         this.value = this._tempValue;
 
         // Reset the temporary value
-        this._tempValue;
+        this._tempValue = undefined;
 
         this.dispatchCustomEvent(changeEvent, {
             name: this.name,
             oldValue,
             newValue: this.value
         });
-    }
-
-    acceptChanges(): void {
-
-        this._initialValue = this.value;
-    }
-
-    reset(): void {
-        
-        this.value = this._initialValue;
     }
 }

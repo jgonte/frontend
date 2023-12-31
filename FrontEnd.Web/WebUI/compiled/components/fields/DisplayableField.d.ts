@@ -8,5 +8,8 @@ export default abstract class DisplayableField extends DisplayableField_base {
     static get properties(): Record<string, CustomElementPropertyMetadata>;
     connectedCallback(): void;
     handleInput(event: Event): void;
+    get isModified(): boolean;
+    acceptChanges(): void;
+    reset(): void;
 }
 export {};

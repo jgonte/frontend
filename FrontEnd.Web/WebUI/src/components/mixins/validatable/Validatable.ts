@@ -51,7 +51,7 @@ export default function Validatable<TBase extends CustomHTMLElementConstructor>(
                 errors
             } = context;
 
-            // Dispatch the event even if there are no errors to trigger a repaint and rempve previous errors
+            // Dispatch the event even if there are no errors to trigger a repaint and remove previous errors
             this.dispatchCustomEvent(validationEvent, {
                 warnings,
                 errors

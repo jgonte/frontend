@@ -210,9 +210,7 @@ export default function PropertiesHolder(Base) {
             this.propertyChanged?.(name, value, oldValue);
         }
         callAfterUpdate() {
-            this._changedProperties.forEach(p => {
-                p.afterUpdate?.call(this);
-            });
+            this._changedProperties.forEach(p => p.afterUpdate?.call(this));
         }
         clearChangedProperties() {
             this._changedProperties.clear();

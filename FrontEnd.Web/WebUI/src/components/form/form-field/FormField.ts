@@ -13,9 +13,7 @@ import labelAlign from "../labelAlign";
 import labelWidth from "../labelWidth";
 import { inputEvent } from "../../fields/DisplayableField";
 
-export default class FormField extends CustomElement
-{
-
+export default class FormField extends CustomElement {
     static get styles(): string {
 
         return mergeStyles(super.styles, formFieldStyles);
@@ -114,50 +112,34 @@ export default class FormField extends CustomElement
 
         super.connectedCallback?.();
 
-        this.addEventListener(inputEvent, this.handleInput as unknown as EventListenerOrEventListenerObject);
+        this.addEventListener(inputEvent, this.handleInput as EventListenerOrEventListenerObject);
 
-        this.addEventListener(validationEvent, this.handleValidation as unknown as EventListenerOrEventListenerObject);
+        this.addEventListener(validationEvent, this.handleValidation as EventListenerOrEventListenerObject);
     }
 
     disconnectedCallback() {
 
         super.disconnectedCallback?.();
 
-        this.removeEventListener(inputEvent, this.handleInput as unknown as EventListenerOrEventListenerObject);
+        this.removeEventListener(inputEvent, this.handleInput as EventListenerOrEventListenerObject);
 
-        this.removeEventListener(validationEvent, this.handleValidation as unknown as EventListenerOrEventListenerObject);
+        this.removeEventListener(validationEvent, this.handleValidation as EventListenerOrEventListenerObject);
     }
 
-    async handleInput(event: CustomEvent): Promise<void> {
+    handleInput(event: CustomEvent): void {
 
         event.stopPropagation();
 
-        await this.updateComplete;
-
         const {
-            field,
             modified
         } = event.detail;
 
         this.modified = modified;
-
-        const form = this.adoptingParent;
-
-        if (modified === true) {
-
-            form.modifiedFields.add(field);
-        }
-        else {
-
-            form.modifiedFields.delete(field);
-        }
     }
 
-    async handleValidation(event: CustomEvent): Promise<void> {
+    handleValidation(event: CustomEvent): void {
 
         event.stopPropagation();
-
-        await this.updateComplete;
 
         const {
             warnings,

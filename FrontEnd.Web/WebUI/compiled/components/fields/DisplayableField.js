@@ -4,6 +4,7 @@ import mergeStyles from "../../custom-element/styles/mergeStyles";
 import { displayableFieldStyles } from "./DisplayableField.styles";
 import { DataTypes } from "../../utils/data/DataTypes";
 import areEquivalent from "../../utils/areEquivalent";
+import { validationEvent } from "../mixins/validatable/Validatable";
 export const inputEvent = "inputEvent";
 export default class DisplayableField extends Disableable(Field) {
     _initialValue = null;
@@ -29,6 +30,27 @@ export default class DisplayableField extends Disableable(Field) {
         this.dispatchCustomEvent(inputEvent, {
             field: this,
             modified: !areEquivalent(this._initialValue, this._tempValue)
+        });
+    }
+    get isModified() {
+        return this.value !== this._initialValue;
+    }
+    acceptChanges() {
+        this._initialValue = this.value;
+        this.dispatchCustomEvent(inputEvent, {
+            field: this,
+            modified: false
+        });
+    }
+    reset() {
+        this.value = this._initialValue;
+        this.dispatchCustomEvent(inputEvent, {
+            field: this,
+            modified: false
+        });
+        this.dispatchCustomEvent(validationEvent, {
+            warnings: [],
+            errors: []
         });
     }
 }

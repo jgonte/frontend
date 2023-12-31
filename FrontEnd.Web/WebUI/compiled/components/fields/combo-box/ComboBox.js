@@ -6,7 +6,8 @@ import CollectionDataHolder from "../../mixins/data-holder/CollectionDataHolder"
 import DisplayableField from "../DisplayableField";
 import isPrimitive from "../../../utils/isPrimitive";
 import { changeEvent } from "../Field";
-export default class ComboBox extends SelectionContainer(CollectionDataHolder(DisplayableField)) {
+import Focusable from "../../mixins/focusable/Focusable";
+export default class ComboBox extends SelectionContainer(CollectionDataHolder(Focusable(DisplayableField))) {
     static get properties() {
         return {
             displayField: {

@@ -22,7 +22,6 @@ input[type='date'] {
 input:focus,
 textarea:focus,
 select:focus {
-    border-style: solid;
-    border-color: var(--header-bg-color)
+    border: solid var(--gcs-header-bg-color);
 }`;
 //# sourceMappingURL=DisplayableField.styles.js.map

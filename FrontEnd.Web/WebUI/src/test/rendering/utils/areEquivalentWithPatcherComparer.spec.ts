@@ -5,7 +5,7 @@ addPatcherComparer();
 
 describe("areEquivalent tests", () => {
 
-    it('should return true when the values have same patcher properties ', () => {
+    it('should return true when the values have same patcher properties', () => {
 
         const patcher = {};
 
@@ -22,7 +22,7 @@ describe("areEquivalent tests", () => {
         expect(result).toBeTruthy();
     });
 
-    it('should return false when the values have different patcher properties ', () => {
+    it('should return false when the values have different patcher properties', () => {
 
         const value1 = {
             patcher: {}

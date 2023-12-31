@@ -32,8 +32,6 @@ export default class Form extends
 
     private _fields: Map<string, Field> = new Map<string, Field>();
 
-    modifiedFields: Set<Field> = new Set<Field>();
-
     constructor() {
 
         super();
@@ -110,7 +108,7 @@ export default class Form extends
 
     submit(): void {
 
-        if (this.modifiedFields.size === 0) {
+        if (this.modifiedFields.length === 0) {
 
             notifyError(this, 'This form has not been modified');
 
@@ -263,8 +261,6 @@ export default class Form extends
 
     handleFieldAdded(event: CustomEvent): void {
 
-        event.stopPropagation();
-
         const {
             field
         } = event.detail;
@@ -276,14 +272,12 @@ export default class Form extends
 
     handleChange(event: CustomEvent): void {
 
-        event.stopPropagation();
-
         const {
             name,
             newValue
         } = event.detail;
 
-        console.log('valueChanged: ' + JSON.stringify(event.detail));
+        //console.log('valueChanged: ' + JSON.stringify(event.detail));
 
         this.setData({
             [name]: newValue
@@ -291,7 +285,7 @@ export default class Form extends
 
         setTimeout(() => {
 
-            if (this.modifiedFields.size > 0) {
+            if (this.modifiedFields.length > 0) {
 
                 window.addEventListener('beforeunload', this.handleBeforeUnload);
             }
@@ -302,11 +296,22 @@ export default class Form extends
         });
     }
 
+    get modifiedFields(): Field[] {
+
+        return Array.from(this._fields.values())
+            .filter(f => f.isModified);
+    }
+
     reset() {
 
-        Array.from(this.modifiedFields).forEach(f => f.reset());
+        // Clear the fields
+        Array.from(this.modifiedFields)
+            .forEach(f => f.reset());
 
-        this.modifiedFields.clear();
+        // Clear the validation messages of the form
+        this.warnings = [];
+
+        this.errors = [];
     }
 }
 
