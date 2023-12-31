@@ -22,7 +22,5 @@ export default abstract class Field extends Field_base {
     private _label?;
     getLabel(): string;
     handleChange(): void;
-    acceptChanges(): void;
-    reset(): void;
 }
 export {};

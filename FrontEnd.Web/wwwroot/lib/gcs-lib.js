@@ -527,9 +527,7 @@ function PropertiesHolder(Base) {
             this.propertyChanged?.(name, value, oldValue);
         }
         callAfterUpdate() {
-            this._changedProperties.forEach(p => {
-                p.afterUpdate?.call(this);
-            });
+            this._changedProperties.forEach(p => p.afterUpdate?.call(this));
         }
         clearChangedProperties() {
             this._changedProperties.clear();
@@ -2271,10 +2269,6 @@ class Theme {
 }
 
 const iconStyles = css `
-:host {
-    margin: var(--gcs-margin);
-}
-
 :host svg {
     display: inline-block;
     width: 1em;
@@ -2334,7 +2328,6 @@ function getContentTextNode(element) {
 
 const localizedTextStyles = css `
 :host {
-    margin: var(--gcs-margin);
     overflow-wrap: break-word;
 }`;
 
@@ -3953,18 +3946,12 @@ class Field extends Validatable(CustomElement) {
     handleChange() {
         const oldValue = this.value;
         this.value = this._tempValue;
-        this._tempValue;
+        this._tempValue = undefined;
         this.dispatchCustomEvent(changeEvent, {
             name: this.name,
             oldValue,
             newValue: this.value
         });
-    }
-    acceptChanges() {
-        this._initialValue = this.value;
-    }
-    reset() {
-        this.value = this._initialValue;
     }
 }
 
@@ -4001,7 +3988,6 @@ const formConnectedEvent = "formConnectedEvent";
 const formDisconnectedEvent = "formDisconnectedEvent";
 class Form extends Submittable(Validatable(RemoteLoadableHolder(CustomElement))) {
     _fields = new Map();
-    modifiedFields = new Set();
     constructor() {
         super();
         this.handleFieldAdded = this.handleFieldAdded.bind(this);
@@ -4046,7 +4032,7 @@ class Form extends Submittable(Validatable(RemoteLoadableHolder(CustomElement)))
         return this.getData();
     }
     submit() {
-        if (this.modifiedFields.size === 0) {
+        if (this.modifiedFields.length === 0) {
             notifyError(this, 'This form has not been modified');
             return;
         }
@@ -4131,20 +4117,17 @@ class Form extends Submittable(Validatable(RemoteLoadableHolder(CustomElement)))
         evt.returnValue = '';
     }
     handleFieldAdded(event) {
-        event.stopPropagation();
         const { field } = event.detail;
         field.form = this;
         this._fields.set(field.name, field);
     }
     handleChange(event) {
-        event.stopPropagation();
         const { name, newValue } = event.detail;
-        console.log('valueChanged: ' + JSON.stringify(event.detail));
         this.setData({
             [name]: newValue
         });
         setTimeout(() => {
-            if (this.modifiedFields.size > 0) {
+            if (this.modifiedFields.length > 0) {
                 window.addEventListener('beforeunload', this.handleBeforeUnload);
             }
             else {
@@ -4152,9 +4135,15 @@ class Form extends Submittable(Validatable(RemoteLoadableHolder(CustomElement)))
             }
         });
     }
+    get modifiedFields() {
+        return Array.from(this._fields.values())
+            .filter(f => f.isModified);
+    }
     reset() {
-        Array.from(this.modifiedFields).forEach(f => f.reset());
-        this.modifiedFields.clear();
+        Array.from(this.modifiedFields)
+            .forEach(f => f.reset());
+        this.warnings = [];
+        this.errors = [];
     }
 }
 defineCustomElement('gcs-form', Form);
@@ -4790,8 +4779,8 @@ const panelStyles = css `
 
 #header,
 #footer {
-    background-color: var(--header-bg-color);
-    color: var(--header-text-color);
+    background-color: var(--gcs-header-bg-color);
+    color: var(--gcs-header-text-color);
 }`;
 
 class Panel extends CustomElement {
@@ -4874,8 +4863,7 @@ input[type='date'] {
 input:focus,
 textarea:focus,
 select:focus {
-    border-style: solid;
-    border-color: var(--header-bg-color)
+    border: solid var(--gcs-header-bg-color);
 }`;
 
 const inputEvent = "inputEvent";
@@ -4903,6 +4891,27 @@ class DisplayableField extends Disableable(Field) {
         this.dispatchCustomEvent(inputEvent, {
             field: this,
             modified: !areEquivalent(this._initialValue, this._tempValue)
+        });
+    }
+    get isModified() {
+        return this.value !== this._initialValue;
+    }
+    acceptChanges() {
+        this._initialValue = this.value;
+        this.dispatchCustomEvent(inputEvent, {
+            field: this,
+            modified: false
+        });
+    }
+    reset() {
+        this.value = this._initialValue;
+        this.dispatchCustomEvent(inputEvent, {
+            field: this,
+            modified: false
+        });
+        this.dispatchCustomEvent(validationEvent, {
+            warnings: [],
+            errors: []
         });
     }
 }
@@ -5086,7 +5095,29 @@ function CollectionDataHolder(Base) {
     };
 }
 
-class ComboBox extends SelectionContainer(CollectionDataHolder(DisplayableField)) {
+const focusableStyles = css `
+:host(:focus),
+:host(:focus-visible) {
+    border: solid var(--gcs-header-bg-color);
+}`;
+
+function Focusable(Base) {
+    return class FocusableMixin extends Base {
+        static get styles() {
+            return mergeStyles(super.styles, focusableStyles);
+        }
+        connectedCallback() {
+            super.connectedCallback?.();
+            this.tabIndex = 0;
+        }
+        disconnectedCallback() {
+            super.disconnectedCallback?.();
+            this.tabIndex = -1;
+        }
+    };
+}
+
+class ComboBox extends SelectionContainer(CollectionDataHolder(Focusable(DisplayableField))) {
     static get properties() {
         return {
             displayField: {
@@ -5746,22 +5777,13 @@ class FormField extends CustomElement {
         this.removeEventListener(inputEvent, this.handleInput);
         this.removeEventListener(validationEvent, this.handleValidation);
     }
-    async handleInput(event) {
+    handleInput(event) {
         event.stopPropagation();
-        await this.updateComplete;
-        const { field, modified } = event.detail;
+        const { modified } = event.detail;
         this.modified = modified;
-        const form = this.adoptingParent;
-        if (modified === true) {
-            form.modifiedFields.add(field);
-        }
-        else {
-            form.modifiedFields.delete(field);
-        }
     }
-    async handleValidation(event) {
+    handleValidation(event) {
         event.stopPropagation();
-        await this.updateComplete;
         const { warnings, errors } = event.detail;
         this.warnings = warnings;
         this.errors = errors;
@@ -6031,8 +6053,8 @@ const dataGridHeaderStyles = css `
     width: 100%;
     display: flex;
     flex-flow: row nowrap;
-    background-color: var(--header-bg-color);
-    color: var(--header-text-color)
+    background-color: var(--gcs-header-bg-color);
+    color: var(--gcs-header-text-color);
 }`;
 
 class DataGridHeader extends CustomElement {
@@ -6686,8 +6708,8 @@ const applicationViewStyles = css `
 #header,
 #footer {
   	grid-column: 1 / 4;
-	background-color: var(--header-bg-color);
-	color: var(--header-text-color);
+	background-color: var(--gcs-header-bg-color);
+	color: var(--gcs-header-text-color);
 }
 
 #subheader { 

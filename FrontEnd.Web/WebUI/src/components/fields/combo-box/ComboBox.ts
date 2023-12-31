@@ -11,11 +11,14 @@ import DisplayableField from "../DisplayableField";
 import isPrimitive from "../../../utils/isPrimitive";
 import CustomElement from "../../../custom-element/CustomElement";
 import { changeEvent } from "../Field";
+import Focusable from "../../mixins/focusable/Focusable";
 
 export default class ComboBox extends
     SelectionContainer(
         CollectionDataHolder(
-            DisplayableField as unknown as CustomHTMLElementConstructor
+            Focusable(
+                DisplayableField as unknown as CustomHTMLElementConstructor
+            )
         )
     ) {
 
@@ -308,14 +311,14 @@ export default class ComboBox extends
             if (this.multiple === true) {
 
                 return value.map(v => this.unwrapSingleValue(v));
-                
+
             }
             else {
 
                 value = value[0];
 
                 return this.unwrapSingleValue(value);
-            }        
+            }
         }
         else {
 
@@ -329,7 +332,7 @@ export default class ComboBox extends
 
             value = (value as GenericRecord)[this.idField];
         }
-        
+
         return value;
     }
 }

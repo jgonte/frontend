@@ -156,18 +156,12 @@ export default class Field extends Validatable(CustomElement) {
     handleChange() {
         const oldValue = this.value;
         this.value = this._tempValue;
-        this._tempValue;
+        this._tempValue = undefined;
         this.dispatchCustomEvent(changeEvent, {
             name: this.name,
             oldValue,
             newValue: this.value
         });
-    }
-    acceptChanges() {
-        this._initialValue = this.value;
-    }
-    reset() {
-        this.value = this._initialValue;
     }
 }
 //# sourceMappingURL=Field.js.map

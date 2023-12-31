@@ -2,7 +2,7 @@ import addPatcherComparer from "../../../rendering/utils/addPatcherComparer";
 import areEquivalent from "../../../utils/areEquivalent";
 addPatcherComparer();
 describe("areEquivalent tests", () => {
-    it('should return true when the values have same patcher properties ', () => {
+    it('should return true when the values have same patcher properties', () => {
         const patcher = {};
         const value1 = {
             patcher
@@ -13,7 +13,7 @@ describe("areEquivalent tests", () => {
         const result = areEquivalent(value1, value2);
         expect(result).toBeTruthy();
     });
-    it('should return false when the values have different patcher properties ', () => {
+    it('should return false when the values have different patcher properties', () => {
         const value1 = {
             patcher: {}
         };

@@ -25,8 +25,8 @@ export const applicationViewStyles = css`
 #header,
 #footer {
   	grid-column: 1 / 4;
-	background-color: var(--header-bg-color);
-	color: var(--header-text-color);
+	background-color: var(--gcs-header-bg-color);
+	color: var(--gcs-header-text-color);
 }
 
 #subheader { 

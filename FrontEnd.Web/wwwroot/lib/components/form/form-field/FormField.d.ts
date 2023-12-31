@@ -9,6 +9,6 @@ export default class FormField extends CustomElement {
     render(): NodePatchingData;
     connectedCallback(): void;
     disconnectedCallback(): void;
-    handleInput(event: CustomEvent): Promise<void>;
-    handleValidation(event: CustomEvent): Promise<void>;
+    handleInput(event: CustomEvent): void;
+    handleValidation(event: CustomEvent): void;
 }

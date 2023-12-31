@@ -9,7 +9,7 @@ export const panelStyles = css `
 
 #header,
 #footer {
-    background-color: var(--header-bg-color);
-    color: var(--header-text-color);
+    background-color: var(--gcs-header-bg-color);
+    color: var(--gcs-header-text-color);
 }`;
 //# sourceMappingURL=Panel.styles.js.map

@@ -4,7 +4,7 @@ export const dataGridHeaderStyles = css `
     width: 100%;
     display: flex;
     flex-flow: row nowrap;
-    background-color: var(--header-bg-color);
-    color: var(--header-text-color)
+    background-color: var(--gcs-header-bg-color);
+    color: var(--gcs-header-text-color);
 }`;
 //# sourceMappingURL=DataGridHeader.styles.js.map

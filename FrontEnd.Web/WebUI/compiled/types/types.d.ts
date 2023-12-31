@@ -332,6 +332,9 @@ export declare abstract class DisplayableField extends DisplayableField_base {
     static get properties(): Record<string, CustomElementPropertyMetadata>;
     connectedCallback(): void;
     handleInput(event: Event): void;
+    get isModified(): boolean;
+    acceptChanges(): void;
+    reset(): void;
 }
 
 declare const DisplayableField_base: CustomHTMLElementConstructor;
@@ -380,8 +383,6 @@ declare abstract class Field extends Field_base {
     private _label?;
     getLabel(): string;
     handleChange(): void;
-    acceptChanges(): void;
-    reset(): void;
 }
 
 declare const Field_base: typeof CustomElement;
@@ -400,7 +401,6 @@ export declare class FileField extends DisplayableField {
 
 export declare class Form extends Form_base {
     private _fields;
-    modifiedFields: Set<Field>;
     constructor();
     static get styles(): string;
     static get properties(): Record<string, CustomElementPropertyMetadata>;
@@ -419,6 +419,7 @@ export declare class Form extends Form_base {
     handleBeforeUnload(evt: BeforeUnloadEvent): void;
     handleFieldAdded(event: CustomEvent): void;
     handleChange(event: CustomEvent): void;
+    get modifiedFields(): Field[];
     reset(): void;
 }
 
@@ -431,8 +432,8 @@ export declare class FormField extends CustomElement {
     render(): NodePatchingData;
     connectedCallback(): void;
     disconnectedCallback(): void;
-    handleInput(event: CustomEvent): Promise<void>;
-    handleValidation(event: CustomEvent): Promise<void>;
+    handleInput(event: CustomEvent): void;
+    handleValidation(event: CustomEvent): void;
 }
 
 declare type GenericRecord = Record<string, unknown>;

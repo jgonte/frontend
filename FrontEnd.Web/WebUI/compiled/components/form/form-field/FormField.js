@@ -77,22 +77,13 @@ export default class FormField extends CustomElement {
         this.removeEventListener(inputEvent, this.handleInput);
         this.removeEventListener(validationEvent, this.handleValidation);
     }
-    async handleInput(event) {
+    handleInput(event) {
         event.stopPropagation();
-        await this.updateComplete;
-        const { field, modified } = event.detail;
+        const { modified } = event.detail;
         this.modified = modified;
-        const form = this.adoptingParent;
-        if (modified === true) {
-            form.modifiedFields.add(field);
-        }
-        else {
-            form.modifiedFields.delete(field);
-        }
     }
-    async handleValidation(event) {
+    handleValidation(event) {
         event.stopPropagation();
-        await this.updateComplete;
         const { warnings, errors } = event.detail;
         this.warnings = warnings;
         this.errors = errors;

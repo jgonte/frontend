@@ -15,7 +15,6 @@ export const formConnectedEvent = "formConnectedEvent";
 export const formDisconnectedEvent = "formDisconnectedEvent";
 export default class Form extends Submittable(Validatable(Loadable(CustomElement))) {
     _fields = new Map();
-    modifiedFields = new Set();
     constructor() {
         super();
         this.handleFieldAdded = this.handleFieldAdded.bind(this);
@@ -60,7 +59,7 @@ export default class Form extends Submittable(Validatable(Loadable(CustomElement
         return this.getData();
     }
     submit() {
-        if (this.modifiedFields.size === 0) {
+        if (this.modifiedFields.length === 0) {
             notifyError(this, 'This form has not been modified');
             return;
         }
@@ -145,20 +144,17 @@ export default class Form extends Submittable(Validatable(Loadable(CustomElement
         evt.returnValue = '';
     }
     handleFieldAdded(event) {
-        event.stopPropagation();
         const { field } = event.detail;
         field.form = this;
         this._fields.set(field.name, field);
     }
     handleChange(event) {
-        event.stopPropagation();
         const { name, newValue } = event.detail;
-        console.log('valueChanged: ' + JSON.stringify(event.detail));
         this.setData({
             [name]: newValue
         });
         setTimeout(() => {
-            if (this.modifiedFields.size > 0) {
+            if (this.modifiedFields.length > 0) {
                 window.addEventListener('beforeunload', this.handleBeforeUnload);
             }
             else {
@@ -166,9 +162,15 @@ export default class Form extends Submittable(Validatable(Loadable(CustomElement
             }
         });
     }
+    get modifiedFields() {
+        return Array.from(this._fields.values())
+            .filter(f => f.isModified);
+    }
     reset() {
-        Array.from(this.modifiedFields).forEach(f => f.reset());
-        this.modifiedFields.clear();
+        Array.from(this.modifiedFields)
+            .forEach(f => f.reset());
+        this.warnings = [];
+        this.errors = [];
     }
 }
 defineCustomElement('gcs-form', Form);
