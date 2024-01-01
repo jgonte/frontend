@@ -5,7 +5,7 @@ import html from "../../../rendering/html";
 import { NodePatchingData } from "../../../rendering/nodes/NodePatchingData";
 import { DataTypes } from "../../../utils/data/DataTypes";
 import { DynamicObject, GenericRecord } from "../../../utils/types";
-import SelectionContainer, { SelectionTypes } from "../../mixins/selection-container/SelectionContainer";
+import { ISelectionContainer, SelectionTypes } from "../../mixins/selection-container/SelectionContainer";
 import CollectionDataHolder from "../../mixins/data-holder/CollectionDataHolder";
 import DisplayableField from "../DisplayableField";
 import isPrimitive from "../../../utils/isPrimitive";
@@ -14,11 +14,9 @@ import { changeEvent } from "../Field";
 import Focusable from "../../mixins/focusable/Focusable";
 
 export default class ComboBox extends
-    SelectionContainer(
-        CollectionDataHolder(
-            Focusable(
-                DisplayableField as unknown as CustomHTMLElementConstructor
-            )
+    CollectionDataHolder(
+        Focusable(
+            DisplayableField as unknown as CustomHTMLElementConstructor
         )
     ) {
 
@@ -78,12 +76,49 @@ export default class ComboBox extends
                 attribute: 'multiple-selection-template',
                 type: DataTypes.Function,
                 defer: true // Store the function itself instead of executing it to get its return value when initializing the property
+            },
+
+            // Properties that pass through values to the selection container
+            selection: {
+                type: [                
+                    DataTypes.Object,
+                    DataTypes.Array
+                ],
+                setValue(selection: unknown) {
+
+                    const selectionContainer = (this as unknown as ComboBox).findSelectionContainer();
+
+                    if (selectionContainer) {
+
+                        selectionContainer.selection = selection as SelectionTypes;
+                    }
+                },
+                getValue() {
+
+                    const selectionContainer = (this as unknown as ComboBox).findSelectionContainer();
+
+                    if (!selectionContainer) {
+
+                        return [];
+                    }
+
+                    return selectionContainer.selection;
+                }
+            },
+
+            idField: {
+                attribute: 'id-field',
+                type: DataTypes.String
+            },
+
+            multiple: {
+                type: DataTypes.Boolean
             }
         };
     }
 
     constructor() {
-
+ 
         super();
 
         this.renderItem = this.renderItem.bind(this);
@@ -107,7 +142,7 @@ export default class ComboBox extends
             multiple
         } = this;
 
-        if (selection.length === 0) {
+        if ((selection as Array<string>).length === 0) {
 
             return this.renderSelectTemplate(); // No selection
         }
@@ -119,7 +154,7 @@ export default class ComboBox extends
             }
             else {
 
-                return this.renderSingleSelectionTemplate(selection[0]);
+                return this.renderSingleSelectionTemplate((selection as Array<string>)[0]);
             }
         }
     }
@@ -181,6 +216,7 @@ export default class ComboBox extends
 
             return html`
 <gcs-data-list 
+    id="selection-container"
     slot="content" 
     data=${data} 
     item-template=${renderItem} 
@@ -219,7 +255,7 @@ export default class ComboBox extends
         }
     }
 
-    renderSingleSelectionTemplate(selection: SelectionTypes): NodePatchingData {
+    renderSingleSelectionTemplate(selection: string): NodePatchingData {
 
         const {
             singleSelectionTemplate,
@@ -256,7 +292,7 @@ export default class ComboBox extends
         else {
 
             // Transform the data
-            const data = selection.map((item: string): DynamicObject => {
+            const data = (selection as Array<string>).map((item: string): DynamicObject => {
 
                 return {
                     [idField]: item[idField],
@@ -334,6 +370,11 @@ export default class ComboBox extends
         }
 
         return value;
+    }
+
+    findSelectionContainer() {
+
+        return this.findChild((n: { id: string; }) => n.id === 'selection-container') as ISelectionContainer;
     }
 }
 

@@ -143,10 +143,13 @@ export default function MetadataInitializer<TBase extends CustomHTMLElementConst
                         } = propertyMetadata;
 
                         const {
-                            defer
+                            defer,
+                            getValue
                         } = propertyMetadata;
 
-                        const value = this._properties[name];
+                        const value = getValue ? 
+                            getValue.call(this) :
+                            this._properties[name];
 
                         if (!Array.isArray(type)) {
 

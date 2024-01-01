@@ -7,10 +7,17 @@ import { GenericRecord } from "../../../utils/types";
 import Selector from "../../selector/Selector";
 import { selectionChangedEvent } from "../selectable/Selectable";
 
-export type SelectionTypes = Array<string> & { [x: string]: string };
+export type SelectionTypes = Array<string> | GenericRecord;
 
 export interface ISelectionContainer extends HTMLElement {
+
     isSelectionContainer: boolean;
+
+    selection?: SelectionTypes; // Property
+
+    idField?: string; // Property
+
+    multiple?: boolean; // Property
 
     selectionChanged?: (selection: SelectionTypes, selectedChildren: CustomElement[]) => void;
 }
@@ -193,7 +200,8 @@ export default function SelectionContainer<TBase extends CustomHTMLElementConstr
                 idField
             } = this;
 
-            const selectedChild = selectedChildren.filter((el: { selectValue: { [x: string]: unknown; }; }) => el.selectValue[idField] === id)[0];
+            const selectedChild = selectedChildren
+                .filter((el: { selectValue: { [x: string]: unknown; }; }) => el.selectValue[idField] === id)[0];
 
             selectedChild.setSelected(false);
         }
@@ -202,7 +210,9 @@ export default function SelectionContainer<TBase extends CustomHTMLElementConstr
     
             const selectors = (this?.shadowRoot as ShadowRoot).querySelectorAll('gcs-selector');
 
-            const selector = Array.from(selectors).filter(c => (c as Selector).selectValue[this.idField] === value)[0] as Selector;
+            const selector = Array.from(selectors)
+                .filter(c => (c as Selector)
+                .selectValue[this.idField] === value)[0] as Selector;
 
             if (selector) {
 

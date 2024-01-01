@@ -10,6 +10,8 @@ export default interface CustomElementPropertyMetadata extends CustomElementStat
     required?: boolean;
     beforeSet?: (value: unknown) => unknown;
     canChange?: (value: unknown, oldValue: unknown) => boolean;
+    setValue?: (value: unknown) => void;
+    getValue?: () => unknown;
     afterChange?: (value: unknown, oldValue: unknown) => void;
     afterUpdate?: ParameterlessVoidFunction;
 }

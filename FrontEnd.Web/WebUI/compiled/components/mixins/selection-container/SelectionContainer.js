@@ -92,12 +92,15 @@ export default function SelectionContainer(Base) {
         }
         deselectById(id) {
             const { selectedChildren, idField } = this;
-            const selectedChild = selectedChildren.filter((el) => el.selectValue[idField] === id)[0];
+            const selectedChild = selectedChildren
+                .filter((el) => el.selectValue[idField] === id)[0];
             selectedChild.setSelected(false);
         }
         selectByValue(value) {
             const selectors = (this?.shadowRoot).querySelectorAll('gcs-selector');
-            const selector = Array.from(selectors).filter(c => c.selectValue[this.idField] === value)[0];
+            const selector = Array.from(selectors)
+                .filter(c => c
+                .selectValue[this.idField] === value)[0];
             if (selector) {
                 selector.setSelected(true);
             }

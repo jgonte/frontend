@@ -32,6 +32,11 @@ export default class Form extends Submittable(Validatable(Loadable(CustomElement
                 attribute: 'hide-submit-button',
                 type: DataTypes.Boolean,
                 value: false
+            },
+            updateDataFromResponse: {
+                attribute: 'update-data-from-response',
+                type: DataTypes.Boolean,
+                value: true
             }
         };
     }
@@ -41,7 +46,12 @@ export default class Form extends Submittable(Validatable(Loadable(CustomElement
 <form>
     ${this.renderLoading()}
     ${this.renderSubmitting()}
-    <slot label-width=${labelWidth} label-align=${labelAlign} key="form-fields"></slot>
+    <slot 
+        label-width=${labelWidth} 
+        label-align=${labelAlign} 
+        key="form-fields"
+    >
+    </slot>
     ${this._renderButton()}
 </form>`;
     }
@@ -78,6 +88,9 @@ export default class Form extends Submittable(Validatable(Loadable(CustomElement
         this.setData((data.payload ?? data), true);
     }
     handleSubmitResponse(data) {
+        if (!this.updateDataFromResponse) {
+            return;
+        }
         console.log(JSON.stringify(data));
         const d = data.payload ?? data;
         this.setData(d, true);
@@ -91,7 +104,7 @@ export default class Form extends Submittable(Validatable(Loadable(CustomElement
                     const value = data[key];
                     field.value = value;
                     if (acceptChanges === true) {
-                        field.acceptChanges();
+                        field.acceptChanges?.();
                     }
                 }
                 else {
@@ -169,6 +182,8 @@ export default class Form extends Submittable(Validatable(Loadable(CustomElement
     reset() {
         Array.from(this.modifiedFields)
             .forEach(f => f.reset());
+        Array.from(this._fields.values())
+            .forEach(f => f.clearValidation?.());
         this.warnings = [];
         this.errors = [];
     }

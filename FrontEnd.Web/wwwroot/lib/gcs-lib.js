@@ -475,7 +475,7 @@ function PropertiesHolder(Base) {
             if (propertyMetadata === undefined) {
                 throw new Error(`Property: '${name}' is not configured for custom element: '${this.constructor.name}'`);
             }
-            const { attribute, type, reflect, options, beforeSet, canChange, afterChange, defer } = propertyMetadata;
+            const { attribute, type, reflect, options, beforeSet, canChange, setValue, afterChange, defer } = propertyMetadata;
             ensureValueIsInOptions(value, options);
             if (typeof value === 'function') {
                 if (defer === true &&
@@ -505,7 +505,12 @@ function PropertiesHolder(Base) {
                 delete this._properties[name];
             }
             else {
-                this._properties[name] = value;
+                if (setValue !== undefined) {
+                    setValue.call(this, value);
+                }
+                else {
+                    this._properties[name] = value;
+                }
             }
             afterChange?.call(this, value, oldValue);
             this.onPropertyChanged(name, value, oldValue);
@@ -966,8 +971,10 @@ function MetadataInitializer(Base) {
             Object.defineProperty(this.prototype, name, {
                 get() {
                     let { type } = propertyMetadata;
-                    const { defer } = propertyMetadata;
-                    const value = this._properties[name];
+                    const { defer, getValue } = propertyMetadata;
+                    const value = getValue ?
+                        getValue.call(this) :
+                        this._properties[name];
                     if (!Array.isArray(type)) {
                         type = [type];
                     }
@@ -4005,6 +4012,11 @@ class Form extends Submittable(Validatable(RemoteLoadableHolder(CustomElement)))
                 attribute: 'hide-submit-button',
                 type: DataTypes.Boolean,
                 value: false
+            },
+            updateDataFromResponse: {
+                attribute: 'update-data-from-response',
+                type: DataTypes.Boolean,
+                value: true
             }
         };
     }
@@ -4014,7 +4026,12 @@ class Form extends Submittable(Validatable(RemoteLoadableHolder(CustomElement)))
 <form>
     ${this.renderLoading()}
     ${this.renderSubmitting()}
-    <slot label-width=${labelWidth} label-align=${labelAlign} key="form-fields"></slot>
+    <slot 
+        label-width=${labelWidth} 
+        label-align=${labelAlign} 
+        key="form-fields"
+    >
+    </slot>
     ${this._renderButton()}
 </form>`;
     }
@@ -4051,6 +4068,9 @@ class Form extends Submittable(Validatable(RemoteLoadableHolder(CustomElement)))
         this.setData((data.payload ?? data), true);
     }
     handleSubmitResponse(data) {
+        if (!this.updateDataFromResponse) {
+            return;
+        }
         console.log(JSON.stringify(data));
         const d = data.payload ?? data;
         this.setData(d, true);
@@ -4064,7 +4084,7 @@ class Form extends Submittable(Validatable(RemoteLoadableHolder(CustomElement)))
                     const value = data[key];
                     field.value = value;
                     if (acceptChanges === true) {
-                        field.acceptChanges();
+                        field.acceptChanges?.();
                     }
                 }
                 else {
@@ -4142,6 +4162,8 @@ class Form extends Submittable(Validatable(RemoteLoadableHolder(CustomElement)))
     reset() {
         Array.from(this.modifiedFields)
             .forEach(f => f.reset());
+        Array.from(this._fields.values())
+            .forEach(f => f.clearValidation?.());
         this.warnings = [];
         this.errors = [];
     }
@@ -4909,120 +4931,13 @@ class DisplayableField extends Disableable(Field) {
             field: this,
             modified: false
         });
+    }
+    clearValidation() {
         this.dispatchCustomEvent(validationEvent, {
             warnings: [],
             errors: []
         });
     }
-}
-
-function SelectionContainer(Base) {
-    return class SelectionContainerMixin extends Base {
-        isSelectionContainer = true;
-        static get properties() {
-            return {
-                selectable: {
-                    type: DataTypes.Boolean,
-                    value: true,
-                    reflect: true,
-                },
-                multiple: {
-                    type: DataTypes.Boolean,
-                    reflect: true,
-                    value: false
-                },
-                idField: {
-                    attribute: 'id-field',
-                    type: DataTypes.String,
-                    value: 'id'
-                },
-                selection: {
-                    type: DataTypes.Array,
-                    value: [],
-                    reflect: true
-                },
-                selectionChanged: {
-                    attribute: 'selection-changed',
-                    type: DataTypes.Function,
-                    defer: true
-                }
-            };
-        }
-        static get state() {
-            return {
-                selectedChildren: {
-                    value: []
-                }
-            };
-        }
-        constructor(...args) {
-            super(args);
-            this.updateSelection = this.updateSelection.bind(this);
-        }
-        connectedCallback() {
-            super.connectedCallback?.();
-            this.addEventListener(selectionChangedEvent, this.updateSelection);
-        }
-        disconnectedCallback() {
-            super.disconnectedCallback?.();
-            this.removeEventListener(selectionChangedEvent, this.updateSelection);
-        }
-        updateSelection(event) {
-            event.stopPropagation();
-            const { selectable, multiple, selection, selectionChanged, idField } = this;
-            if (selectable !== true) {
-                return;
-            }
-            const { element, selected, value } = event.detail;
-            if (multiple === true) {
-                if (selected === true) {
-                    this.selection = [...selection, value];
-                    this.selectedChildren.push(element);
-                }
-                else {
-                    if (idField !== undefined) {
-                        this.selection = selection.filter((record) => record[idField] !== value[idField]);
-                    }
-                    else {
-                        this.selection = selection.filter((record) => record !== value);
-                    }
-                    this.selectedChildren = this.selectedChildren.filter((el) => el !== element);
-                }
-            }
-            else {
-                const selectedChild = this.selectedChildren[0];
-                if (selectedChild !== undefined) {
-                    selectedChild.selected = false;
-                }
-                if (selected === true) {
-                    this.selection = [value];
-                    this.selectedChildren = [element];
-                }
-                else {
-                    this.selectedChildren = [];
-                }
-            }
-            if (selectionChanged !== undefined) {
-                selectionChanged(this.selection, this.selectedChildren);
-            }
-        }
-        deselectById(id) {
-            const { selectedChildren, idField } = this;
-            const selectedChild = selectedChildren.filter((el) => el.selectValue[idField] === id)[0];
-            selectedChild.setSelected(false);
-        }
-        selectByValue(value) {
-            const selectors = (this?.shadowRoot).querySelectorAll('gcs-selector');
-            const selector = Array.from(selectors).filter(c => c.selectValue[this.idField] === value)[0];
-            if (selector) {
-                selector.setSelected(true);
-            }
-            else {
-                this.selectedChildren = [];
-                this.selection = [];
-            }
-        }
-    };
 }
 
 function compareValues(v1, v2) {
@@ -5117,7 +5032,7 @@ function Focusable(Base) {
     };
 }
 
-class ComboBox extends SelectionContainer(CollectionDataHolder(Focusable(DisplayableField))) {
+class ComboBox extends CollectionDataHolder(Focusable(DisplayableField)) {
     static get properties() {
         return {
             displayField: {
@@ -5149,6 +5064,32 @@ class ComboBox extends SelectionContainer(CollectionDataHolder(Focusable(Display
                 attribute: 'multiple-selection-template',
                 type: DataTypes.Function,
                 defer: true
+            },
+            selection: {
+                type: [
+                    DataTypes.Object,
+                    DataTypes.Array
+                ],
+                setValue(selection) {
+                    const selectionContainer = this.findSelectionContainer();
+                    if (selectionContainer) {
+                        selectionContainer.selection = selection;
+                    }
+                },
+                getValue() {
+                    const selectionContainer = this.findSelectionContainer();
+                    if (!selectionContainer) {
+                        return [];
+                    }
+                    return selectionContainer.selection;
+                }
+            },
+            idField: {
+                attribute: 'id-field',
+                type: DataTypes.String
+            },
+            multiple: {
+                type: DataTypes.Boolean
             }
         };
     }
@@ -5207,6 +5148,7 @@ class ComboBox extends SelectionContainer(CollectionDataHolder(Focusable(Display
         if (data?.length > 0) {
             return html `
 <gcs-data-list 
+    id="selection-container"
     slot="content" 
     data=${data} 
     item-template=${renderItem} 
@@ -5300,6 +5242,9 @@ class ComboBox extends SelectionContainer(CollectionDataHolder(Focusable(Display
             value = value[this.idField];
         }
         return value;
+    }
+    findSelectionContainer() {
+        return this.findChild((n) => n.id === 'selection-container');
     }
 }
 defineCustomElement('gcs-combo-box', ComboBox);
@@ -5425,11 +5370,12 @@ defineCustomElement('gcs-file-field', FileField);
 class HiddenField extends Field {
     render() {
         const { name, value, } = this;
-        return html `<input
-            type="hidden"
-            name=${name}
-            value=${value}
-        />`;
+        return html `
+<input
+    type="hidden"
+    name=${name}
+    value=${value}
+/>`;
     }
 }
 defineCustomElement('gcs-hidden-field', HiddenField);
@@ -5623,6 +5569,118 @@ class Slider extends DisplayableField {
     }
 }
 defineCustomElement('gcs-slider', Slider);
+
+function SelectionContainer(Base) {
+    return class SelectionContainerMixin extends Base {
+        isSelectionContainer = true;
+        static get properties() {
+            return {
+                selectable: {
+                    type: DataTypes.Boolean,
+                    value: true,
+                    reflect: true,
+                },
+                multiple: {
+                    type: DataTypes.Boolean,
+                    reflect: true,
+                    value: false
+                },
+                idField: {
+                    attribute: 'id-field',
+                    type: DataTypes.String,
+                    value: 'id'
+                },
+                selection: {
+                    type: DataTypes.Array,
+                    value: [],
+                    reflect: true
+                },
+                selectionChanged: {
+                    attribute: 'selection-changed',
+                    type: DataTypes.Function,
+                    defer: true
+                }
+            };
+        }
+        static get state() {
+            return {
+                selectedChildren: {
+                    value: []
+                }
+            };
+        }
+        constructor(...args) {
+            super(args);
+            this.updateSelection = this.updateSelection.bind(this);
+        }
+        connectedCallback() {
+            super.connectedCallback?.();
+            this.addEventListener(selectionChangedEvent, this.updateSelection);
+        }
+        disconnectedCallback() {
+            super.disconnectedCallback?.();
+            this.removeEventListener(selectionChangedEvent, this.updateSelection);
+        }
+        updateSelection(event) {
+            event.stopPropagation();
+            const { selectable, multiple, selection, selectionChanged, idField } = this;
+            if (selectable !== true) {
+                return;
+            }
+            const { element, selected, value } = event.detail;
+            if (multiple === true) {
+                if (selected === true) {
+                    this.selection = [...selection, value];
+                    this.selectedChildren.push(element);
+                }
+                else {
+                    if (idField !== undefined) {
+                        this.selection = selection.filter((record) => record[idField] !== value[idField]);
+                    }
+                    else {
+                        this.selection = selection.filter((record) => record !== value);
+                    }
+                    this.selectedChildren = this.selectedChildren.filter((el) => el !== element);
+                }
+            }
+            else {
+                const selectedChild = this.selectedChildren[0];
+                if (selectedChild !== undefined) {
+                    selectedChild.selected = false;
+                }
+                if (selected === true) {
+                    this.selection = [value];
+                    this.selectedChildren = [element];
+                }
+                else {
+                    this.selectedChildren = [];
+                }
+            }
+            if (selectionChanged !== undefined) {
+                selectionChanged(this.selection, this.selectedChildren);
+            }
+        }
+        deselectById(id) {
+            const { selectedChildren, idField } = this;
+            const selectedChild = selectedChildren
+                .filter((el) => el.selectValue[idField] === id)[0];
+            selectedChild.setSelected(false);
+        }
+        selectByValue(value) {
+            const selectors = (this?.shadowRoot).querySelectorAll('gcs-selector');
+            const selector = Array.from(selectors)
+                .filter(c => c
+                .selectValue[this.idField] === value)[0];
+            if (selector) {
+                selector.setSelected(true);
+            }
+            else {
+                this.selectedChildren = [];
+                this.selection = [];
+            }
+        }
+    };
+}
 
 const getStarStyle = (selected) => selected == true ?
     'color: yellow;' :
@@ -6312,6 +6370,8 @@ class CollectionPanel extends CustomElement {
             id="create-form"
             slot="body"
             submit-url=${this.createUrl}
+            auto-load="false"
+            update-data-from-response="false"
             submit-success=${() => {
             this.showOverlay('add-overlay', false);
             this.resetForm('create-form');

@@ -29,7 +29,7 @@ export default interface CustomElementPropertyMetadata extends CustomElementStat
     reflect?: boolean;
 
     /**
-     * Whether to request the value of the property in the parent if it is not set in the child. e.g., size, kind, etc.
+     * Whether to request the value of the property in the parent if it is not set in the child. e.g., kind, etc.
      */
     inherit?: boolean;
 
@@ -48,6 +48,21 @@ export default interface CustomElementPropertyMetadata extends CustomElementStat
      * If the return is false then the process of changing the property will be cancelled
      */
     canChange?: (value: unknown, oldValue: unknown) => boolean;
+
+    /**
+     * Hook to perform a custom value setting operation
+     * Used to delegate the call to other object instead of storing the value in the _properties bag
+     * @param value The value to set
+     * @returns void
+     */
+    setValue?: (value: unknown) => void;
+
+    /**
+     * Hook to perform a custom value getting operation
+     * Used to delegate the call to other object instead of getting the value from the _properties bag
+     * @returns The value
+     */
+    getValue?: () => unknown;
 
     /**
      * Function to execute when the value of the property has changed

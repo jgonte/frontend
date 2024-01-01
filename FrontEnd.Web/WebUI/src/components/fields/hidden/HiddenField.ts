@@ -12,11 +12,12 @@ export default class HiddenField extends Field {
             value,
         } = this;
 
-        return html`<input
-            type="hidden"
-            name=${name}
-            value=${value}
-        />`;
+        return html`
+<input
+    type="hidden"
+    name=${name}
+    value=${value}
+/>`;
     }
 }
 

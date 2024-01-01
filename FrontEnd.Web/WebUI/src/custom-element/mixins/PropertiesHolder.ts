@@ -383,6 +383,7 @@ export default function PropertiesHolder<TBase extends CustomHTMLElementConstruc
                 options,
                 beforeSet,
                 canChange,
+                setValue,
                 afterChange,
                 defer
                 //afterUpdate - We call afterUpdate after the element was updated in the DOM
@@ -435,7 +436,14 @@ export default function PropertiesHolder<TBase extends CustomHTMLElementConstruc
             }
             else { // Set the property
 
-                this._properties[name] = value;
+                if (setValue !== undefined) {
+
+                    setValue.call(this, value);
+                }
+                else {
+
+                    this._properties[name] = value;
+                }            
             }
 
             // Call any afterChange value on the property

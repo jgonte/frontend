@@ -130,12 +130,13 @@ export declare class ComboBox extends ComboBox_base {
     handleChange(): void;
     renderContent(): NodePatchingData;
     renderSelectTemplate(): NodePatchingData;
-    renderSingleSelectionTemplate(selection: SelectionTypes): NodePatchingData;
+    renderSingleSelectionTemplate(selection: string): NodePatchingData;
     renderMultipleSelectionTemplate(selection: SelectionTypes): NodePatchingData;
     beforeValueSet(value: unknown): unknown;
     onValueChanged(value: unknown, oldValue: unknown): void;
     private unwrapValue;
     private unwrapSingleValue;
+    findSelectionContainer(): ISelectionContainer;
 }
 
 declare const ComboBox_base: CustomHTMLElementConstructor;
@@ -187,6 +188,8 @@ export declare interface CustomElementPropertyMetadata extends CustomElementStat
     required?: boolean;
     beforeSet?: (value: unknown) => unknown;
     canChange?: (value: unknown, oldValue: unknown) => boolean;
+    setValue?: (value: unknown) => void;
+    getValue?: () => unknown;
     afterChange?: (value: unknown, oldValue: unknown) => void;
     afterUpdate?: ParameterlessVoidFunction;
 }
@@ -335,6 +338,7 @@ export declare abstract class DisplayableField extends DisplayableField_base {
     get isModified(): boolean;
     acceptChanges(): void;
     reset(): void;
+    clearValidation(): void;
 }
 
 declare const DisplayableField_base: CustomHTMLElementConstructor;
@@ -491,6 +495,14 @@ declare interface IRenderable {
     render(): RenderReturnTypes;
 }
 
+declare interface ISelectionContainer extends HTMLElement {
+    isSelectionContainer: boolean;
+    selection?: SelectionTypes;
+    idField?: string;
+    multiple?: boolean;
+    selectionChanged?: (selection: SelectionTypes, selectedChildren: CustomElement[]) => void;
+}
+
 export declare class LocalizedText extends CustomElement {
     static get styles(): string;
     private _key;
@@ -637,9 +649,7 @@ declare interface Script {
     source: string;
 }
 
-declare type SelectionTypes = Array<string> & {
-    [x: string]: string;
-};
+declare type SelectionTypes = Array<string> | GenericRecord;
 
 export declare class Selector extends Selector_base {
 }

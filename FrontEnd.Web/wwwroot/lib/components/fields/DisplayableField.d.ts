@@ -11,5 +11,6 @@ export default abstract class DisplayableField extends DisplayableField_base {
     get isModified(): boolean;
     acceptChanges(): void;
     reset(): void;
+    clearValidation(): void;
 }
 export {};

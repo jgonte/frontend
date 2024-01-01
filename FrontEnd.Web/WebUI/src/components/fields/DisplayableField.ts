@@ -93,12 +93,18 @@ export default abstract class DisplayableField extends
         
         this.value = this._initialValue;
 
+        // Clear the modified flag in the form field
         this.dispatchCustomEvent(inputEvent, {
             field: this,
             modified: false
         });
+    }
 
-        // Clear the validation messages of the form field
+    /**
+     * Clears the validation of the field and form field
+     */
+    clearValidation() {
+
         this.dispatchCustomEvent(validationEvent, {
             warnings: [],
             errors: []
