@@ -66,6 +66,15 @@ export default class Form extends
                 attribute: 'hide-submit-button',
                 type: DataTypes.Boolean,
                 value: false
+            },
+
+            /**
+             * Whether to update the fields with data from the response of the server
+             */
+            updateDataFromResponse: {
+                attribute: 'update-data-from-response',
+                type: DataTypes.Boolean,
+                value: true
             }
         };
     }
@@ -81,7 +90,12 @@ export default class Form extends
 <form>
     ${this.renderLoading()}
     ${this.renderSubmitting()}
-    <slot label-width=${labelWidth} label-align=${labelAlign} key="form-fields"></slot>
+    <slot 
+        label-width=${labelWidth} 
+        label-align=${labelAlign} 
+        key="form-fields"
+    >
+    </slot>
     ${this._renderButton()}
 </form>`;
     }
@@ -145,6 +159,11 @@ export default class Form extends
      */
     handleSubmitResponse(data: GenericRecord) {
 
+        if (!this.updateDataFromResponse) {
+
+            return;
+        }
+
         console.log(JSON.stringify(data));
 
         const d = data.payload ?? data;
@@ -170,7 +189,7 @@ export default class Form extends
 
                     if (acceptChanges === true) {
 
-                        field.acceptChanges();
+                        field.acceptChanges?.();
                     }
                 }
                 else { // The field does not need to exist for the given data member but let the programmer know it is missing
@@ -307,6 +326,12 @@ export default class Form extends
         // Clear the fields
         Array.from(this.modifiedFields)
             .forEach(f => f.reset());
+
+        // Clear the validation messages of the fields
+        // (Some fields might have validation messages even when their values have not changed, 
+        // for example, in case of required validator)
+        Array.from(this._fields.values())
+            .forEach(f => f.clearValidation?.());
 
         // Clear the validation messages of the form
         this.warnings = [];

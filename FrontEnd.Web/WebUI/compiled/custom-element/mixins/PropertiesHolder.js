@@ -158,7 +158,7 @@ export default function PropertiesHolder(Base) {
             if (propertyMetadata === undefined) {
                 throw new Error(`Property: '${name}' is not configured for custom element: '${this.constructor.name}'`);
             }
-            const { attribute, type, reflect, options, beforeSet, canChange, afterChange, defer } = propertyMetadata;
+            const { attribute, type, reflect, options, beforeSet, canChange, setValue, afterChange, defer } = propertyMetadata;
             ensureValueIsInOptions(value, options);
             if (typeof value === 'function') {
                 if (defer === true &&
@@ -188,7 +188,12 @@ export default function PropertiesHolder(Base) {
                 delete this._properties[name];
             }
             else {
-                this._properties[name] = value;
+                if (setValue !== undefined) {
+                    setValue.call(this, value);
+                }
+                else {
+                    this._properties[name] = value;
+                }
             }
             afterChange?.call(this, value, oldValue);
             this.onPropertyChanged(name, value, oldValue);

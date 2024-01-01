@@ -289,6 +289,8 @@ export default class CollectionPanel extends CustomElement {
             id="create-form"
             slot="body"
             submit-url=${this.createUrl}
+            auto-load="false"
+            update-data-from-response="false"
             submit-success=${() => {
 
                 this.showOverlay('add-overlay', false);

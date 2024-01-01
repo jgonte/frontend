@@ -1,13 +1,12 @@
 import defineCustomElement from "../../../custom-element/defineCustomElement";
 import html from "../../../rendering/html";
 import { DataTypes } from "../../../utils/data/DataTypes";
-import SelectionContainer from "../../mixins/selection-container/SelectionContainer";
 import CollectionDataHolder from "../../mixins/data-holder/CollectionDataHolder";
 import DisplayableField from "../DisplayableField";
 import isPrimitive from "../../../utils/isPrimitive";
 import { changeEvent } from "../Field";
 import Focusable from "../../mixins/focusable/Focusable";
-export default class ComboBox extends SelectionContainer(CollectionDataHolder(Focusable(DisplayableField))) {
+export default class ComboBox extends CollectionDataHolder(Focusable(DisplayableField)) {
     static get properties() {
         return {
             displayField: {
@@ -39,6 +38,32 @@ export default class ComboBox extends SelectionContainer(CollectionDataHolder(Fo
                 attribute: 'multiple-selection-template',
                 type: DataTypes.Function,
                 defer: true
+            },
+            selection: {
+                type: [
+                    DataTypes.Object,
+                    DataTypes.Array
+                ],
+                setValue(selection) {
+                    const selectionContainer = this.findSelectionContainer();
+                    if (selectionContainer) {
+                        selectionContainer.selection = selection;
+                    }
+                },
+                getValue() {
+                    const selectionContainer = this.findSelectionContainer();
+                    if (!selectionContainer) {
+                        return [];
+                    }
+                    return selectionContainer.selection;
+                }
+            },
+            idField: {
+                attribute: 'id-field',
+                type: DataTypes.String
+            },
+            multiple: {
+                type: DataTypes.Boolean
             }
         };
     }
@@ -97,6 +122,7 @@ export default class ComboBox extends SelectionContainer(CollectionDataHolder(Fo
         if (data?.length > 0) {
             return html `
 <gcs-data-list 
+    id="selection-container"
     slot="content" 
     data=${data} 
     item-template=${renderItem} 
@@ -190,6 +216,9 @@ export default class ComboBox extends SelectionContainer(CollectionDataHolder(Fo
             value = value[this.idField];
         }
         return value;
+    }
+    findSelectionContainer() {
+        return this.findChild((n) => n.id === 'selection-container');
     }
 }
 defineCustomElement('gcs-combo-box', ComboBox);

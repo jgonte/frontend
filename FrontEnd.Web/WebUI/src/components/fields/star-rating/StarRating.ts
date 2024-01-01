@@ -58,7 +58,7 @@ export default class StarRating
 
     selectionChanged = (selection: SelectionTypes /*, selectedChildren: CustomElement[] */): void => {
 
-        this.value = selection[0];
+        this.value = (selection as Array<string>)[0] ;
 
         // Deselect the stars after this
 

@@ -63,8 +63,10 @@ export default function MetadataInitializer(Base) {
             Object.defineProperty(this.prototype, name, {
                 get() {
                     let { type } = propertyMetadata;
-                    const { defer } = propertyMetadata;
-                    const value = this._properties[name];
+                    const { defer, getValue } = propertyMetadata;
+                    const value = getValue ?
+                        getValue.call(this) :
+                        this._properties[name];
                     if (!Array.isArray(type)) {
                         type = [type];
                     }

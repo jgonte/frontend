@@ -48,6 +48,8 @@ export default class DisplayableField extends Disableable(Field) {
             field: this,
             modified: false
         });
+    }
+    clearValidation() {
         this.dispatchCustomEvent(validationEvent, {
             warnings: [],
             errors: []
