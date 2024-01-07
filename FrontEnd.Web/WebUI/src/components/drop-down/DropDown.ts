@@ -100,7 +100,7 @@ export default class DropDown
 
         expanderTool.hideContent();
 
-        // Remove the element from the manager regardless of a selection was made or not
+        // Remove the element from the manager regardless of whether a selection was made or not
         popupManager.remove(this as HTMLElement);
     }
 }
