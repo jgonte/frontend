@@ -7,6 +7,6 @@ export interface ISelectionContainer extends HTMLElement {
     selection?: SelectionTypes;
     idField?: string;
     multiple?: boolean;
-    selectionChanged?: (selection: SelectionTypes, selectedChildren: CustomElement[]) => void;
+    selectionChanged?: (selection: SelectionTypes, oldSelection: SelectionTypes, selectedChildren: CustomElement[]) => void;
 }
 export default function SelectionContainer<TBase extends CustomHTMLElementConstructor>(Base: TBase): TBase;

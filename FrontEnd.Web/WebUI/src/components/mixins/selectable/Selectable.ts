@@ -6,7 +6,7 @@ import Clickable from "../clickable/Clickable";
 
 import { selectableStyles } from "./Selectable.styles";
 
-export const selectionChangedEvent = 'selectionChanged';
+export const selectionChangedEvent = 'selectionChangedEvent';
 
 /**
  * Allows a component to be selected when clicked
@@ -63,7 +63,9 @@ export default function Selectable<TBase extends CustomHTMLElementConstructor>(B
             };
         }
 
-        handleClick() {
+        handleClick(evt: Event) {
+
+            evt.stopPropagation();
 
             this.setSelected(!this.selected); // Toggle
         }
@@ -73,6 +75,11 @@ export default function Selectable<TBase extends CustomHTMLElementConstructor>(B
          * this function dispatches the selectionChangedEvent
          */
         setSelected(selected: boolean): void {
+
+            if ((this.selected || false) === selected) {
+
+                return;
+            }
 
             if (this.selectable === true) {
 

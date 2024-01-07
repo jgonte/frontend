@@ -1,10 +1,13 @@
+import Tool from "../Tool";
+import { IContentHidable } from "../../../utils/types";
 import defineCustomElement from "../../../custom-element/defineCustomElement";
 import CustomElementStateMetadata from "../../../custom-element/mixins/metadata/types/CustomElementStateMetadata";
-import Tool from "../Tool";
 
-export const expanderChanged = 'expanderChanged';
+export const expanderChangedEvent = 'expanderChangedEvent';
 
-export default class ExpanderTool extends Tool {
+export default class ExpanderTool 
+    extends Tool 
+    implements IContentHidable {
 
     constructor() {
 
@@ -49,17 +52,19 @@ export default class ExpanderTool extends Tool {
 
         this.showing = showing;
 
-        this.dispatchCustomEvent(expanderChanged, {
+        this.dispatchCustomEvent(expanderChangedEvent, {
             showing,
             element: this // To track the element in a container/manager if needed
         });
     }
 
-    handleClick(): void {
+    handleClick(evt: Event): void {
 
         let {
             showing
         } = this;
+
+        evt.stopPropagation();
 
         showing = !showing;
 

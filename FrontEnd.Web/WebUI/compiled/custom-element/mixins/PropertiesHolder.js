@@ -141,11 +141,8 @@ export default function PropertiesHolder(Base) {
             super.attributeChangedCallback?.(attributeName, oldValue, newValue);
             this._setAttribute(attributeName, newValue);
         }
-        _setAttribute(attribute, value) {
-            const propertyMetadata = this.constructor.metadata.propertiesByAttribute.get(attribute);
-            if (propertyMetadata === undefined) {
-                throw new Error(`Attribute: '${attribute}' is not configured for custom element: '${this.constructor.name}'`);
-            }
+        _setAttribute(attributeName, value) {
+            const propertyMetadata = this._getPropertyMetadataByAttributeName(attributeName);
             const { name, type } = propertyMetadata;
             if (typeof value === 'string') {
                 value = valueConverter.toProperty(value, type);
@@ -153,12 +150,23 @@ export default function PropertiesHolder(Base) {
             this.setProperty(name, value);
             return true;
         }
+        _getPropertyMetadataByAttributeName(attributeName) {
+            const propertyMetadata = this.constructor.metadata.propertiesByAttribute.get(attributeName);
+            if (propertyMetadata === undefined) {
+                throw new Error(`Attribute: '${attributeName}' is not configured for custom element: '${this.constructor.name}'`);
+            }
+            return propertyMetadata;
+        }
         _setProperty(name, value) {
             const propertyMetadata = this.constructor.metadata?.properties?.get(name);
             if (propertyMetadata === undefined) {
                 throw new Error(`Property: '${name}' is not configured for custom element: '${this.constructor.name}'`);
             }
             const { attribute, type, reflect, options, beforeSet, canChange, setValue, afterChange, defer } = propertyMetadata;
+            if (setValue !== undefined) {
+                setValue.call(this, value);
+                return true;
+            }
             ensureValueIsInOptions(value, options);
             if (typeof value === 'function') {
                 if (defer === true &&
@@ -188,12 +196,7 @@ export default function PropertiesHolder(Base) {
                 delete this._properties[name];
             }
             else {
-                if (setValue !== undefined) {
-                    setValue.call(this, value);
-                }
-                else {
-                    this._properties[name] = value;
-                }
+                this._properties[name] = value;
             }
             afterChange?.call(this, value, oldValue);
             this.onPropertyChanged(name, value, oldValue);

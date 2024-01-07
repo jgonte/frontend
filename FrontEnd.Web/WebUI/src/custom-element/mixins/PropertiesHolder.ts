@@ -324,32 +324,10 @@ export default function PropertiesHolder<TBase extends CustomHTMLElementConstruc
             this._setAttribute(attributeName, newValue);
         }
 
-        // /**
-        //  * Overrides the parent method to verify that it is accessing a configured property
-        //  * @param attribute 
-        //  * @param value 
-        //  */
-        // setAttribute(attribute: string, value: any) {
-
-        //     // Verify that the property is one of the configured in the custom element
-        //     if ((this.constructor as any)._propertiesByAttribute[attribute] === undefined &&
-        //         !(this.constructor as any).metadata.htmlElementProperties.has(attribute)) {
-
-        //         throw new Error(`There is no configured property for attribute: '${attribute}' in type: '${this.constructor.name}'`)
-        //     }
-
-        //     super.setAttribute(attribute, value);
-        // }
-
-        private _setAttribute(attribute: string, value: string | null): boolean {
+        private _setAttribute(attributeName: string, value: string | null): boolean {
 
             // Verify that the property is one of the configured in the custom element
-            const propertyMetadata: CustomElementPropertyMetadata | undefined = (this.constructor as CustomHTMLElementConstructor).metadata.propertiesByAttribute.get(attribute);
-
-            if (propertyMetadata === undefined) {
-
-                throw new Error(`Attribute: '${attribute}' is not configured for custom element: '${this.constructor.name}'`);
-            }
+            const propertyMetadata: CustomElementPropertyMetadata | undefined = this._getPropertyMetadataByAttributeName(attributeName);
 
             const {
                 name,
@@ -364,6 +342,17 @@ export default function PropertiesHolder<TBase extends CustomHTMLElementConstruc
             this.setProperty(name as string, value); // Call the setProperty of the Reactive mixin
 
             return true;
+        }
+
+        private _getPropertyMetadataByAttributeName(attributeName: string) {
+
+            const propertyMetadata: CustomElementPropertyMetadata | undefined = (this.constructor as CustomHTMLElementConstructor).metadata.propertiesByAttribute.get(attributeName);
+
+            if (propertyMetadata === undefined) {
+
+                throw new Error(`Attribute: '${attributeName}' is not configured for custom element: '${this.constructor.name}'`);
+            }
+            return propertyMetadata;
         }
 
         _setProperty(name: string, value: unknown): boolean {
@@ -388,6 +377,13 @@ export default function PropertiesHolder<TBase extends CustomHTMLElementConstruc
                 defer
                 //afterUpdate - We call afterUpdate after the element was updated in the DOM
             } = propertyMetadata;
+
+            if (setValue !== undefined) {
+
+                setValue.call(this, value);
+
+                return true; // Don't see the need to continue
+            }
 
             ensureValueIsInOptions(value, options);
 
@@ -436,14 +432,7 @@ export default function PropertiesHolder<TBase extends CustomHTMLElementConstruc
             }
             else { // Set the property
 
-                if (setValue !== undefined) {
-
-                    setValue.call(this, value);
-                }
-                else {
-
-                    this._properties[name] = value;
-                }            
+                this._properties[name] = value;        
             }
 
             // Call any afterChange value on the property

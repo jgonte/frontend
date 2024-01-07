@@ -16,7 +16,8 @@ export default class CloseTool extends Tool {
             }
         };
     }
-    handleClick() {
+    handleClick(evt) {
+        evt.stopPropagation();
         this.close?.();
     }
 }

@@ -2,6 +2,7 @@ import CustomElement from "../../custom-element/CustomElement";
 import CustomElementPropertyMetadata from "../../custom-element/mixins/metadata/types/CustomElementPropertyMetadata";
 import CustomHTMLElement from "../../custom-element/mixins/metadata/types/CustomHTMLElement";
 import { DataTypes } from "../../utils/data/DataTypes";
+import isUndefinedOrNull from "../../utils/isUndefinedOrNull";
 import RequiredValidator from "../../utils/validation/validators/field/RequiredValidator";
 import SingleValueFieldValidator, { FieldValidationContext } from "../../utils/validation/validators/field/SingleValueFieldValidator";
 import Validator from "../../utils/validation/validators/Validator";
@@ -93,6 +94,15 @@ export default abstract class Field extends
                     DataTypes.String,
                     DataTypes.Object // Ideally is a string but could be a more complex object
                 ],
+                beforeGet: function(value: unknown) {
+
+                    if ((this as unknown as Field).beforeValueGet !== undefined) {
+
+                        return (this as unknown as Field).beforeValueGet(value);
+                    }
+
+                    return value;
+                },
                 beforeSet: function (value): unknown {
 
                     if ((this as unknown as Field).beforeValueSet !== undefined) {
@@ -193,15 +203,18 @@ export default abstract class Field extends
      */
     handleInput(event: Event): void {
 
-        let v = getNewValue(event.target as HTMLInputElement);
+        if (!isUndefinedOrNull(event)) {
 
-        if (this.beforeValueSet !== undefined) {
+            let v = getNewValue(event.target as HTMLInputElement);
 
-            v = this.beforeValueSet(v);
+            if (this.beforeValueSet !== undefined) {
+    
+                v = this.beforeValueSet(v);
+            }
+    
+            this._tempValue = v;
         }
-
-        this._tempValue = v;
-
+        
         this.validate(); // Validate the field on input
     }
 

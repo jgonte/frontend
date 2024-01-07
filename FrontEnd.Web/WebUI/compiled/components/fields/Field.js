@@ -1,5 +1,6 @@
 import CustomElement from "../../custom-element/CustomElement";
 import { DataTypes } from "../../utils/data/DataTypes";
+import isUndefinedOrNull from "../../utils/isUndefinedOrNull";
 import RequiredValidator from "../../utils/validation/validators/field/RequiredValidator";
 import Validatable from "../mixins/validatable/Validatable";
 export const changeEvent = "changeEvent";
@@ -53,6 +54,12 @@ export default class Field extends Validatable(CustomElement) {
                     DataTypes.String,
                     DataTypes.Object
                 ],
+                beforeGet: function (value) {
+                    if (this.beforeValueGet !== undefined) {
+                        return this.beforeValueGet(value);
+                    }
+                    return value;
+                },
                 beforeSet: function (value) {
                     if (this.beforeValueSet !== undefined) {
                         return this.beforeValueSet(value);
@@ -109,11 +116,13 @@ export default class Field extends Validatable(CustomElement) {
     handleBlur() {
     }
     handleInput(event) {
-        let v = getNewValue(event.target);
-        if (this.beforeValueSet !== undefined) {
-            v = this.beforeValueSet(v);
+        if (!isUndefinedOrNull(event)) {
+            let v = getNewValue(event.target);
+            if (this.beforeValueSet !== undefined) {
+                v = this.beforeValueSet(v);
+            }
+            this._tempValue = v;
         }
-        this._tempValue = v;
         this.validate();
     }
     createValidationContext() {

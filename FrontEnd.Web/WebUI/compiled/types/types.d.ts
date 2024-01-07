@@ -89,13 +89,13 @@ export declare class Center extends CustomElement {
 export declare class CheckBox extends DisplayableField {
     static getFieldType(): DataTypes;
     render(): NodePatchingData;
-    onValueChanged(value: unknown, _oldValue: unknown): void;
+    beforeValueGet(value: unknown): unknown;
 }
 
 export declare class CloseTool extends Tool {
     constructor();
     static get properties(): Record<string, CustomElementPropertyMetadata>;
-    handleClick(): void;
+    handleClick(evt: Event): void;
 }
 
 export declare class CollectionPanel extends CustomElement {
@@ -126,8 +126,7 @@ export declare class ComboBox extends ComboBox_base {
     render(): NodePatchingData;
     renderHeader(): NodePatchingData;
     renderItem(record: GenericRecord): NodePatchingData;
-    onSelectionChanged(selection: GenericRecord, selectedChildren: CustomElement[]): void;
-    handleChange(): void;
+    onSelectionChanged(selection: GenericRecord, oldSelection: GenericRecord, selectedChildren: CustomElement[]): void;
     renderContent(): NodePatchingData;
     renderSelectTemplate(): NodePatchingData;
     renderSingleSelectionTemplate(selection: string): NodePatchingData;
@@ -136,7 +135,6 @@ export declare class ComboBox extends ComboBox_base {
     onValueChanged(value: unknown, oldValue: unknown): void;
     private unwrapValue;
     private unwrapSingleValue;
-    findSelectionContainer(): ISelectionContainer;
 }
 
 declare const ComboBox_base: CustomHTMLElementConstructor;
@@ -189,6 +187,7 @@ export declare interface CustomElementPropertyMetadata extends CustomElementStat
     beforeSet?: (value: unknown) => unknown;
     canChange?: (value: unknown, oldValue: unknown) => boolean;
     setValue?: (value: unknown) => void;
+    beforeGet?: (value: unknown) => unknown;
     getValue?: () => unknown;
     afterChange?: (value: unknown, oldValue: unknown) => void;
     afterUpdate?: ParameterlessVoidFunction;
@@ -343,14 +342,14 @@ export declare abstract class DisplayableField extends DisplayableField_base {
 
 declare const DisplayableField_base: CustomHTMLElementConstructor;
 
-export declare class DropDown extends CustomElement {
+export declare class DropDown extends CustomElement implements IContentHidable {
     static get styles(): string;
     static get state(): Record<string, CustomElementStateMetadata>;
-    constructor();
-    render(): NodePatchingData;
     connectedCallback(): void;
     disconnectedCallback(): void;
-    handleDropChanged(evt: CustomEvent): void;
+    render(): NodePatchingData;
+    handleExpanderChanged(evt: CustomEvent): void;
+    handleSelectionChanged(evt: CustomEvent): void;
     hideContent(): void;
 }
 
@@ -360,13 +359,13 @@ declare interface ErrorHandler {
     handleError: (event: CustomEvent) => void;
 }
 
-export declare class ExpanderTool extends Tool {
+export declare class ExpanderTool extends Tool implements IContentHidable {
     constructor();
     static get state(): Record<string, CustomElementStateMetadata>;
     iconName: () => "chevron-down" | "chevron-up";
     hideContent(): void;
     updateShowing(showing: boolean): void;
-    handleClick(): void;
+    handleClick(evt: Event): void;
 }
 
 declare type ExtensibleHTMLElement = HTMLElement & GenericRecord;
@@ -475,6 +474,10 @@ export declare class Icon extends CustomElement {
     render(): Promise<NodePatchingData | null>;
 }
 
+declare interface IContentHidable {
+    hideContent?: () => void;
+}
+
 declare interface INodePatcher {
     template: HTMLTemplateElement;
     rules: NodePatcherRule[];
@@ -493,14 +496,6 @@ declare class IntlProvider extends Observer {
 
 declare interface IRenderable {
     render(): RenderReturnTypes;
-}
-
-declare interface ISelectionContainer extends HTMLElement {
-    isSelectionContainer: boolean;
-    selection?: SelectionTypes;
-    idField?: string;
-    multiple?: boolean;
-    selectionChanged?: (selection: SelectionTypes, selectedChildren: CustomElement[]) => void;
 }
 
 export declare class LocalizedText extends CustomElement {

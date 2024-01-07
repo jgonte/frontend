@@ -4,5 +4,5 @@ export declare const closingEvent = "closingEvent";
 export default class CloseTool extends Tool {
     constructor();
     static get properties(): Record<string, CustomElementPropertyMetadata>;
-    handleClick(): void;
+    handleClick(evt: Event): void;
 }

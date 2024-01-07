@@ -58,6 +58,11 @@ export default interface CustomElementPropertyMetadata extends CustomElementStat
     setValue?: (value: unknown) => void;
 
     /**
+     * Hook to allow for extra manipulation of the property value before being retrieved
+     */
+    beforeGet?: (value: unknown) => unknown;
+
+    /**
      * Hook to perform a custom value getting operation
      * Used to delegate the call to other object instead of getting the value from the _properties bag
      * @returns The value

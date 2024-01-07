@@ -19,7 +19,7 @@ export interface ISelectionContainer extends HTMLElement {
 
     multiple?: boolean; // Property
 
-    selectionChanged?: (selection: SelectionTypes, selectedChildren: CustomElement[]) => void;
+    selectionChanged?: (selection: SelectionTypes, oldSelection: SelectionTypes, selectedChildren: CustomElement[]) => void;
 }
 
 /**
@@ -27,7 +27,9 @@ export interface ISelectionContainer extends HTMLElement {
  */
 export default function SelectionContainer<TBase extends CustomHTMLElementConstructor>(Base: TBase): TBase {
 
-    return class SelectionContainerMixin extends Base implements ISelectionContainer {
+    return class SelectionContainerMixin
+        extends Base
+        implements ISelectionContainer {
 
         isSelectionContainer = true; // Mark the instance as a selection 
 
@@ -97,24 +99,24 @@ export default function SelectionContainer<TBase extends CustomHTMLElementConstr
             };
         }
 
-        // The mixin constructor requires the parameters signature to be of type any
+        // The constructor requires the parameters signature to be of type any
         // eslint-disable-next-line  @typescript-eslint/no-explicit-any
         constructor(...args: any[]) {
 
-            super(args);
+            super(...args);
 
-            this.updateSelection = this.updateSelection.bind(this);
+            this.deselectById = this.deselectById.bind(this);
         }
 
         connectedCallback(): void {
-            
+
             super.connectedCallback?.();
 
             this.addEventListener(selectionChangedEvent, this.updateSelection as EventListenerOrEventListenerObject);
         }
 
         disconnectedCallback(): void {
-            
+
             super.disconnectedCallback?.();
 
             this.removeEventListener(selectionChangedEvent, this.updateSelection as EventListenerOrEventListenerObject);
@@ -122,7 +124,7 @@ export default function SelectionContainer<TBase extends CustomHTMLElementConstr
 
         updateSelection(event: CustomEvent) {
 
-            event.stopPropagation();
+            // event.stopPropagation(); Allow propagation to the drop down
 
             const {
                 selectable,
@@ -142,6 +144,8 @@ export default function SelectionContainer<TBase extends CustomHTMLElementConstr
                 selected,
                 value
             } = event.detail;
+
+            const oldSelection = this.selection;
 
             if (multiple === true) {
 
@@ -189,7 +193,7 @@ export default function SelectionContainer<TBase extends CustomHTMLElementConstr
 
             if (selectionChanged !== undefined) {
 
-                selectionChanged(this.selection, this.selectedChildren);
+                selectionChanged(this.selection, oldSelection, this.selectedChildren);
             }
         }
 
@@ -206,24 +210,25 @@ export default function SelectionContainer<TBase extends CustomHTMLElementConstr
             selectedChild.setSelected(false);
         }
 
-        selectByValue(value: unknown) {
-    
+        /**
+         * Sets the selector(s) whose value matches with the selected value(s) as selected,
+         * otherwise, unselects them
+         * @param value 
+         */
+        selectByValue(value: Array<unknown> | unknown) {
+
             const selectors = (this?.shadowRoot as ShadowRoot).querySelectorAll('gcs-selector');
 
-            const selector = Array.from(selectors)
-                .filter(c => (c as Selector)
-                .selectValue[this.idField] === value)[0] as Selector;
+            Array.from(selectors).forEach(s => {
 
-            if (selector) {
+                const v = (s as Selector).selectValue[this.idField];
 
-                selector.setSelected(true);
-            }
-            else {
+                const select = Array.isArray(value) ?
+                    value.includes(v) :
+                    value === v;
 
-                this.selectedChildren = []; // Clear the selection
-
-                this.selection = [];
-            }
+                (s as Selector).selected = select;
+            });
         }
     }
 }

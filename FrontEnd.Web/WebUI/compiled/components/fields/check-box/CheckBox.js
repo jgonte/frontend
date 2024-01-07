@@ -1,6 +1,7 @@
 import defineCustomElement from "../../../custom-element/defineCustomElement";
 import html from "../../../rendering/html";
 import { DataTypes } from "../../../utils/data/DataTypes";
+import isUndefinedOrNull from "../../../utils/isUndefinedOrNull";
 import DisplayableField from "../DisplayableField";
 export default class CheckBox extends DisplayableField {
     static getFieldType() {
@@ -12,19 +13,19 @@ export default class CheckBox extends DisplayableField {
 <input
     type="checkbox"
     name=${name}
-    value=${value}
+    checked=${value}
     onInput=${event => this.handleInput(event)}
     onChange=${event => this.handleChange(event)}
     onBlur=${() => this.handleBlur()}
     disabled=${disabled}
 />`;
     }
-    onValueChanged(value, _oldValue) {
-        if (value === true) {
-            this.checked = true;
+    beforeValueGet(value) {
+        if (isUndefinedOrNull(value)) {
+            return false;
         }
         else {
-            this.checked = false;
+            return value;
         }
     }
 }

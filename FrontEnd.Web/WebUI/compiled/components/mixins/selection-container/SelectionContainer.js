@@ -40,8 +40,8 @@ export default function SelectionContainer(Base) {
             };
         }
         constructor(...args) {
-            super(args);
-            this.updateSelection = this.updateSelection.bind(this);
+            super(...args);
+            this.deselectById = this.deselectById.bind(this);
         }
         connectedCallback() {
             super.connectedCallback?.();
@@ -52,12 +52,12 @@ export default function SelectionContainer(Base) {
             this.removeEventListener(selectionChangedEvent, this.updateSelection);
         }
         updateSelection(event) {
-            event.stopPropagation();
             const { selectable, multiple, selection, selectionChanged, idField } = this;
             if (selectable !== true) {
                 return;
             }
             const { element, selected, value } = event.detail;
+            const oldSelection = this.selection;
             if (multiple === true) {
                 if (selected === true) {
                     this.selection = [...selection, value];
@@ -87,7 +87,7 @@ export default function SelectionContainer(Base) {
                 }
             }
             if (selectionChanged !== undefined) {
-                selectionChanged(this.selection, this.selectedChildren);
+                selectionChanged(this.selection, oldSelection, this.selectedChildren);
             }
         }
         deselectById(id) {
@@ -98,16 +98,13 @@ export default function SelectionContainer(Base) {
         }
         selectByValue(value) {
             const selectors = (this?.shadowRoot).querySelectorAll('gcs-selector');
-            const selector = Array.from(selectors)
-                .filter(c => c
-                .selectValue[this.idField] === value)[0];
-            if (selector) {
-                selector.setSelected(true);
-            }
-            else {
-                this.selectedChildren = [];
-                this.selection = [];
-            }
+            Array.from(selectors).forEach(s => {
+                const v = s.selectValue[this.idField];
+                const select = Array.isArray(value) ?
+                    value.includes(v) :
+                    value === v;
+                s.selected = select;
+            });
         }
     };
 }

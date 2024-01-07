@@ -458,11 +458,8 @@ function PropertiesHolder(Base) {
             super.attributeChangedCallback?.(attributeName, oldValue, newValue);
             this._setAttribute(attributeName, newValue);
         }
-        _setAttribute(attribute, value) {
-            const propertyMetadata = this.constructor.metadata.propertiesByAttribute.get(attribute);
-            if (propertyMetadata === undefined) {
-                throw new Error(`Attribute: '${attribute}' is not configured for custom element: '${this.constructor.name}'`);
-            }
+        _setAttribute(attributeName, value) {
+            const propertyMetadata = this._getPropertyMetadataByAttributeName(attributeName);
             const { name, type } = propertyMetadata;
             if (typeof value === 'string') {
                 value = valueConverter.toProperty(value, type);
@@ -470,12 +467,23 @@ function PropertiesHolder(Base) {
             this.setProperty(name, value);
             return true;
         }
+        _getPropertyMetadataByAttributeName(attributeName) {
+            const propertyMetadata = this.constructor.metadata.propertiesByAttribute.get(attributeName);
+            if (propertyMetadata === undefined) {
+                throw new Error(`Attribute: '${attributeName}' is not configured for custom element: '${this.constructor.name}'`);
+            }
+            return propertyMetadata;
+        }
         _setProperty(name, value) {
             const propertyMetadata = this.constructor.metadata?.properties?.get(name);
             if (propertyMetadata === undefined) {
                 throw new Error(`Property: '${name}' is not configured for custom element: '${this.constructor.name}'`);
             }
             const { attribute, type, reflect, options, beforeSet, canChange, setValue, afterChange, defer } = propertyMetadata;
+            if (setValue !== undefined) {
+                setValue.call(this, value);
+                return true;
+            }
             ensureValueIsInOptions(value, options);
             if (typeof value === 'function') {
                 if (defer === true &&
@@ -505,12 +513,7 @@ function PropertiesHolder(Base) {
                 delete this._properties[name];
             }
             else {
-                if (setValue !== undefined) {
-                    setValue.call(this, value);
-                }
-                else {
-                    this._properties[name] = value;
-                }
+                this._properties[name] = value;
             }
             afterChange?.call(this, value, oldValue);
             this.onPropertyChanged(name, value, oldValue);
@@ -971,10 +974,11 @@ function MetadataInitializer(Base) {
             Object.defineProperty(this.prototype, name, {
                 get() {
                     let { type } = propertyMetadata;
-                    const { defer, getValue } = propertyMetadata;
-                    const value = getValue ?
-                        getValue.call(this) :
-                        this._properties[name];
+                    const { defer, getValue, beforeGet } = propertyMetadata;
+                    if (getValue !== undefined) {
+                        return getValue.call(this);
+                    }
+                    const value = this._properties[name];
                     if (!Array.isArray(type)) {
                         type = [type];
                     }
@@ -982,6 +986,9 @@ function MetadataInitializer(Base) {
                         typeof value === 'function' &&
                         defer !== true) {
                         return value();
+                    }
+                    if (beforeGet) {
+                        return beforeGet.call(this, value);
                     }
                     return value;
                 },
@@ -1661,6 +1668,8 @@ class CustomElement extends ParentChild(ReactiveElement(StylesPatching(NodePatch
             bubbles: true,
             composed: true,
         }));
+        console.log(`Event of type: '${type}' was dispatched by:`);
+        console.dir(this);
         console.log(`Event of type: '${type}' was dispatched with detail:`);
         console.dir(detail);
     }
@@ -2027,7 +2036,8 @@ class CloseTool extends Tool {
             }
         };
     }
-    handleClick() {
+    handleClick(evt) {
+        evt.stopPropagation();
         this.close?.();
     }
 }
@@ -3213,7 +3223,7 @@ const selectableStyles = css `
     transition: all 0.3s ease;
 }`;
 
-const selectionChangedEvent = 'selectionChanged';
+const selectionChangedEvent = 'selectionChangedEvent';
 function Selectable(Base) {
     return class SelectableMixin extends Clickable(Base) {
         static get styles() {
@@ -3243,10 +3253,14 @@ function Selectable(Base) {
                 }
             };
         }
-        handleClick() {
+        handleClick(evt) {
+            evt.stopPropagation();
             this.setSelected(!this.selected);
         }
         setSelected(selected) {
+            if ((this.selected || false) === selected) {
+                return;
+            }
             if (this.selectable === true) {
                 this.selected = selected;
                 this.dispatchCustomEvent(selectionChangedEvent, {
@@ -3263,88 +3277,38 @@ class Selector extends Selectable(CustomElement) {
 }
 defineCustomElement('gcs-selector', Selector);
 
-function getChildren(node) {
-    const children = [];
-    if (node instanceof HTMLSlotElement) {
-        const childNodes = node.assignedNodes({ flatten: true });
-        children.push(...childNodes);
-    }
-    else if (node instanceof HTMLElement) {
-        const slots = node.querySelectorAll('slot');
-        slots.forEach((slot) => {
-            const childNodes = slot.assignedNodes({ flatten: true });
-            children.push(...childNodes);
-        });
-        let childNodes = Array.from(node.childNodes);
-        children.push(...childNodes);
-        if (node.shadowRoot === null) {
-            return children;
+const _openPopups = [];
+function closeOtherPopups(target) {
+    let count = _openPopups.length;
+    while (count > 0) {
+        const popup = _openPopups[count - 1];
+        if (popup === target) {
+            break;
         }
-        node = node.shadowRoot;
-        childNodes = Array.from(node.childNodes);
-        children.push(...childNodes);
+        const targetChildren = target.adoptedChildren;
+        const popupIsChildOfTarget = targetChildren &&
+            Array.from(targetChildren)
+                .includes(popup);
+        if (popupIsChildOfTarget) {
+            break;
+        }
+        popup.hideContent?.();
+        --count;
     }
-    return children;
 }
-function getAllChildren(node) {
-    const children = [node];
-    getChildren(node).forEach((child) => {
-        children.push(...getAllChildren(child));
-    });
-    return children;
-}
-
-const _shownElements = [];
-let _justShown;
 const popupManager = {
-    setShown(element) {
-        let count = _shownElements.length;
-        while (count > 0) {
-            const shownElement = _shownElements[count - 1];
-            if (shownElement !== element &&
-                !getAllChildren(shownElement).includes(element)) {
-                shownElement.hideContent();
-            }
-            --count;
-        }
-        _shownElements.push(element);
-        _justShown = element;
+    add(element) {
+        closeOtherPopups(element);
+        _openPopups.push(element);
     },
-    setHidden(element) {
-        while (_shownElements.length > 0) {
-            const shownElement = _shownElements[_shownElements.length - 1];
-            if (shownElement !== element) {
-                shownElement.hideContent();
-                _shownElements.pop();
-            }
-            else {
-                _shownElements.pop();
-                break;
-            }
-        }
-    },
-    handleGlobal(target) {
-        if (_justShown !== undefined) {
-            _justShown = undefined;
-            return;
-        }
-        let count = _shownElements.length;
-        while (count > 0) {
-            const shownElement = _shownElements[count - 1];
-            if (!shownElement.contains(target)
-                && target.dropdown !== shownElement) {
-                shownElement.hideContent();
-            }
-            else {
-                break;
-            }
-            --count;
+    remove(element) {
+        const index = _openPopups.indexOf(element);
+        if (index !== -1) {
+            _openPopups.splice(index, 1);
         }
     }
 };
-window.onclick = function (event) {
-    popupManager.handleGlobal(event.target);
-};
+document.addEventListener('click', event => closeOtherPopups(event.target));
 
 function getClasses(props) {
     const classes = [];
@@ -3358,7 +3322,7 @@ function getClasses(props) {
     return classes.join(' ');
 }
 
-const expanderChanged = 'expanderChanged';
+const expanderChangedEvent = 'expanderChangedEvent';
 class ExpanderTool extends Tool {
     constructor() {
         super();
@@ -3385,13 +3349,14 @@ class ExpanderTool extends Tool {
     }
     updateShowing(showing) {
         this.showing = showing;
-        this.dispatchCustomEvent(expanderChanged, {
+        this.dispatchCustomEvent(expanderChangedEvent, {
             showing,
             element: this
         });
     }
-    handleClick() {
+    handleClick(evt) {
         let { showing } = this;
+        evt.stopPropagation();
         showing = !showing;
         this.updateShowing(showing);
     }
@@ -3429,9 +3394,15 @@ class DropDown extends CustomElement {
             }
         };
     }
-    constructor() {
-        super();
-        this.handleDropChanged = this.handleDropChanged.bind(this);
+    connectedCallback() {
+        super.connectedCallback?.();
+        this.addEventListener(expanderChangedEvent, this.handleExpanderChanged);
+        this.addEventListener(selectionChangedEvent, this.handleSelectionChanged);
+    }
+    disconnectedCallback() {
+        super.disconnectedCallback?.();
+        this.removeEventListener(expanderChangedEvent, this.handleExpanderChanged);
+        this.removeEventListener(selectionChangedEvent, this.handleSelectionChanged);
     }
     render() {
         const { showing } = this;
@@ -3439,30 +3410,28 @@ class DropDown extends CustomElement {
             'dropdown-content': true,
             'show': showing
         });
-        return html `<slot id="header" name="header"></slot>
-            <gcs-expander-tool id="expander-tool"></gcs-expander-tool>
-            <slot id="content" class=${contentClasses} name="content"></slot>`;
+        return html `
+<slot id="header" name="header"></slot>
+<gcs-expander-tool id="expander-tool"></gcs-expander-tool>
+<slot id="content" class=${contentClasses} name="content"></slot>`;
     }
-    connectedCallback() {
-        super.connectedCallback?.();
-        this.addEventListener(expanderChanged, this.handleDropChanged);
-    }
-    disconnectedCallback() {
-        super.disconnectedCallback?.();
-        this.removeEventListener(expanderChanged, this.handleDropChanged);
-    }
-    handleDropChanged(evt) {
+    handleExpanderChanged(evt) {
         evt.stopPropagation();
         const { showing } = evt.detail;
         if (showing === true) {
-            popupManager.setShown(this);
+            popupManager.add(this);
         }
         this.showing = showing;
+    }
+    handleSelectionChanged(evt) {
+        evt.stopPropagation();
+        this.hideContent();
+        this.showing = false;
     }
     hideContent() {
         const expanderTool = this.document.getElementById('expander-tool');
         expanderTool.hideContent();
-        popupManager.setHidden(this);
+        popupManager.remove(this);
     }
 }
 defineCustomElement('gcs-drop-down', DropDown);
@@ -3852,6 +3821,12 @@ class Field extends Validatable(CustomElement) {
                     DataTypes.String,
                     DataTypes.Object
                 ],
+                beforeGet: function (value) {
+                    if (this.beforeValueGet !== undefined) {
+                        return this.beforeValueGet(value);
+                    }
+                    return value;
+                },
                 beforeSet: function (value) {
                     if (this.beforeValueSet !== undefined) {
                         return this.beforeValueSet(value);
@@ -3908,11 +3883,13 @@ class Field extends Validatable(CustomElement) {
     handleBlur() {
     }
     handleInput(event) {
-        let v = getNewValue(event.target);
-        if (this.beforeValueSet !== undefined) {
-            v = this.beforeValueSet(v);
+        if (!isUndefinedOrNull(event)) {
+            let v = getNewValue(event.target);
+            if (this.beforeValueSet !== undefined) {
+                v = this.beforeValueSet(v);
+            }
+            this._tempValue = v;
         }
-        this._tempValue = v;
         this.validate();
     }
     createValidationContext() {
@@ -4907,9 +4884,7 @@ class DisplayableField extends Disableable(Field) {
         this._initialValue = this.value;
     }
     handleInput(event) {
-        if (event !== undefined) {
-            super.handleInput(event);
-        }
+        super.handleInput?.(event);
         this.dispatchCustomEvent(inputEvent, {
             field: this,
             modified: !areEquivalent(this._initialValue, this._tempValue)
@@ -4938,6 +4913,76 @@ class DisplayableField extends Disableable(Field) {
             errors: []
         });
     }
+}
+
+function SelectionContainerPassthrough(Base) {
+    return class SelectionContainerPassthroughMixin extends Base {
+        static get properties() {
+            return {
+                selectable: {
+                    type: DataTypes.Boolean,
+                    value: true,
+                    reflect: true,
+                },
+                multiple: {
+                    type: DataTypes.Boolean,
+                    reflect: true,
+                    value: false
+                },
+                idField: {
+                    attribute: 'id-field',
+                    type: DataTypes.String,
+                    value: 'id'
+                },
+                selectionChanged: {
+                    attribute: 'selection-changed',
+                    type: DataTypes.Function,
+                    defer: true
+                },
+                selection: {
+                    type: [
+                        DataTypes.Object,
+                        DataTypes.Array
+                    ],
+                    setValue(selection) {
+                        const { selectionContainer } = this;
+                        if (selectionContainer) {
+                            selectionContainer.selection = selection;
+                        }
+                    },
+                    getValue() {
+                        const { selectionContainer } = this;
+                        if (!selectionContainer) {
+                            return [];
+                        }
+                        return selectionContainer.selection;
+                    }
+                }
+            };
+        }
+    };
+}
+
+function RemoteLoadableHolderPassthrough(Base) {
+    return class RemoteLoadableHolderPassthorughMixin extends Base {
+        static get properties() {
+            return {
+                loadUrl: {
+                    attribute: 'load-url',
+                    type: DataTypes.String,
+                },
+                autoLoad: {
+                    attribute: 'auto-load',
+                    type: DataTypes.Boolean,
+                    value: true
+                },
+                metadataKey: {
+                    attribute: 'metadata-key',
+                    type: DataTypes.String
+                }
+            };
+        }
+    };
 }
 
 function compareValues(v1, v2) {
@@ -5032,7 +5077,7 @@ function Focusable(Base) {
     };
 }
 
-class ComboBox extends CollectionDataHolder(Focusable(DisplayableField)) {
+class ComboBox extends SelectionContainerPassthrough(RemoteLoadableHolderPassthrough(CollectionDataHolder(Focusable(DisplayableField)))) {
     static get properties() {
         return {
             displayField: {
@@ -5064,32 +5109,6 @@ class ComboBox extends CollectionDataHolder(Focusable(DisplayableField)) {
                 attribute: 'multiple-selection-template',
                 type: DataTypes.Function,
                 defer: true
-            },
-            selection: {
-                type: [
-                    DataTypes.Object,
-                    DataTypes.Array
-                ],
-                setValue(selection) {
-                    const selectionContainer = this.findSelectionContainer();
-                    if (selectionContainer) {
-                        selectionContainer.selection = selection;
-                    }
-                },
-                getValue() {
-                    const selectionContainer = this.findSelectionContainer();
-                    if (!selectionContainer) {
-                        return [];
-                    }
-                    return selectionContainer.selection;
-                }
-            },
-            idField: {
-                attribute: 'id-field',
-                type: DataTypes.String
-            },
-            multiple: {
-                type: DataTypes.Boolean
             }
         };
     }
@@ -5124,42 +5143,41 @@ class ComboBox extends CollectionDataHolder(Focusable(DisplayableField)) {
         const display = itemTemplate !== undefined ?
             itemTemplate(record) :
             record[displayField];
-        return html `<gcs-selector select-value=${record}>${display}</gcs-selector>`;
+        return html `
+<gcs-selector select-value=${record}>
+    ${display}
+</gcs-selector>`;
     }
-    onSelectionChanged(selection, selectedChildren) {
-        this.oldSelection = this.selection;
-        this.selection = selection;
+    onSelectionChanged(selection, oldSelection, selectedChildren) {
         this._tempValue = this.unwrapValue(selection);
         this.handleInput();
-        this.handleChange();
-        this.selectedChildren = selectedChildren;
-        this.selectionChanged?.(selection, selectedChildren);
-    }
-    handleChange() {
         this.value = this._tempValue;
         this.dispatchCustomEvent(changeEvent, {
             name: this.name,
-            oldValue: this.oldSelection,
-            newValue: this.selection
+            oldValue: oldSelection,
+            newValue: selection
         });
+        this.selectionChanged?.(selection, oldSelection, selectedChildren);
     }
     renderContent() {
-        const { data, renderItem, multiple, idField, onSelectionChanged } = this;
-        if (data?.length > 0) {
+        const { data, loadUrl, renderItem, multiple, idField, onSelectionChanged } = this;
+        if (loadUrl ||
+            data?.length > 0) {
             return html `
 <gcs-data-list 
     id="selection-container"
     slot="content" 
-    data=${data} 
+    data=${data}
+    load-url=${loadUrl}
     item-template=${renderItem} 
-    initialized=${dataList => this.content = dataList}
+    initialized=${dataList => this.selectionContainer = dataList}
     multiple=${multiple}
     id-field=${idField} 
     selection-changed=${onSelectionChanged}>
 </gcs-data-list>`;
         }
         else {
-            this.content = null;
+            this.selectionContainer = null;
             return html `
 <gcs-alert 
     slot="content"
@@ -5191,8 +5209,9 @@ class ComboBox extends CollectionDataHolder(Focusable(DisplayableField)) {
     }
     renderMultipleSelectionTemplate(selection) {
         const { multipleSelectionTemplate, idField, displayField } = this;
+        const { deselectById } = this.selectionContainer;
         if (multipleSelectionTemplate !== undefined) {
-            return multipleSelectionTemplate(selection, this.deselectById);
+            return multipleSelectionTemplate(selection, deselectById);
         }
         else {
             const data = selection.map((item) => {
@@ -5204,7 +5223,7 @@ class ComboBox extends CollectionDataHolder(Focusable(DisplayableField)) {
             const itemTemplate = (record) => html `
 <gcs-pill kind="primary" variant="contained">
     ${record[displayField]}
-    <gcs-close-tool close=${() => this.deselectById(record[idField])}></gcs-close-tool>
+    <gcs-close-tool close=${() => deselectById(record[idField])}></gcs-close-tool>
 </gcs-pill>`;
             return html `
 <gcs-data-list
@@ -5221,7 +5240,7 @@ class ComboBox extends CollectionDataHolder(Focusable(DisplayableField)) {
     onValueChanged(value, oldValue) {
         super.onValueChanged?.(value, oldValue);
         value = this.unwrapValue(value);
-        this.content.selectByValue(value);
+        this.selectionContainer.selectByValue(value);
     }
     unwrapValue(value) {
         if (Array.isArray(value)) {
@@ -5242,9 +5261,6 @@ class ComboBox extends CollectionDataHolder(Focusable(DisplayableField)) {
             value = value[this.idField];
         }
         return value;
-    }
-    findSelectionContainer() {
-        return this.findChild((n) => n.id === 'selection-container');
     }
 }
 defineCustomElement('gcs-combo-box', ComboBox);
@@ -5439,19 +5455,19 @@ class CheckBox extends DisplayableField {
 <input
     type="checkbox"
     name=${name}
-    value=${value}
+    checked=${value}
     onInput=${event => this.handleInput(event)}
     onChange=${event => this.handleChange(event)}
     onBlur=${() => this.handleBlur()}
     disabled=${disabled}
 />`;
     }
-    onValueChanged(value, _oldValue) {
-        if (value === true) {
-            this.checked = true;
+    beforeValueGet(value) {
+        if (isUndefinedOrNull(value)) {
+            return false;
         }
         else {
-            this.checked = false;
+            return value;
         }
     }
 }
@@ -5610,8 +5626,8 @@ function SelectionContainer(Base) {
             };
         }
         constructor(...args) {
-            super(args);
-            this.updateSelection = this.updateSelection.bind(this);
+            super(...args);
+            this.deselectById = this.deselectById.bind(this);
         }
         connectedCallback() {
             super.connectedCallback?.();
@@ -5622,12 +5638,12 @@ function SelectionContainer(Base) {
             this.removeEventListener(selectionChangedEvent, this.updateSelection);
         }
         updateSelection(event) {
-            event.stopPropagation();
             const { selectable, multiple, selection, selectionChanged, idField } = this;
             if (selectable !== true) {
                 return;
             }
             const { element, selected, value } = event.detail;
+            const oldSelection = this.selection;
             if (multiple === true) {
                 if (selected === true) {
                     this.selection = [...selection, value];
@@ -5657,7 +5673,7 @@ function SelectionContainer(Base) {
                 }
             }
             if (selectionChanged !== undefined) {
-                selectionChanged(this.selection, this.selectedChildren);
+                selectionChanged(this.selection, oldSelection, this.selectedChildren);
             }
         }
         deselectById(id) {
@@ -5668,16 +5684,13 @@ function SelectionContainer(Base) {
         }
         selectByValue(value) {
             const selectors = (this?.shadowRoot).querySelectorAll('gcs-selector');
-            const selector = Array.from(selectors)
-                .filter(c => c
-                .selectValue[this.idField] === value)[0];
-            if (selector) {
-                selector.setSelected(true);
-            }
-            else {
-                this.selectedChildren = [];
-                this.selection = [];
-            }
+            Array.from(selectors).forEach(s => {
+                const v = s.selectValue[this.idField];
+                const select = Array.isArray(value) ?
+                    value.includes(v) :
+                    value === v;
+                s.selected = select;
+            });
         }
     };
 }
