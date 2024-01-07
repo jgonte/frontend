@@ -57,10 +57,7 @@ export default abstract class DisplayableField extends
      */
     handleInput(event: Event): void {
 
-        if (event !== undefined) { // Coming from an event
-
-            super.handleInput(event);
-        }
+        super.handleInput?.(event);
 
         this.dispatchCustomEvent(inputEvent, {
             field: this,

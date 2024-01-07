@@ -1,54 +1,34 @@
-import getAllChildren from "./getAllChildren";
-const _shownElements = [];
-let _justShown;
+const _openPopups = [];
+function closeOtherPopups(target) {
+    let count = _openPopups.length;
+    while (count > 0) {
+        const popup = _openPopups[count - 1];
+        if (popup === target) {
+            break;
+        }
+        const targetChildren = target.adoptedChildren;
+        const popupIsChildOfTarget = targetChildren &&
+            Array.from(targetChildren)
+                .includes(popup);
+        if (popupIsChildOfTarget) {
+            break;
+        }
+        popup.hideContent?.();
+        --count;
+    }
+}
 const popupManager = {
-    setShown(element) {
-        let count = _shownElements.length;
-        while (count > 0) {
-            const shownElement = _shownElements[count - 1];
-            if (shownElement !== element &&
-                !getAllChildren(shownElement).includes(element)) {
-                shownElement.hideContent();
-            }
-            --count;
-        }
-        _shownElements.push(element);
-        _justShown = element;
+    add(element) {
+        closeOtherPopups(element);
+        _openPopups.push(element);
     },
-    setHidden(element) {
-        while (_shownElements.length > 0) {
-            const shownElement = _shownElements[_shownElements.length - 1];
-            if (shownElement !== element) {
-                shownElement.hideContent();
-                _shownElements.pop();
-            }
-            else {
-                _shownElements.pop();
-                break;
-            }
-        }
-    },
-    handleGlobal(target) {
-        if (_justShown !== undefined) {
-            _justShown = undefined;
-            return;
-        }
-        let count = _shownElements.length;
-        while (count > 0) {
-            const shownElement = _shownElements[count - 1];
-            if (!shownElement.contains(target)
-                && target.dropdown !== shownElement) {
-                shownElement.hideContent();
-            }
-            else {
-                break;
-            }
-            --count;
+    remove(element) {
+        const index = _openPopups.indexOf(element);
+        if (index !== -1) {
+            _openPopups.splice(index, 1);
         }
     }
 };
-window.onclick = function (event) {
-    popupManager.handleGlobal(event.target);
-};
+document.addEventListener('click', event => closeOtherPopups(event.target));
 export default popupManager;
 //# sourceMappingURL=popupManager.js.map

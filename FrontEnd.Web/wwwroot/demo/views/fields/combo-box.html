@@ -50,11 +50,17 @@
 
             const itemTemplate = record => html`
 <gcs-pill kind="primary" variant="contained">
-    ${record.name}
-    <gcs-close-tool close=${() => this.deselectById(record.id)}></gcs-close-tool>
+        ${record.name}
+        <gcs-close-tool close=${() => deselectById(record.id)}></gcs-close-tool>
 </gcs-pill>`;
 
-            return html`<gcs-data-list style="display: flex; flex-wrap: wrap; max-width: 500px; border: solid 1px black;" slot="header" data=${selection} item-template=${itemTemplate}></gcs-data-list>`;
+            return html`
+<gcs-data-list
+    style="display: flex; flex-wrap: wrap; max-width: 500px; border: solid 1px black;"
+    slot="header"
+    data=${selection} 
+    item-template=${itemTemplate}>
+</gcs-data-list>`;
         }
 
         function showSelection(selection) {
@@ -71,10 +77,10 @@
             } = record;
 
             return html`<div style="width: 200px;">
-                <div style="background-color: lightgreen;">${name}</div>
-                <div style="background-color: yellow;">${reputation}</div>
-                <div style="background-color: darkred; color: white; font-weight: bold;">${description}</div>
-            </div>`;
+                    <div style="background-color: lightgreen;">${name}</div>
+                    <div style="background-color: yellow;">${reputation}</div>
+                    <div style="background-color: darkred; color: white; font-weight: bold;">${description}</div>
+                </div>`;
         }
 
     </script>
@@ -86,12 +92,12 @@
     <h4>Single selection with selection changed handler</h4>
 
     <gcs-combo-box id="cb1" name="person" data='getData()' id-field="id" display-field="name"
-        selection-changed="showSelection()"></gcs-combo-box>
+                   selection-changed="showSelection()"></gcs-combo-box>
 
     <h4>Single selection with custom item template</h4>
 
     <gcs-combo-box id="cb2" name="person" data='getData()' id-field="id" display-field="name"
-        item-template="getTemplate()"></gcs-combo-box>
+                   item-template="getTemplate()"></gcs-combo-box>
 
     <h4>Single selection without selection changed handler</h4>
 
@@ -113,27 +119,46 @@
 
     <h4>Single selection with remote data</h4>
 
-    <gcs-loader load-url="https://localhost:7000/api/contacts/">
-        <gcs-combo-box id="cb4" name="person" single-selection-template="getSingleSelectionTemplate()" id-field="id"
-            display-field="name" item-template="getTemplate()">
-        </gcs-combo-box>
-    </gcs-loader>
+    <gcs-combo-box 
+        load-url="https://localhost:7000/api/contacts/"
+        id="cb4"
+        name="person"
+        single-selection-template="getSingleSelectionTemplate()"
+        id-field="id"
+        display-field="name"
+        item-template="getTemplate()"
+    >
+    </gcs-combo-box>
+
 
     <h4>Multiple selection with remote data</h4>
 
-    <gcs-loader load-url="https://localhost:7000/api/contacts/">
-        <gcs-combo-box id="cb5" name="person" id-field="id" display-field="name" item-template="getTemplate()" multiple
-            select-template="getSelectTemplate()">
-        </gcs-combo-box>
-    </gcs-loader>
+    <gcs-combo-box 
+        load-url="https://localhost:7000/api/contacts/" 
+        id="cb5" 
+        name="person" 
+        id-field="id" 
+        display-field="name"
+        item-template="getTemplate()"
+        multiple
+        select-template="getSelectTemplate()"
+    >
+    </gcs-combo-box>
 
     <h4>Multiple selection with remote data and multiple selection template</h4>
 
-    <gcs-loader load-url="https://localhost:7000/api/contacts/">
-        <gcs-combo-box id="cb6" name="person" id-field="id" display-field="name" item-template="getTemplate()" multiple
-            select-template="getSelectTemplate()" multiple-selection-template="getMultipleSelectionTemplate()">
-        </gcs-combo-box>
-    </gcs-loader>
+    <gcs-combo-box 
+        load-url="https://localhost:7000/api/contacts/"
+        id="cb6" 
+        name="person" 
+        id-field="id" 
+        display-field="name" 
+        item-template="getTemplate()" 
+        multiple
+        select-template="getSelectTemplate()"
+        multiple-selection-template="getMultipleSelectionTemplate()"
+    >
+    </gcs-combo-box>
 
 </body>
 

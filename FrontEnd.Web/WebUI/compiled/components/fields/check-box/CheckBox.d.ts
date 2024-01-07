@@ -4,5 +4,5 @@ import DisplayableField from "../DisplayableField";
 export default class CheckBox extends DisplayableField {
     static getFieldType(): DataTypes;
     render(): NodePatchingData;
-    onValueChanged(value: unknown, _oldValue: unknown): void;
+    beforeValueGet(value: unknown): unknown;
 }

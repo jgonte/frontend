@@ -1,15 +1,19 @@
 import CustomElement from "../../custom-element/CustomElement";
+import { IContentHidable } from "../../utils/types";
 import defineCustomElement from "../../custom-element/defineCustomElement";
 import popupManager from "../../custom-element/managers/popupManager";
 import CustomElementStateMetadata from "../../custom-element/mixins/metadata/types/CustomElementStateMetadata";
 import getClasses from "../../custom-element/styles/getClasses";
 import html from "../../rendering/html";
 import { NodePatchingData } from "../../rendering/nodes/NodePatchingData";
-import { expanderChanged } from "../tools/expander/ExpanderTool";
+import { expanderChangedEvent } from "../tools/expander/ExpanderTool";
+import { selectionChangedEvent } from "../mixins/selectable/Selectable";
 import { dropDownStyles } from "./DropDown.styles";
 import ExpanderTool from "../tools/expander/ExpanderTool";
 
-export default class DropDown extends CustomElement {
+export default class DropDown 
+    extends CustomElement
+    implements IContentHidable {
 
     static get styles(): string {
 
@@ -26,11 +30,22 @@ export default class DropDown extends CustomElement {
         };
     }
 
-    constructor() {
+    connectedCallback() {
 
-        super();
+        super.connectedCallback?.();
 
-        this.handleDropChanged = this.handleDropChanged.bind(this);
+        this.addEventListener(expanderChangedEvent, this.handleExpanderChanged as EventListenerOrEventListenerObject);
+
+        this.addEventListener(selectionChangedEvent, this.handleSelectionChanged as EventListenerOrEventListenerObject);
+    }
+
+    disconnectedCallback() {
+
+        super.disconnectedCallback?.();
+
+        this.removeEventListener(expanderChangedEvent, this.handleExpanderChanged as EventListenerOrEventListenerObject);
+
+        this.removeEventListener(selectionChangedEvent, this.handleSelectionChanged as EventListenerOrEventListenerObject);
     }
 
     render(): NodePatchingData {
@@ -44,26 +59,13 @@ export default class DropDown extends CustomElement {
             'show': showing
         });
 
-        return html`<slot id="header" name="header"></slot>
-            <gcs-expander-tool id="expander-tool"></gcs-expander-tool>
-            <slot id="content" class=${contentClasses} name="content"></slot>`;
+        return html`
+<slot id="header" name="header"></slot>
+<gcs-expander-tool id="expander-tool"></gcs-expander-tool>
+<slot id="content" class=${contentClasses} name="content"></slot>`;
     }
 
-    connectedCallback() {
-
-        super.connectedCallback?.();
-
-        this.addEventListener(expanderChanged, this.handleDropChanged as EventListenerOrEventListenerObject);
-    }
-
-    disconnectedCallback() {
-
-        super.disconnectedCallback?.();
-
-        this.removeEventListener(expanderChanged, this.handleDropChanged as EventListenerOrEventListenerObject);
-    }
-
-    handleDropChanged(evt: CustomEvent) {
+    handleExpanderChanged(evt: CustomEvent) {
 
         evt.stopPropagation();
 
@@ -71,12 +73,25 @@ export default class DropDown extends CustomElement {
             showing
         } = evt.detail;
 
-        if (showing === true) { // Hide the contents of other showing dropdowns and set this one as being shown
+        if (showing === true) {
 
-            popupManager.setShown(this as HTMLElement);
+            popupManager.add(this as HTMLElement);
         }
 
         this.showing = showing;
+    }
+
+    /**
+     * Hide the dropdown content once a selection is made
+     * @param evt 
+     */
+    handleSelectionChanged(evt: CustomEvent) {
+
+        evt.stopPropagation();
+
+        this.hideContent();
+
+        this.showing = false;
     }
 
     hideContent() {
@@ -85,7 +100,8 @@ export default class DropDown extends CustomElement {
 
         expanderTool.hideContent();
 
-        popupManager.setHidden(this as HTMLElement);
+        // Remove the element from the manager regardless of whether a selection was made or not
+        popupManager.remove(this as HTMLElement);
     }
 }
 

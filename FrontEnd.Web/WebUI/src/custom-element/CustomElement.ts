@@ -83,6 +83,10 @@ export default class CustomElement extends
 			})
 		);
 
+		console.log(`Event of type: '${type}' was dispatched by:`);
+
+		console.dir(this);
+
 		console.log(`Event of type: '${type}' was dispatched with detail:`);
 
 		console.dir(detail);

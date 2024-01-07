@@ -1,12 +1,14 @@
+import SelectionContainerPassthrough from "../../mixins/selection-container/SelectionContainerPassthrough";
+import RemoteLoadableHolderPassthrough from "../../mixins/remote-loadable/RemoteLoadablePassthrough";
+import CollectionDataHolder from "../../mixins/data-holder/CollectionDataHolder";
+import DisplayableField from "../DisplayableField";
+import Focusable from "../../mixins/focusable/Focusable";
+import isPrimitive from "../../../utils/isPrimitive";
+import { changeEvent } from "../Field";
 import defineCustomElement from "../../../custom-element/defineCustomElement";
 import html from "../../../rendering/html";
 import { DataTypes } from "../../../utils/data/DataTypes";
-import CollectionDataHolder from "../../mixins/data-holder/CollectionDataHolder";
-import DisplayableField from "../DisplayableField";
-import isPrimitive from "../../../utils/isPrimitive";
-import { changeEvent } from "../Field";
-import Focusable from "../../mixins/focusable/Focusable";
-export default class ComboBox extends CollectionDataHolder(Focusable(DisplayableField)) {
+export default class ComboBox extends SelectionContainerPassthrough(RemoteLoadableHolderPassthrough(CollectionDataHolder(Focusable(DisplayableField)))) {
     static get properties() {
         return {
             displayField: {
@@ -38,32 +40,6 @@ export default class ComboBox extends CollectionDataHolder(Focusable(Displayable
                 attribute: 'multiple-selection-template',
                 type: DataTypes.Function,
                 defer: true
-            },
-            selection: {
-                type: [
-                    DataTypes.Object,
-                    DataTypes.Array
-                ],
-                setValue(selection) {
-                    const selectionContainer = this.findSelectionContainer();
-                    if (selectionContainer) {
-                        selectionContainer.selection = selection;
-                    }
-                },
-                getValue() {
-                    const selectionContainer = this.findSelectionContainer();
-                    if (!selectionContainer) {
-                        return [];
-                    }
-                    return selectionContainer.selection;
-                }
-            },
-            idField: {
-                attribute: 'id-field',
-                type: DataTypes.String
-            },
-            multiple: {
-                type: DataTypes.Boolean
             }
         };
     }
@@ -98,42 +74,41 @@ export default class ComboBox extends CollectionDataHolder(Focusable(Displayable
         const display = itemTemplate !== undefined ?
             itemTemplate(record) :
             record[displayField];
-        return html `<gcs-selector select-value=${record}>${display}</gcs-selector>`;
+        return html `
+<gcs-selector select-value=${record}>
+    ${display}
+</gcs-selector>`;
     }
-    onSelectionChanged(selection, selectedChildren) {
-        this.oldSelection = this.selection;
-        this.selection = selection;
+    onSelectionChanged(selection, oldSelection, selectedChildren) {
         this._tempValue = this.unwrapValue(selection);
         this.handleInput();
-        this.handleChange();
-        this.selectedChildren = selectedChildren;
-        this.selectionChanged?.(selection, selectedChildren);
-    }
-    handleChange() {
         this.value = this._tempValue;
         this.dispatchCustomEvent(changeEvent, {
             name: this.name,
-            oldValue: this.oldSelection,
-            newValue: this.selection
+            oldValue: oldSelection,
+            newValue: selection
         });
+        this.selectionChanged?.(selection, oldSelection, selectedChildren);
     }
     renderContent() {
-        const { data, renderItem, multiple, idField, onSelectionChanged } = this;
-        if (data?.length > 0) {
+        const { data, loadUrl, renderItem, multiple, idField, onSelectionChanged } = this;
+        if (loadUrl ||
+            data?.length > 0) {
             return html `
 <gcs-data-list 
     id="selection-container"
     slot="content" 
-    data=${data} 
+    data=${data}
+    load-url=${loadUrl}
     item-template=${renderItem} 
-    initialized=${dataList => this.content = dataList}
+    initialized=${dataList => this.selectionContainer = dataList}
     multiple=${multiple}
     id-field=${idField} 
     selection-changed=${onSelectionChanged}>
 </gcs-data-list>`;
         }
         else {
-            this.content = null;
+            this.selectionContainer = null;
             return html `
 <gcs-alert 
     slot="content"
@@ -165,8 +140,9 @@ export default class ComboBox extends CollectionDataHolder(Focusable(Displayable
     }
     renderMultipleSelectionTemplate(selection) {
         const { multipleSelectionTemplate, idField, displayField } = this;
+        const { deselectById } = this.selectionContainer;
         if (multipleSelectionTemplate !== undefined) {
-            return multipleSelectionTemplate(selection, this.deselectById);
+            return multipleSelectionTemplate(selection, deselectById);
         }
         else {
             const data = selection.map((item) => {
@@ -178,7 +154,7 @@ export default class ComboBox extends CollectionDataHolder(Focusable(Displayable
             const itemTemplate = (record) => html `
 <gcs-pill kind="primary" variant="contained">
     ${record[displayField]}
-    <gcs-close-tool close=${() => this.deselectById(record[idField])}></gcs-close-tool>
+    <gcs-close-tool close=${() => deselectById(record[idField])}></gcs-close-tool>
 </gcs-pill>`;
             return html `
 <gcs-data-list
@@ -195,7 +171,7 @@ export default class ComboBox extends CollectionDataHolder(Focusable(Displayable
     onValueChanged(value, oldValue) {
         super.onValueChanged?.(value, oldValue);
         value = this.unwrapValue(value);
-        this.content.selectByValue(value);
+        this.selectionContainer.selectByValue(value);
     }
     unwrapValue(value) {
         if (Array.isArray(value)) {
@@ -216,9 +192,6 @@ export default class ComboBox extends CollectionDataHolder(Focusable(Displayable
             value = value[this.idField];
         }
         return value;
-    }
-    findSelectionContainer() {
-        return this.findChild((n) => n.id === 'selection-container');
     }
 }
 defineCustomElement('gcs-combo-box', ComboBox);

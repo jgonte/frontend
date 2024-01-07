@@ -1,13 +1,14 @@
 import CustomElement from "../../custom-element/CustomElement";
+import { IContentHidable } from "../../utils/types";
 import CustomElementStateMetadata from "../../custom-element/mixins/metadata/types/CustomElementStateMetadata";
 import { NodePatchingData } from "../../rendering/nodes/NodePatchingData";
-export default class DropDown extends CustomElement {
+export default class DropDown extends CustomElement implements IContentHidable {
     static get styles(): string;
     static get state(): Record<string, CustomElementStateMetadata>;
-    constructor();
-    render(): NodePatchingData;
     connectedCallback(): void;
     disconnectedCallback(): void;
-    handleDropChanged(evt: CustomEvent): void;
+    render(): NodePatchingData;
+    handleExpanderChanged(evt: CustomEvent): void;
+    handleSelectionChanged(evt: CustomEvent): void;
     hideContent(): void;
 }

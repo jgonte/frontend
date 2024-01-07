@@ -144,12 +144,16 @@ export default function MetadataInitializer<TBase extends CustomHTMLElementConst
 
                         const {
                             defer,
-                            getValue
+                            getValue,
+                            beforeGet
                         } = propertyMetadata;
 
-                        const value = getValue ? 
-                            getValue.call(this) :
-                            this._properties[name];
+                        if (getValue !== undefined) {
+
+                            return getValue.call(this);
+                        }
+
+                        const value = this._properties[name];
 
                         if (!Array.isArray(type)) {
 
@@ -161,6 +165,11 @@ export default function MetadataInitializer<TBase extends CustomHTMLElementConst
                             defer !== true) { // Only call the function if the type is a Function and it is not deferred
 
                             return value();
+                        }
+
+                        if (beforeGet) {
+
+                            return beforeGet.call(this, value);
                         }
 
                         return value;

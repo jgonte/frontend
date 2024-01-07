@@ -2,7 +2,7 @@ import mergeStyles from "../../../custom-element/styles/mergeStyles";
 import { DataTypes } from "../../../utils/data/DataTypes";
 import Clickable from "../clickable/Clickable";
 import { selectableStyles } from "./Selectable.styles";
-export const selectionChangedEvent = 'selectionChanged';
+export const selectionChangedEvent = 'selectionChangedEvent';
 export default function Selectable(Base) {
     return class SelectableMixin extends Clickable(Base) {
         static get styles() {
@@ -32,10 +32,14 @@ export default function Selectable(Base) {
                 }
             };
         }
-        handleClick() {
+        handleClick(evt) {
+            evt.stopPropagation();
             this.setSelected(!this.selected);
         }
         setSelected(selected) {
+            if ((this.selected || false) === selected) {
+                return;
+            }
             if (this.selectable === true) {
                 this.selected = selected;
                 this.dispatchCustomEvent(selectionChangedEvent, {

@@ -1,3 +1,11 @@
+import SelectionContainerPassthrough from "../../mixins/selection-container/SelectionContainerPassthrough";
+import RemoteLoadableHolderPassthrough from "../../mixins/remote-loadable/RemoteLoadablePassthrough";
+import CollectionDataHolder from "../../mixins/data-holder/CollectionDataHolder";
+import DisplayableField from "../DisplayableField";
+import Focusable from "../../mixins/focusable/Focusable";
+import isPrimitive from "../../../utils/isPrimitive";
+import CustomElement from "../../../custom-element/CustomElement";
+import { changeEvent } from "../Field";
 import defineCustomElement from "../../../custom-element/defineCustomElement";
 import CustomElementPropertyMetadata from "../../../custom-element/mixins/metadata/types/CustomElementPropertyMetadata";
 import CustomHTMLElementConstructor from "../../../custom-element/mixins/metadata/types/CustomHTMLElementConstructor";
@@ -5,18 +13,16 @@ import html from "../../../rendering/html";
 import { NodePatchingData } from "../../../rendering/nodes/NodePatchingData";
 import { DataTypes } from "../../../utils/data/DataTypes";
 import { DynamicObject, GenericRecord } from "../../../utils/types";
-import { ISelectionContainer, SelectionTypes } from "../../mixins/selection-container/SelectionContainer";
-import CollectionDataHolder from "../../mixins/data-holder/CollectionDataHolder";
-import DisplayableField from "../DisplayableField";
-import isPrimitive from "../../../utils/isPrimitive";
-import CustomElement from "../../../custom-element/CustomElement";
-import { changeEvent } from "../Field";
-import Focusable from "../../mixins/focusable/Focusable";
+import { SelectionTypes } from "../../mixins/selection-container/SelectionContainer";
 
 export default class ComboBox extends
-    CollectionDataHolder(
-        Focusable(
-            DisplayableField as unknown as CustomHTMLElementConstructor
+    SelectionContainerPassthrough(
+        RemoteLoadableHolderPassthrough(
+            CollectionDataHolder(
+                Focusable(
+                    DisplayableField as unknown as CustomHTMLElementConstructor
+                )
+            )
         )
     ) {
 
@@ -76,49 +82,12 @@ export default class ComboBox extends
                 attribute: 'multiple-selection-template',
                 type: DataTypes.Function,
                 defer: true // Store the function itself instead of executing it to get its return value when initializing the property
-            },
-
-            // Properties that pass through values to the selection container
-            selection: {
-                type: [                
-                    DataTypes.Object,
-                    DataTypes.Array
-                ],
-                setValue(selection: unknown) {
-
-                    const selectionContainer = (this as unknown as ComboBox).findSelectionContainer();
-
-                    if (selectionContainer) {
-
-                        selectionContainer.selection = selection as SelectionTypes;
-                    }
-                },
-                getValue() {
-
-                    const selectionContainer = (this as unknown as ComboBox).findSelectionContainer();
-
-                    if (!selectionContainer) {
-
-                        return [];
-                    }
-
-                    return selectionContainer.selection;
-                }
-            },
-
-            idField: {
-                attribute: 'id-field',
-                type: DataTypes.String
-            },
-
-            multiple: {
-                type: DataTypes.Boolean
             }
         };
     }
 
     constructor() {
- 
+
         super();
 
         this.renderItem = this.renderItem.bind(this);
@@ -170,57 +139,51 @@ export default class ComboBox extends
             itemTemplate(record) :
             record[displayField];
 
-        return html`<gcs-selector select-value=${record}>${display}</gcs-selector>`;
+        return html`
+<gcs-selector select-value=${record}>
+    ${display}
+</gcs-selector>`;
     }
 
-    onSelectionChanged(selection: GenericRecord, selectedChildren: CustomElement[]) {
-
-        this.oldSelection = this.selection;
-
-        this.selection = selection; // Do not unwrap the value of the selection since it will render only the value
+    onSelectionChanged(selection: GenericRecord, oldSelection: GenericRecord, selectedChildren: CustomElement[]) {
 
         this._tempValue = this.unwrapValue(selection); // handleInput needs the temp value to be set
 
         this.handleInput();
 
-        this.handleChange();
-
-        this.selectedChildren = selectedChildren;
-
-        this.selectionChanged?.(selection, selectedChildren);
-    }
-
-    // Override handle change
-    handleChange(): void {
-
         this.value = this._tempValue;
 
         this.dispatchCustomEvent(changeEvent, {
             name: this.name,
-            oldValue: this.oldSelection,
-            newValue: this.selection
+            oldValue: oldSelection,
+            newValue: selection
         });
+
+        this.selectionChanged?.(selection, oldSelection, selectedChildren);
     }
 
     renderContent(): NodePatchingData {
 
         const {
             data,
+            loadUrl,
             renderItem,
             multiple,
             idField,
             onSelectionChanged
         } = this;
 
-        if (data?.length > 0) { // There are records
+        if (loadUrl ||
+            data?.length > 0) { // There are records
 
             return html`
 <gcs-data-list 
     id="selection-container"
     slot="content" 
-    data=${data} 
+    data=${data}
+    load-url=${loadUrl}
     item-template=${renderItem} 
-    initialized=${dataList => this.content = dataList}
+    initialized=${dataList => this.selectionContainer = dataList}
     multiple=${multiple}
     id-field=${idField} 
     selection-changed=${onSelectionChanged}>
@@ -228,7 +191,7 @@ export default class ComboBox extends
         }
         else {
 
-            this.content = null;
+            this.selectionContainer = null;
 
             return html`
 <gcs-alert 
@@ -284,10 +247,13 @@ export default class ComboBox extends
             displayField
         } = this;
 
+        const {
+            deselectById
+        } = this.selectionContainer;
 
         if (multipleSelectionTemplate !== undefined) {
 
-            return multipleSelectionTemplate(selection, this.deselectById);
+            return multipleSelectionTemplate(selection, deselectById);
         }
         else {
 
@@ -303,7 +269,7 @@ export default class ComboBox extends
             const itemTemplate = (record: DynamicObject) => html`
 <gcs-pill kind="primary" variant="contained">
     ${record[displayField] as string}
-    <gcs-close-tool close=${() => this.deselectById(record[idField])}></gcs-close-tool>
+    <gcs-close-tool close=${() => deselectById(record[idField])}></gcs-close-tool>
 </gcs-pill>`;
 
             return html`
@@ -332,7 +298,7 @@ export default class ComboBox extends
 
         value = this.unwrapValue(value);
 
-        this.content.selectByValue(value);
+        this.selectionContainer.selectByValue(value);
     }
 
     /**
@@ -370,11 +336,6 @@ export default class ComboBox extends
         }
 
         return value;
-    }
-
-    findSelectionContainer() {
-
-        return this.findChild((n: { id: string; }) => n.id === 'selection-container') as ISelectionContainer;
     }
 }
 

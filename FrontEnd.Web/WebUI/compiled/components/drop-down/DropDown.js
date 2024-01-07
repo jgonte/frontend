@@ -3,7 +3,8 @@ import defineCustomElement from "../../custom-element/defineCustomElement";
 import popupManager from "../../custom-element/managers/popupManager";
 import getClasses from "../../custom-element/styles/getClasses";
 import html from "../../rendering/html";
-import { expanderChanged } from "../tools/expander/ExpanderTool";
+import { expanderChangedEvent } from "../tools/expander/ExpanderTool";
+import { selectionChangedEvent } from "../mixins/selectable/Selectable";
 import { dropDownStyles } from "./DropDown.styles";
 export default class DropDown extends CustomElement {
     static get styles() {
@@ -16,9 +17,15 @@ export default class DropDown extends CustomElement {
             }
         };
     }
-    constructor() {
-        super();
-        this.handleDropChanged = this.handleDropChanged.bind(this);
+    connectedCallback() {
+        super.connectedCallback?.();
+        this.addEventListener(expanderChangedEvent, this.handleExpanderChanged);
+        this.addEventListener(selectionChangedEvent, this.handleSelectionChanged);
+    }
+    disconnectedCallback() {
+        super.disconnectedCallback?.();
+        this.removeEventListener(expanderChangedEvent, this.handleExpanderChanged);
+        this.removeEventListener(selectionChangedEvent, this.handleSelectionChanged);
     }
     render() {
         const { showing } = this;
@@ -26,30 +33,28 @@ export default class DropDown extends CustomElement {
             'dropdown-content': true,
             'show': showing
         });
-        return html `<slot id="header" name="header"></slot>
-            <gcs-expander-tool id="expander-tool"></gcs-expander-tool>
-            <slot id="content" class=${contentClasses} name="content"></slot>`;
+        return html `
+<slot id="header" name="header"></slot>
+<gcs-expander-tool id="expander-tool"></gcs-expander-tool>
+<slot id="content" class=${contentClasses} name="content"></slot>`;
     }
-    connectedCallback() {
-        super.connectedCallback?.();
-        this.addEventListener(expanderChanged, this.handleDropChanged);
-    }
-    disconnectedCallback() {
-        super.disconnectedCallback?.();
-        this.removeEventListener(expanderChanged, this.handleDropChanged);
-    }
-    handleDropChanged(evt) {
+    handleExpanderChanged(evt) {
         evt.stopPropagation();
         const { showing } = evt.detail;
         if (showing === true) {
-            popupManager.setShown(this);
+            popupManager.add(this);
         }
         this.showing = showing;
+    }
+    handleSelectionChanged(evt) {
+        evt.stopPropagation();
+        this.hideContent();
+        this.showing = false;
     }
     hideContent() {
         const expanderTool = this.document.getElementById('expander-tool');
         expanderTool.hideContent();
-        popupManager.setHidden(this);
+        popupManager.remove(this);
     }
 }
 defineCustomElement('gcs-drop-down', DropDown);

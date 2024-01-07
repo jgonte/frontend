@@ -63,10 +63,11 @@ export default function MetadataInitializer(Base) {
             Object.defineProperty(this.prototype, name, {
                 get() {
                     let { type } = propertyMetadata;
-                    const { defer, getValue } = propertyMetadata;
-                    const value = getValue ?
-                        getValue.call(this) :
-                        this._properties[name];
+                    const { defer, getValue, beforeGet } = propertyMetadata;
+                    if (getValue !== undefined) {
+                        return getValue.call(this);
+                    }
+                    const value = this._properties[name];
                     if (!Array.isArray(type)) {
                         type = [type];
                     }
@@ -74,6 +75,9 @@ export default function MetadataInitializer(Base) {
                         typeof value === 'function' &&
                         defer !== true) {
                         return value();
+                    }
+                    if (beforeGet) {
+                        return beforeGet.call(this, value);
                     }
                     return value;
                 },

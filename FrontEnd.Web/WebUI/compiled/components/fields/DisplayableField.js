@@ -24,9 +24,7 @@ export default class DisplayableField extends Disableable(Field) {
         this._initialValue = this.value;
     }
     handleInput(event) {
-        if (event !== undefined) {
-            super.handleInput(event);
-        }
+        super.handleInput?.(event);
         this.dispatchCustomEvent(inputEvent, {
             field: this,
             modified: !areEquivalent(this._initialValue, this._tempValue)

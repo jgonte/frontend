@@ -1,6 +1,5 @@
 declare const popupManager: {
-    setShown(element: HTMLElement): void;
-    setHidden(element: HTMLElement): void;
-    handleGlobal(target: HTMLElement): void;
+    add(element: HTMLElement): void;
+    remove(element: HTMLElement): void;
 };
 export default popupManager;

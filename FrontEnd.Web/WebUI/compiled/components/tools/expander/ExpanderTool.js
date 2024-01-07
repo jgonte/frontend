@@ -1,6 +1,6 @@
-import defineCustomElement from "../../../custom-element/defineCustomElement";
 import Tool from "../Tool";
-export const expanderChanged = 'expanderChanged';
+import defineCustomElement from "../../../custom-element/defineCustomElement";
+export const expanderChangedEvent = 'expanderChangedEvent';
 export default class ExpanderTool extends Tool {
     constructor() {
         super();
@@ -27,13 +27,14 @@ export default class ExpanderTool extends Tool {
     }
     updateShowing(showing) {
         this.showing = showing;
-        this.dispatchCustomEvent(expanderChanged, {
+        this.dispatchCustomEvent(expanderChangedEvent, {
             showing,
             element: this
         });
     }
-    handleClick() {
+    handleClick(evt) {
         let { showing } = this;
+        evt.stopPropagation();
         showing = !showing;
         this.updateShowing(showing);
     }
