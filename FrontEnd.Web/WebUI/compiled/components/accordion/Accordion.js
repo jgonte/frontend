@@ -40,7 +40,8 @@ export default class Accordion extends CustomElement {
     <slot name="content"></slot>
 </div>`;
     }
-    toggleContentVisibility() {
+    toggleContentVisibility(evt) {
+        evt.stopPropagation();
         this.collapsed = !this.collapsed;
     }
     renderExpanderIcon() {

@@ -6,5 +6,5 @@ export default class SorterTool extends Tool {
     static get properties(): Record<string, CustomElementPropertyMetadata>;
     static get state(): Record<string, CustomElementStateMetadata>;
     iconName: () => "arrow-down-up" | "arrow-up" | "arrow-down";
-    handleClick(): void;
+    handleClick(evt: Event): void;
 }

@@ -58,13 +58,18 @@ export default class DataGrid extends
 </gcs-data-header>`;
     }
 
-    renderBody(): NodePatchingData[] {
+    renderBody(): NodePatchingData[] | NodePatchingData {
 
         const {
             columns,
             data,
             idField
         } = this;
+
+        if (data.length === 0) {
+
+            return this.renderEmptyData('body');
+        }
 
         return data.map((record: GenericRecord) =>
             html`
@@ -81,7 +86,7 @@ export default class DataGrid extends
 
         if (this.loadUrl) {
 
-            this.loadRemote();
+            this.loadRemote('body');
         }
         else {
 

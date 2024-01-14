@@ -7,7 +7,7 @@ export default class DataGrid extends DataGrid_base {
     static get properties(): Record<string, CustomElementPropertyMetadata>;
     render(): NodePatchingData;
     renderHeader(): NodePatchingData;
-    renderBody(): NodePatchingData[];
+    renderBody(): NodePatchingData[] | NodePatchingData;
     load(): void;
 }
 export {};

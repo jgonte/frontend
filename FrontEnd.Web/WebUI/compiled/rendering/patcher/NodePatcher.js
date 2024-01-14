@@ -104,7 +104,15 @@ export default class NodePatcher {
                 case NodePatcherRuleTypes.PATCH_CHILDREN:
                     {
                         if (Array.isArray(newValue)) {
-                            patchChildren(node, oldValue, newValue);
+                            if (Array.isArray(oldValue)) {
+                                patchChildren(node, oldValue, newValue);
+                            }
+                            else {
+                                if (!isUndefinedOrNull(oldValue)) {
+                                    removeLeftSibling(node);
+                                }
+                                newValue.forEach(pd => insertBefore(node, pd));
+                            }
                         }
                         else {
                             if (!isUndefinedOrNull(newValue)) {
@@ -117,7 +125,13 @@ export default class NodePatcher {
                                         updateNodes(node, oldValue, newValue);
                                     }
                                     else {
-                                        replaceChild(node, newValue, oldValue);
+                                        if (Array.isArray(oldValue)) {
+                                            removeLeftSiblings(node);
+                                            insertBefore(node, newValue);
+                                        }
+                                        else {
+                                            replaceChild(node, newValue, oldValue);
+                                        }
                                     }
                                 }
                             }

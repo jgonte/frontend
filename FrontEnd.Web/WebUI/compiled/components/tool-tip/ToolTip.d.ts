@@ -6,9 +6,7 @@ export default class ToolTip extends CustomElement {
     static get properties(): Record<string, CustomElementPropertyMetadata>;
     render(): NodePatchingData;
     connectedCallback(): void;
-    didMountCallback(): void;
-    didUpdateCallback(): void;
-    handleResize(): void;
+    disconnectedCallback(): void;
+    positionContent(): void;
     private _positionContent;
-    getFittingPosition(trigger: HTMLElement, content: HTMLElement, pos: string): string;
 }

@@ -5,6 +5,6 @@ declare const DataList_base: CustomHTMLElementConstructor;
 export default class DataList extends DataList_base {
     static get styles(): string;
     static get properties(): Record<string, CustomElementPropertyMetadata>;
-    render(): NodePatchingData[];
+    render(): NodePatchingData[] | NodePatchingData;
 }
 export {};

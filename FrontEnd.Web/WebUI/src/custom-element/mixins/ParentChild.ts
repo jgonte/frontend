@@ -1,4 +1,5 @@
 import isUndefinedOrNull from "../../utils/isUndefinedOrNull";
+import CustomElement from "../CustomElement";
 import isCustomElement from "../isCustomElement";
 import CustomHTMLElement from "./metadata/types/CustomHTMLElement";
 import CustomHTMLElementConstructor from "./metadata/types/CustomHTMLElementConstructor";
@@ -25,7 +26,7 @@ export default function ParentChild<TBase extends CustomHTMLElementConstructor>(
 
             super.connectedCallback?.();
 
-            this.adoptingParent = await this.findAdoptingParent() as ParentNode;
+            this.adoptingParent = await this._findAdoptingParent() as ParentNode;
 
             const {
                 adoptingParent
@@ -64,9 +65,9 @@ export default function ParentChild<TBase extends CustomHTMLElementConstructor>(
             await super.didMountCallback?.(); // Needs to wait for parent method to finish
 
             // Add the slotted children
-            const slot = (this.document as HTMLElement).querySelector('slot');
+            const slots = (this.document as HTMLElement).querySelectorAll('slot');
 
-            if (slot === null) { // There is no slot to get the children from
+            if (slots.length === 0) { // There is no slot to get the children from, register with parent
 
                 const {
                     adoptingParent
@@ -82,37 +83,31 @@ export default function ParentChild<TBase extends CustomHTMLElementConstructor>(
                 return; // Nothing to do with the slot
             }
 
-            const children = slot.assignedNodes();
+            slots.forEach(slot => {
 
-            if (children.length > 0) { // The children have been already loaded
+                const children = slot.assignedNodes();
 
-                children.forEach((child) => {
+                if (children.length > 0) { // The children have been already loaded
 
-                    this.adoptedChildren.add(child);
+                    children.forEach((child) => {
 
-                    this.didAdoptChildCallback?.(this as CustomHTMLElement, child as HTMLElement);
-                });
-            }
-            else { // Listen for any change in the slot
+                        this.adoptedChildren.add(child);
 
-                slot.addEventListener('slotchange', (this as CustomHTMLElement).handleSlotChange);
-            }
+                        this.parentAdoptedChildCallback?.(child as HTMLElement);
+                    });
+                }
+                else { // Listen for any change in the slot
 
-            const {
-                adoptedChildren
-            } = this;
-
-            if (adoptedChildren.size > 0) {
-
-                this.didAdoptChildrenCallback?.(this, adoptedChildren);
-            }
+                    slot.addEventListener('slotchange', (this as CustomHTMLElement).handleSlotChange);
+                }
+            });
         }
 
         /**
          * Retrieves the parent that is a custom element up in the hierarchy
          * @returns 
          */
-        protected async findAdoptingParent(): Promise<Node | null> {
+        protected async _findAdoptingParent(): Promise<Node | null> {
 
             let parent = this.parentNode;
 
@@ -153,14 +148,31 @@ export default function ParentChild<TBase extends CustomHTMLElementConstructor>(
             alert('kuku');
         }
 
+        findAdoptingParent(predicate: (element: CustomElement) => boolean): Node | null {
+
+            let parent = this.adoptingParent as CustomElement;
+
+            while (!isUndefinedOrNull(parent)) {
+
+                if (predicate(parent) === true) {
+
+                    return parent;
+                }
+
+                parent = parent.adoptingParent;
+            }
+
+            return null;
+        }
+
         /**
          * Finds the first child (in order traversal) that satisfies the predicate
          * @param predicate Function to test whether the node satisfies the search condition
          * @returns The node that satisfies the predicate or null otherwise
          */
-        findChild(predicate: (element: Node) => true): Node | null {
+        findAdoptedChild(predicate: (element: CustomElement) => boolean): Node | null {
 
-            const children = Array.from(this.adoptedChildren);
+            const children = Array.from(this.adoptedChildren) as CustomElement[];
 
             for (let i = 0; i < children.length; ++i) {
 
@@ -171,7 +183,7 @@ export default function ParentChild<TBase extends CustomHTMLElementConstructor>(
                     return child;
                 }
 
-                const grandChild = (child as ParentChildMixin)?.findChild?.(predicate);
+                const grandChild = (child as ParentChildMixin)?.findAdoptedChild?.(predicate);
 
                 if (grandChild) {
 
@@ -180,6 +192,11 @@ export default function ParentChild<TBase extends CustomHTMLElementConstructor>(
             }
 
             return null;
+        }
+
+        findAdoptedChildById(id: string): Node | null {
+
+            return this.findAdoptedChild(n => (n as unknown as { id: string; }).id === id);
         }
     }
 }

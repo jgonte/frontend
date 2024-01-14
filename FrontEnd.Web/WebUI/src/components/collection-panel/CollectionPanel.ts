@@ -296,7 +296,8 @@ export default class CollectionPanel extends CustomElement {
                 this.showOverlay('add-overlay', false);
 
                 this.resetForm('create-form');
-            }}>
+            }}
+        >
         ${this.renderFormBody()}
         </gcs-form>
         
@@ -307,14 +308,14 @@ export default class CollectionPanel extends CustomElement {
 
     showOverlay(id: string, show: boolean) {
 
-        const overlay = this.findChild((n: { id: string; }) => n.id === id) as Overlay;
+        const overlay = this.findAdoptedChildById(id) as Overlay;
 
         overlay.showing = show;
     }
 
     resetForm(id: string) {
 
-        const form = this.findChild((n: { id: string; }) => n.id === id) as Form;
+        const form = this.findAdoptedChildById(id) as Form;
 
         form.reset();      
     }
@@ -369,6 +370,10 @@ export default class CollectionPanel extends CustomElement {
             load-url=${this.loadRecordUrl}
             auto-load="false"
             submit-url=${this.updateUrl}
+            submit-success=${() => {
+
+                this.showOverlay('update-overlay', false);
+            }}
         >
         ${this.renderFormBody()}
         </gcs-form>
@@ -390,7 +395,7 @@ export default class CollectionPanel extends CustomElement {
 
     showEditForm(record: GenericRecord) {
 
-        const form = this.findChild((n: { id: string; }) => n.id === 'update-form');
+        const form = this.findAdoptedChildById('update-form');
 
         const {
             idField
@@ -408,7 +413,7 @@ export default class CollectionPanel extends CustomElement {
 
     showConfirmDelete(record: GenericRecord) {
 
-        const overlay = this.findChild((n: { id: string; }) => n.id === 'delete-overlay') as Overlay;
+        const overlay = this.findAdoptedChildById('delete-overlay') as Overlay;
 
         const {
             deleteRecord
@@ -457,7 +462,7 @@ export default class CollectionPanel extends CustomElement {
 
         this.showOverlay('delete-overlay', false);
 
-        const grid = this.findChild((n: { id: string; }) => n.id === 'data-grid') as DataGrid;
+        const grid = this.findAdoptedChildById('data-grid') as DataGrid;
 
         grid.load();
 

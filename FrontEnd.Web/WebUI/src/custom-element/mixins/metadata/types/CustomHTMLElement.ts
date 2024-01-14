@@ -59,7 +59,7 @@ export default interface CustomHTMLElement extends HTMLElement {
 
     didAdoptChildCallback(parent: CustomHTMLElement, child: HTMLElement): void;
 
-    didAdoptChildrenCallback(parent: CustomHTMLElement, children: Set<Node>): void;
+    parentAdoptedChildCallback(child: HTMLElement): void;
 
     willAbandonChildCallback(parent: CustomHTMLElement, child: HTMLElement): void;
 

@@ -122,7 +122,7 @@ export default function Submittable<TBase extends CustomHTMLElementConstructor>(
 
         getContentType(): string {
 
-            const fileField = this.findChild((c: { nodeName: string; }) => c.nodeName === "GCS-FILE-FIELD");
+            const fileField = this.findAdoptedChild((c: { nodeName: string; }) => c.nodeName === "GCS-FILE-FIELD");
 
             if (fileField) {
 

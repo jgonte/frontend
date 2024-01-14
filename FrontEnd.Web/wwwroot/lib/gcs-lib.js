@@ -13,13 +13,13 @@ function ParentChild(Base) {
         adoptedChildren = new Set();
         async connectedCallback() {
             super.connectedCallback?.();
-            this.adoptingParent = await this.findAdoptingParent();
+            this.adoptingParent = await this._findAdoptingParent();
             const { adoptingParent } = this;
             if (isUndefinedOrNull(adoptingParent)) {
                 return;
             }
             adoptingParent.adoptedChildren.add(this);
-            this.didAdoptChildCallback?.(adoptingParent, this);
+            this.childAdoptedParentCallback?.(adoptingParent, this);
         }
         disconnectedCallback() {
             super.disconnectedCallback?.();
@@ -32,31 +32,29 @@ function ParentChild(Base) {
         }
         async didMountCallback() {
             await super.didMountCallback?.();
-            const slot = this.document.querySelector('slot');
-            if (slot === null) {
+            const slots = this.document.querySelectorAll('slot');
+            if (slots.length === 0) {
                 const { adoptingParent } = this;
                 if (!isUndefinedOrNull(adoptingParent)) {
                     adoptingParent.adoptedChildren.add(this);
-                    this.didAdoptChildCallback?.(adoptingParent, this);
+                    this.childAdoptedParentCallback?.(adoptingParent, this);
                 }
                 return;
             }
-            const children = slot.assignedNodes();
-            if (children.length > 0) {
-                children.forEach((child) => {
-                    this.adoptedChildren.add(child);
-                    this.didAdoptChildCallback?.(this, child);
-                });
-            }
-            else {
-                slot.addEventListener('slotchange', this.handleSlotChange);
-            }
-            const { adoptedChildren } = this;
-            if (adoptedChildren.size > 0) {
-                this.didAdoptChildrenCallback?.(this, adoptedChildren);
-            }
+            slots.forEach(slot => {
+                const children = slot.assignedNodes();
+                if (children.length > 0) {
+                    children.forEach((child) => {
+                        this.adoptedChildren.add(child);
+                        this.parentAdoptedChildCallback?.(child);
+                    });
+                }
+                else {
+                    slot.addEventListener('slotchange', this.handleSlotChange);
+                }
+            });
         }
-        async findAdoptingParent() {
+        async _findAdoptingParent() {
             let parent = this.parentNode;
             while (parent !== null) {
                 if (parent instanceof DocumentFragment) {
@@ -80,19 +78,32 @@ function ParentChild(Base) {
             console.dir(e);
             alert('kuku');
         }
-        findChild(predicate) {
+        findAdoptingParent(predicate) {
+            let parent = this.adoptingParent;
+            while (!isUndefinedOrNull(parent)) {
+                if (predicate(parent) === true) {
+                    return parent;
+                }
+                parent = parent.adoptingParent;
+            }
+            return null;
+        }
+        findAdoptedChild(predicate) {
             const children = Array.from(this.adoptedChildren);
             for (let i = 0; i < children.length; ++i) {
                 const child = children[i];
                 if (predicate(child) === true) {
                     return child;
                 }
-                const grandChild = child?.findChild?.(predicate);
+                const grandChild = child?.findAdoptedChild?.(predicate);
                 if (grandChild) {
                     return grandChild;
                 }
             }
             return null;
+        }
+        findAdoptedChildById(id) {
+            return this.findAdoptedChild(n => n.id === id);
         }
     };
 }
@@ -426,7 +437,7 @@ function PropertiesHolder(Base) {
                 throw new Error(`The attributes: [${missingValueAttributes.join(', ')}] must have a value`);
             }
         }
-        didAdoptChildCallback(parent, child) {
+        childAdoptedParentCallback(parent, child) {
             const { metadata } = child.constructor;
             if (metadata === undefined) {
                 return;
@@ -708,6 +719,18 @@ function addPatcherComparer() {
     }
 }
 
+function transferData(oldPatchingData, newPatchingData) {
+    if (!isNodePatchingData(oldPatchingData)) {
+        return;
+    }
+    const { node, rules, values } = oldPatchingData;
+    if (node === undefined) {
+        throw new Error(`Node is required in node patching data: ${oldPatchingData.patcher.templateString}`);
+    }
+    newPatchingData.node = node;
+    newPatchingData.rules = rules;
+    newPatchingData.values = values;
+}
 function transferPatchingData(oldPatchingData, newPatchingData) {
     if (Array.isArray(newPatchingData)) {
         for (let i = 0; i < newPatchingData.length; ++i) {
@@ -716,18 +739,6 @@ function transferPatchingData(oldPatchingData, newPatchingData) {
     }
     else if (isNodePatchingData(newPatchingData)) {
         transferData(oldPatchingData, newPatchingData);
-    }
-    function transferData(oldPatchingData, newPatchingData) {
-        if (!isNodePatchingData(oldPatchingData)) {
-            return;
-        }
-        const { node, rules, values } = oldPatchingData;
-        if (node === undefined) {
-            throw new Error(`Node is required in node patching data: ${oldPatchingData.patcher.templateString}`);
-        }
-        newPatchingData.node = node;
-        newPatchingData.rules = rules;
-        newPatchingData.values = values;
     }
 }
 
@@ -1499,7 +1510,15 @@ class NodePatcher {
                 case NodePatcherRuleTypes.PATCH_CHILDREN:
                     {
                         if (Array.isArray(newValue)) {
-                            patchChildren(node, oldValue, newValue);
+                            if (Array.isArray(oldValue)) {
+                                patchChildren(node, oldValue, newValue);
+                            }
+                            else {
+                                if (!isUndefinedOrNull(oldValue)) {
+                                    removeLeftSibling(node);
+                                }
+                                newValue.forEach(pd => insertBefore(node, pd));
+                            }
                         }
                         else {
                             if (!isUndefinedOrNull(newValue)) {
@@ -1512,7 +1531,13 @@ class NodePatcher {
                                         updateNodes(node, oldValue, newValue);
                                     }
                                     else {
-                                        replaceChild(node, newValue, oldValue);
+                                        if (Array.isArray(oldValue)) {
+                                            removeLeftSiblings(node);
+                                            insertBefore(node, newValue);
+                                        }
+                                        else {
+                                            replaceChild(node, newValue, oldValue);
+                                        }
                                     }
                                 }
                             }
@@ -2559,7 +2584,8 @@ class Accordion extends CustomElement {
     <slot name="content"></slot>
 </div>`;
     }
-    toggleContentVisibility() {
+    toggleContentVisibility(evt) {
+        evt.stopPropagation();
         this.collapsed = !this.collapsed;
     }
     renderExpanderIcon() {
@@ -2686,88 +2712,85 @@ function applyClasses(element, props) {
 }
 
 const toolTipStyles = css `
-.container {
+:host {
     position: relative;
     display: inline-block;
 }
   
-.container #content {
+#content {
+    position: absolute; 
     visibility: hidden;
-    background-color: #555;
-    color: #fff;
-    padding: 5px 0;
-    border-radius: 6px;
-  
-    /* position the content */
-    position: absolute;
-    z-index: 1;  
-  
-    /* fade in container */
+    background-color: var(--gcs-tooltip-background-color);
+    color: var(--gcs-tooltip-color);
+    padding: var(--gcs-padding);
+    border-radius: var(--gcs-border-radius);
     opacity: 0;
     transition: opacity 0.3s;
 }
 
 /* position */
-.container #content.top {
+.top {
+    left: 50%;
     bottom: 100%;
-    left: 50%;
-    margin-left: -60px; /* Use half of the width (120/2 = 60), to center the tooltip */
+    transform: translateX(-50%);
 }
 
-.container #content.bottom {
+.bottom {
+    left: 50%;
     top: 100%;
-    left: 50%;
-    margin-left: -60px; /* Use half of the width (120/2 = 60), to center the tooltip */
+    transform: translateX(-50%);
 }
 
-.container #content.left {
-    top: -5px;
-    right: 105%;
+.left {
+    right: 100%;
+    top: 50%;
+    transform: translateY(-50%);
 }
 
-.container #content.right {
-    top: -5px;
-    left: 105%;
+.right {
+    left: 100%;
+    top: 50%;
+    transform: translateY(-50%);
 }
 
 /* arrow */
-.container #content::after {
+#content::after {
     content: "";
     position: absolute;
     border-width: 5px;
     border-style: solid;
 }
 
-.container #content.top::after {
+#content.top::after {
     top: 100%; /* At the bottom of the tooltip */  
     left: 50%;
     margin-left: -5px;
-    border-color: black transparent transparent transparent;
+    border-color: var(--gcs-tooltip-background-color) transparent transparent transparent;
 }
 
-.container #content.bottom::after {
+#content.bottom::after {
     bottom: 100%;  /* At the top of the tooltip */
     left: 50%;
     margin-left: -5px; 
-    border-color: transparent transparent black transparent;
+    border-color: transparent transparent var(--gcs-tooltip-background-color) transparent;
 }
 
-.container #content.left::after {
+#content.left::after {
     top: 50%;
     left: 100%; /* To the right of the tooltip */
     margin-top: -5px;
-    border-color: transparent transparent transparent black;
+    border-color: transparent transparent transparent var(--gcs-tooltip-background-color);
 }
 
-.container #content.right::after {
+#content.right::after {
     top: 50%;
     right: 100%; /* To the left of the tooltip */   
     margin-top: -5px;
-    border-color: transparent black transparent transparent;
+    border-color: transparent var(--gcs-tooltip-background-color) transparent transparent;
 }
   
 /* Show the container text when you mouse over the container container */
-.container:hover #content {
+:host(:hover) #content {
     visibility: visible;
     opacity: 1;
 }`;
@@ -2786,66 +2809,76 @@ class ToolTip extends CustomElement {
         };
     }
     render() {
-        return html `<div class="container">
-            <span id="trigger">
-                <slot name="trigger"></slot>
-            </span>       
-            <span id="content">
-                <slot name="content"></slot>
-            </span>
-        </div>`;
+        return html `
+<span id="trigger">
+    <slot name="trigger"></slot>
+</span>       
+<span id="content">
+    <slot name="content"></slot>
+</span>`;
     }
     connectedCallback() {
         super.connectedCallback?.();
-        window.addEventListener('resize', () => this.handleResize());
+        this.addEventListener('mouseenter', this.positionContent);
     }
-    didMountCallback() {
-        this._positionContent();
+    disconnectedCallback() {
+        super.disconnectedCallback?.();
+        this.removeEventListener('mouseenter', this.positionContent);
     }
-    didUpdateCallback() {
-        this._positionContent();
-    }
-    handleResize() {
-        this._positionContent();
+    positionContent() {
+        setTimeout(() => this._positionContent(), 100);
     }
     _positionContent() {
-        const trigger = this.document.getElementById("trigger");
+        const { position } = this;
         const content = this.document.getElementById("content");
-        const p = this.getFittingPosition(trigger, content, this.position);
+        let p = position;
+        const contentView = this.findAdoptingParent((p) => p.nodeName === "GCS-CONTENT-VIEW");
+        const parentViewRect = contentView !== null ?
+            contentView.getBoundingClientRect() :
+            {
+                left: window.screenLeft,
+                right: window.innerWidth,
+                top: window.screenTop,
+                bottom: window.innerHeight
+            };
+        const rect = content.getBoundingClientRect();
+        switch (position) {
+            case 'top':
+                {
+                    if (rect.top < parentViewRect.top) {
+                        p = 'bottom';
+                    }
+                }
+                break;
+            case 'bottom':
+                {
+                    if (rect.bottom > parentViewRect.bottom) {
+                        p = 'top';
+                    }
+                }
+                break;
+            case 'left':
+                {
+                    if (rect.left < parentViewRect.left) {
+                        p = 'right';
+                    }
+                }
+                break;
+            case 'right':
+                {
+                    if (rect.right > parentViewRect.right) {
+                        p = 'left';
+                    }
+                }
+                break;
+            default: throw new Error(`Unknown position: ${position}`);
+        }
         applyClasses(content, {
             'top': p === 'top',
             'bottom': p === 'bottom',
             'left': p === 'left',
             'right': p === 'right',
         });
-    }
-    getFittingPosition(trigger, content, pos) {
-        const { clientWidth, clientHeight } = document.documentElement;
-        const { x: triggerX, y: triggerY, height: triggerHeight, width: triggerWidth } = trigger.getBoundingClientRect();
-        const { height: contentHeight, width: contentWidth } = content.getBoundingClientRect();
-        switch (pos) {
-            case 'top':
-                {
-                    pos = triggerY < triggerHeight ? 'bottom' : 'top';
-                }
-                break;
-            case 'bottom':
-                {
-                    pos = triggerY + triggerHeight + contentHeight > clientHeight ? 'top' : 'bottom';
-                }
-                break;
-            case 'left':
-                {
-                    pos = triggerX < triggerWidth ? 'right' : 'left';
-                }
-                break;
-            case 'right':
-                {
-                    pos = triggerX + triggerWidth + contentWidth > clientWidth ? 'left' : 'right';
-                }
-                break;
-        }
-        return pos;
     }
 }
 defineCustomElement('gcs-tool-tip', ToolTip);
@@ -3513,7 +3546,7 @@ function Submittable(Base) {
             });
         }
         getContentType() {
-            const fileField = this.findChild((c) => c.nodeName === "GCS-FILE-FIELD");
+            const fileField = this.findAdoptedChild((c) => c.nodeName === "GCS-FILE-FIELD");
             if (fileField) {
                 return ContentMultipartFormData;
             }
@@ -3871,8 +3904,8 @@ class Field extends Validatable(CustomElement) {
     hasRequiredValidator() {
         return this.validators.filter((v) => v instanceof RequiredValidator).length > 0;
     }
-    didAdoptChildCallback(parent, child) {
-        super.didAdoptChildCallback?.(parent, child);
+    childAdoptedParentCallback(parent, child) {
+        super.childAdoptedParentCallback?.(parent, child);
         if (child !== this) {
             return;
         }
@@ -4828,7 +4861,8 @@ class SorterTool extends Tool {
             'arrow-up' :
             'arrow-down';
     };
-    handleClick() {
+    handleClick(evt) {
+        evt.stopPropagation();
         this.ascending = !this.ascending;
         this.dispatchCustomEvent(sorterChanged, {
             column: this.column,
@@ -5028,6 +5062,15 @@ function CollectionDataHolder(Base) {
         disconnectedCallback() {
             super.disconnectedCallback?.();
             this.removeEventListener(sorterChanged, this.sort);
+        }
+        renderEmptyData(slot = null) {
+            return html `
+<gcs-alert 
+    kind="warning"
+    slot=${slot}
+>
+    <gcs-localized-text>No Records Found</gcs-localized-text>
+</gcs-alert>`;
         }
         sort(event) {
             const { column, ascending, element } = event.detail;
@@ -5927,10 +5970,11 @@ class DataList extends SelectionContainer(RemoteLoadableHolder(CollectionDataHol
         };
     }
     render() {
-        const { idField } = this;
-        return this.data.map((record) => {
-            return this.itemTemplate(record, record[idField]);
-        });
+        const { idField, data } = this;
+        if (data.length === 0) {
+            return this.renderEmptyData();
+        }
+        return data.map((record) => this.itemTemplate(record, record[idField]));
     }
 }
 defineCustomElement('gcs-data-list', DataList);
@@ -6189,6 +6233,9 @@ class DataGrid extends RemoteLoadableHolder(CollectionDataHolder(CustomElement))
     }
     renderBody() {
         const { columns, data, idField } = this;
+        if (data.length === 0) {
+            return this.renderEmptyData('body');
+        }
         return data.map((record) => html `
 <gcs-data-row 
     slot="body"
@@ -6199,7 +6246,7 @@ class DataGrid extends RemoteLoadableHolder(CollectionDataHolder(CustomElement))
     }
     load() {
         if (this.loadUrl) {
-            this.loadRemote();
+            this.loadRemote('body');
         }
         else {
             throw new Error('load local is not implemented');
@@ -6388,7 +6435,8 @@ class CollectionPanel extends CustomElement {
             submit-success=${() => {
             this.showOverlay('add-overlay', false);
             this.resetForm('create-form');
-        }}>
+        }}
+        >
         ${this.renderFormBody()}
         </gcs-form>
         
@@ -6397,11 +6445,11 @@ class CollectionPanel extends CustomElement {
 </gcs-overlay>`;
     }
     showOverlay(id, show) {
-        const overlay = this.findChild((n) => n.id === id);
+        const overlay = this.findAdoptedChildById(id);
         overlay.showing = show;
     }
     resetForm(id) {
-        const form = this.findChild((n) => n.id === id);
+        const form = this.findAdoptedChildById(id);
         form.reset();
     }
     renderFormBody() {
@@ -6444,6 +6492,9 @@ class CollectionPanel extends CustomElement {
             load-url=${this.loadRecordUrl}
             auto-load="false"
             submit-url=${this.updateUrl}
+            submit-success=${() => {
+            this.showOverlay('update-overlay', false);
+        }}
         >
         ${this.renderFormBody()}
         </gcs-form>
@@ -6461,7 +6512,7 @@ class CollectionPanel extends CustomElement {
 </gcs-overlay>`;
     }
     showEditForm(record) {
-        const form = this.findChild((n) => n.id === 'update-form');
+        const form = this.findAdoptedChildById('update-form');
         const { idField } = this;
         const params = {
             [idField]: record[idField]
@@ -6470,7 +6521,7 @@ class CollectionPanel extends CustomElement {
         this.showOverlay('update-overlay', true);
     }
     showConfirmDelete(record) {
-        const overlay = this.findChild((n) => n.id === 'delete-overlay');
+        const overlay = this.findAdoptedChildById('delete-overlay');
         const { deleteRecord } = this;
         overlay.content = () => html `
 <gcs-alert
@@ -6504,7 +6555,7 @@ class CollectionPanel extends CustomElement {
     }
     handleSuccessfulDelete() {
         this.showOverlay('delete-overlay', false);
-        const grid = this.findChild((n) => n.id === 'data-grid');
+        const grid = this.findAdoptedChildById('data-grid');
         grid.load();
         notifySuccess(this, 'Record was successfully deleted.');
     }
@@ -6765,7 +6816,6 @@ const applicationViewStyles = css `
   	width: 100%;
   	overflow: hidden;
   	//pointer-events: none; /* The user can click through it */
-  	z-index: 1000; /* Above all other elements */
   	transition: background-color 300ms ease-in; /* Background color animation used for the backdrop */
   	/* Holy grail layout */
   	display: grid;

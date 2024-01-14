@@ -29,6 +29,11 @@
             ];
         }
 
+        function getEmptyData() {
+
+            return [];
+        }
+
         function getColumnKeys() {
 
             return ["name", "age", "description", "dob"];
@@ -125,21 +130,36 @@
 
     <gcs-data-grid id="dg2" id-field="name" columns="getColumnKeys()" data="getData()"></gcs-data-grid> -->
 
-    <h4>Data grid with field descriptors</h4>
-    <gcs-data-grid
-        id-field="name" 
-        columns="getColumns()" 
-        data="getData()"
+    <!--<h4>Data grid with no records</h4>
+    <gcs-data-grid 
+        id-field="name"
+        columns="getColumns()"
+        data="getEmptyData()"
     >
     </gcs-data-grid>
 
+    <h4>Data grid with field descriptors</h4>
+    <gcs-data-grid id-field="name"
+                   columns="getColumns()"
+                   data="getData()">
+    </gcs-data-grid>-->
+
     <h4>Data grid with remote loading</h4>
     <gcs-data-grid 
+        id="grid-to-clear"
         load-url="https://localhost:7000/api/contacts/"
         id-field="id"
         columns="getRemoteColumns()"
     >
     </gcs-data-grid>
+
+    <script>
+
+        const gridToClear = document.getElementById("grid-to-clear");
+
+        setTimeout(() => gridToClear.data = [], 5000);
+
+    </script>
 
 </body>
 

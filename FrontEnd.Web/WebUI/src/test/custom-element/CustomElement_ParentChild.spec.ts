@@ -670,9 +670,9 @@ describe("CustomElement parent children relationship tests", () => {
 
         const callTester = {
 
-            didAdoptChildrenCallback(parent: HTMLElement, children: Set<Node>) {
+            parentAdoptedChildCallback(child: HTMLElement) {
 
-                console.log(`${parent.constructor.name} -> ${children.size}`);
+                console.log(child.constructor.name);
             }
         };
 
@@ -697,13 +697,13 @@ describe("CustomElement parent children relationship tests", () => {
                 </div>`;
             }
 
-            didAdoptChildrenCallback(parent: HTMLElement, children: Set<Node>) {
+            parentAdoptedChildCallback(child: HTMLElement) {
 
-                callTester.didAdoptChildrenCallback(parent, children);
+                callTester.parentAdoptedChildCallback(child);
             }
         }
 
-        const spyDidAdoptChildrenCallback = jest.spyOn(callTester, 'didAdoptChildrenCallback');
+        const spyDidAdoptChildrenCallback = jest.spyOn(callTester, 'parentAdoptedChildCallback');
 
         defineCustomElement('test-parent', Parent);
 
@@ -749,7 +749,8 @@ describe("CustomElement parent children relationship tests", () => {
 
         expect(parent.shadowRoot?.innerHTML).toEqual("<div>\n                    <span>Hello, my name is <!--_$bm_-->Jorge<!--_$em_--></span>\n                    <slot></slot>\n                </div>");
 
-        expect(spyDidAdoptChildrenCallback).toBeCalledTimes(1);
+        expect(spyDidAdoptChildrenCallback).toBeCalledTimes(2);
+
     });
 
     it('should allow adding, replacing and removing children as slotted elements', async () => {

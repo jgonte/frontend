@@ -104,8 +104,8 @@ export default class Field extends Validatable(CustomElement) {
     hasRequiredValidator() {
         return this.validators.filter((v) => v instanceof RequiredValidator).length > 0;
     }
-    didAdoptChildCallback(parent, child) {
-        super.didAdoptChildCallback?.(parent, child);
+    childAdoptedParentCallback(parent, child) {
+        super.childAdoptedParentCallback?.(parent, child);
         if (child !== this) {
             return;
         }

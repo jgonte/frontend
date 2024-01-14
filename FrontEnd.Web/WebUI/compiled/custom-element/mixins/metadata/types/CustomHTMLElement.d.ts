@@ -19,8 +19,8 @@ export default interface CustomHTMLElement extends HTMLElement {
     get updateComplete(): Promise<void>;
     stylesAdded: boolean;
     adoptedChildren: Set<Node>;
-    didAdoptChildCallback(parent: CustomHTMLElement, child: HTMLElement): void;
-    didAdoptChildrenCallback(parent: CustomHTMLElement, children: Set<Node>): void;
+    childAdoptedParentCallback(parent: CustomHTMLElement, child: HTMLElement): void;
+    parentAdoptedChildCallback(child: HTMLElement): void;
     willAbandonChildCallback(parent: CustomHTMLElement, child: HTMLElement): void;
     handleSlotChange: EventListenerOrEventListenerObject;
     enableEvents(): void;

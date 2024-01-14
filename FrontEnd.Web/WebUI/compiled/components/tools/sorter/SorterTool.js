@@ -27,7 +27,8 @@ export default class SorterTool extends Tool {
             'arrow-up' :
             'arrow-down';
     };
-    handleClick() {
+    handleClick(evt) {
+        evt.stopPropagation();
         this.ascending = !this.ascending;
         this.dispatchCustomEvent(sorterChanged, {
             column: this.column,

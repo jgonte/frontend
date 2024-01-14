@@ -8,7 +8,6 @@ export const applicationViewStyles = css `
   	width: 100%;
   	overflow: hidden;
   	//pointer-events: none; /* The user can click through it */
-  	z-index: 1000; /* Above all other elements */
   	transition: background-color 300ms ease-in; /* Background color animation used for the backdrop */
   	/* Holy grail layout */
   	display: grid;

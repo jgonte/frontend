@@ -12,6 +12,6 @@ export default function mountNodes(container: Node, patchingData: NodePatchingDa
     }
     else {
 
-        container.appendChild( createNodes(patchingData));
+        container.appendChild(createNodes(patchingData));
     }
 }

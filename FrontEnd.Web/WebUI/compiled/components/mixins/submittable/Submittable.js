@@ -76,7 +76,7 @@ export default function Submittable(Base) {
             });
         }
         getContentType() {
-            const fileField = this.findChild((c) => c.nodeName === "GCS-FILE-FIELD");
+            const fileField = this.findAdoptedChild((c) => c.nodeName === "GCS-FILE-FIELD");
             if (fileField) {
                 return ContentMultipartFormData;
             }

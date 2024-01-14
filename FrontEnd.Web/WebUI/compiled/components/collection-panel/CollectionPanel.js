@@ -194,7 +194,8 @@ export default class CollectionPanel extends CustomElement {
             submit-success=${() => {
             this.showOverlay('add-overlay', false);
             this.resetForm('create-form');
-        }}>
+        }}
+        >
         ${this.renderFormBody()}
         </gcs-form>
         
@@ -203,11 +204,11 @@ export default class CollectionPanel extends CustomElement {
 </gcs-overlay>`;
     }
     showOverlay(id, show) {
-        const overlay = this.findChild((n) => n.id === id);
+        const overlay = this.findAdoptedChildById(id);
         overlay.showing = show;
     }
     resetForm(id) {
-        const form = this.findChild((n) => n.id === id);
+        const form = this.findAdoptedChildById(id);
         form.reset();
     }
     renderFormBody() {
@@ -250,6 +251,9 @@ export default class CollectionPanel extends CustomElement {
             load-url=${this.loadRecordUrl}
             auto-load="false"
             submit-url=${this.updateUrl}
+            submit-success=${() => {
+            this.showOverlay('update-overlay', false);
+        }}
         >
         ${this.renderFormBody()}
         </gcs-form>
@@ -267,7 +271,7 @@ export default class CollectionPanel extends CustomElement {
 </gcs-overlay>`;
     }
     showEditForm(record) {
-        const form = this.findChild((n) => n.id === 'update-form');
+        const form = this.findAdoptedChildById('update-form');
         const { idField } = this;
         const params = {
             [idField]: record[idField]
@@ -276,7 +280,7 @@ export default class CollectionPanel extends CustomElement {
         this.showOverlay('update-overlay', true);
     }
     showConfirmDelete(record) {
-        const overlay = this.findChild((n) => n.id === 'delete-overlay');
+        const overlay = this.findAdoptedChildById('delete-overlay');
         const { deleteRecord } = this;
         overlay.content = () => html `
 <gcs-alert
@@ -310,7 +314,7 @@ export default class CollectionPanel extends CustomElement {
     }
     handleSuccessfulDelete() {
         this.showOverlay('delete-overlay', false);
-        const grid = this.findChild((n) => n.id === 'data-grid');
+        const grid = this.findAdoptedChildById('data-grid');
         grid.load();
         notifySuccess(this, 'Record was successfully deleted.');
     }
