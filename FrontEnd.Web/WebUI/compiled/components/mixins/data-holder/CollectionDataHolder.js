@@ -1,3 +1,4 @@
+import html from "../../../rendering/html";
 import compareValues from "../../../rendering/utils/compareValues";
 import { DataTypes } from "../../../utils/data/DataTypes";
 import { sorterChanged } from "../../tools/sorter/SorterTool";
@@ -22,6 +23,15 @@ export default function CollectionDataHolder(Base) {
         disconnectedCallback() {
             super.disconnectedCallback?.();
             this.removeEventListener(sorterChanged, this.sort);
+        }
+        renderEmptyData(slot = null) {
+            return html `
+<gcs-alert 
+    kind="warning"
+    slot=${slot}
+>
+    <gcs-localized-text>No Records Found</gcs-localized-text>
+</gcs-alert>`;
         }
         sort(event) {
             const { column, ascending, element } = event.detail;

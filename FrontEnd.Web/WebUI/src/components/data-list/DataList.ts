@@ -44,16 +44,21 @@ export default class DataList extends
         };
     }
 
-    render(): NodePatchingData[] {
+    render(): NodePatchingData[] | NodePatchingData {
 
         const {
-            idField
+            idField,
+            data
         } = this;
 
-        return this.data.map((record: GenericRecord) => {
+        if (data.length === 0) {
 
-            return this.itemTemplate(record, record[idField]);
-        });
+            return this.renderEmptyData();
+        }
+
+        return data.map((record: GenericRecord) =>
+            this.itemTemplate(record, record[idField])
+        );
     }
 }
 

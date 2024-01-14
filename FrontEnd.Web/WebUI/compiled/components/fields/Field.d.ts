@@ -13,7 +13,7 @@ export default abstract class Field extends Field_base {
     static get properties(): Record<string, CustomElementPropertyMetadata>;
     attributeChangedCallback(attributeName: string, oldValue: string, newValue: string): void;
     hasRequiredValidator(): boolean;
-    didAdoptChildCallback(parent: CustomHTMLElement, child: HTMLElement): void;
+    childAdoptedParentCallback(parent: CustomHTMLElement, child: HTMLElement): void;
     handleBlur(): void;
     handleInput(event: Event): void;
     createValidationContext(): FieldValidationContext & {

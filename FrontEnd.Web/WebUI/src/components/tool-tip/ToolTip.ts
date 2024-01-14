@@ -19,7 +19,7 @@ export default class ToolTip extends CustomElement {
         return {
 
             /**
-             * The position of the tool tip
+             * The preferred position of the tool tip
              */
             position: {
                 type: DataTypes.String,
@@ -31,108 +31,101 @@ export default class ToolTip extends CustomElement {
 
     render(): NodePatchingData {
 
-        return html`<div class="container">
-            <span id="trigger">
-                <slot name="trigger"></slot>
-            </span>       
-            <span id="content">
-                <slot name="content"></slot>
-            </span>
-        </div>`;
+        return html`
+<span id="trigger">
+    <slot name="trigger"></slot>
+</span>       
+<span id="content">
+    <slot name="content"></slot>
+</span>`;
     }
 
     connectedCallback(): void {
-        
+
         super.connectedCallback?.();
 
-        // TODO: Create a global (singleton) resize manager and subscribe to it
-        // Also re-position when scroll has occurred
-        window.addEventListener('resize', () => this.handleResize());
+        this.addEventListener('mouseenter', this.positionContent);
     }
 
-    didMountCallback() {
+    disconnectedCallback() {
 
-        this._positionContent();
+        super.disconnectedCallback?.();
+
+        this.removeEventListener('mouseenter', this.positionContent);
     }
 
-    didUpdateCallback() {
+    positionContent() {
 
-        this._positionContent();
+        setTimeout(() => this._positionContent(), 100);
     }
 
-    handleResize() {
-
-        this._positionContent();
-    }
-
-    /**
-     * Positions the content since we don't know its dimensions until it is rendered in the DOM
-     */
     private _positionContent() {
 
-        const trigger = (this.document as ShadowRoot).getElementById("trigger") as HTMLElement;
+        const {
+            position
+        } = this;
 
         const content = (this.document as ShadowRoot).getElementById("content") as HTMLElement;
 
-        const p = this.getFittingPosition(trigger, content, this.position); // Get the position from the trigger
-        
-        applyClasses(content, { // Keep or update the position of the content
+        let p = position;
+
+        const contentView = this.findAdoptingParent((p: { nodeName: string; }) => p.nodeName === "GCS-CONTENT-VIEW");
+
+        const parentViewRect = contentView !== null ?
+            contentView.getBoundingClientRect() :
+            {
+                left: window.screenLeft,
+                right: window.innerWidth,
+                top: window.screenTop,
+                bottom: window.innerHeight  
+            };
+
+        const rect = content.getBoundingClientRect();
+
+        // Reverse the position (top/bottom) (left/right) and viceversa if there is overflow
+        switch (position) {
+
+            case 'top':
+                {
+                    if (rect.top < parentViewRect.top) {
+
+                        p = 'bottom';
+                    }
+                }
+                break;
+            case 'bottom':
+                {
+                    if (rect.bottom > parentViewRect.bottom) {
+
+                        p = 'top';
+                    }
+                }
+                break;
+            case 'left':
+                {
+                    if (rect.left < parentViewRect.left) {
+
+                        p = 'right';
+                    }
+                }
+                break;
+            case 'right':
+                {
+                    if (rect.right > parentViewRect.right) {
+
+                        p = 'left';
+                    }
+                }
+                break;
+            default: throw new Error(`Unknown position: ${position}`);
+        }
+
+        applyClasses(content, {
             'top': p === 'top',
             'bottom': p === 'bottom',
             'left': p === 'left',
             'right': p === 'right',
         });
-    }
-
-    /**
-     * Returns the requested position if there is enough room for that
-     * @param trigger 
-     * @param pos 
-     * @returns 
-     */
-    getFittingPosition(trigger: HTMLElement, content: HTMLElement, pos: string) {
-
-        const {
-            clientWidth,
-            clientHeight
-        } = document.documentElement;
-
-        const {
-            x: triggerX,
-            y: triggerY,
-            height: triggerHeight,
-            width: triggerWidth
-        } = trigger.getBoundingClientRect();
-
-        const {
-            height: contentHeight,
-            width: contentWidth
-        } = content.getBoundingClientRect();
-
-        switch (pos) {
-            case 'top':
-                {
-                    pos = triggerY < triggerHeight ? 'bottom' : 'top';
-                }
-                break;
-            case 'bottom':
-                {
-                    pos = triggerY + triggerHeight + contentHeight> clientHeight ? 'top' : 'bottom';
-                }
-                break;
-            case 'left':
-                {
-                    pos = triggerX < triggerWidth ? 'right' : 'left';
-                }
-                break;
-            case 'right':
-                {
-                    pos = triggerX + triggerWidth + contentWidth > clientWidth ? 'left' : 'right';
-                }
-                break;
-        }
-
-        return pos;
     }
 }
 

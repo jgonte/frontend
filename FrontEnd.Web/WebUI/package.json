@@ -30,7 +30,7 @@
   "author": "Jorge Rivera Gonte",
   "license": "ISC",
   "devDependencies": {
-    "@happy-dom/jest-environment": "^7.6.6",
+    "@happy-dom/jest-environment": "^7.8.1",
     "@microsoft/api-extractor": "^7.23.2",
     "@tsconfig/recommended": "^1.0.1",
     "@types/jest": "^27.5.2",
@@ -44,6 +44,6 @@
     "rollup-plugin-import-css": "^3.0.3",
     "rollup-plugin-typescript2": "^0.31.2",
     "ts-jest": "^27.1.4",
-    "typescript": "^4.6.3"
-  } 
+    "typescript": "^4.9.5"
+  }
 }

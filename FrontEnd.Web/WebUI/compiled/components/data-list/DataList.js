@@ -21,10 +21,11 @@ export default class DataList extends SelectionContainer(RemoteLoadableHolder(Co
         };
     }
     render() {
-        const { idField } = this;
-        return this.data.map((record) => {
-            return this.itemTemplate(record, record[idField]);
-        });
+        const { idField, data } = this;
+        if (data.length === 0) {
+            return this.renderEmptyData();
+        }
+        return data.map((record) => this.itemTemplate(record, record[idField]));
     }
 }
 defineCustomElement('gcs-data-list', DataList);

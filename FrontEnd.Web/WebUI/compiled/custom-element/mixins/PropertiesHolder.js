@@ -109,7 +109,7 @@ export default function PropertiesHolder(Base) {
                 throw new Error(`The attributes: [${missingValueAttributes.join(', ')}] must have a value`);
             }
         }
-        didAdoptChildCallback(parent, child) {
+        childAdoptedParentCallback(parent, child) {
             const { metadata } = child.constructor;
             if (metadata === undefined) {
                 return;

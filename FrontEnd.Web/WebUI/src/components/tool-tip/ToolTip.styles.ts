@@ -1,88 +1,85 @@
 import css from "../../custom-element/styles/css";
 
 export const toolTipStyles = css`
-.container {
+:host {
     position: relative;
     display: inline-block;
 }
   
-.container #content {
+#content {
+    position: absolute; 
     visibility: hidden;
-    background-color: #555;
-    color: #fff;
-    padding: 5px 0;
-    border-radius: 6px;
-  
-    /* position the content */
-    position: absolute;
-    z-index: 1;  
-  
-    /* fade in container */
+    background-color: var(--gcs-tooltip-background-color);
+    color: var(--gcs-tooltip-color);
+    padding: var(--gcs-padding);
+    border-radius: var(--gcs-border-radius);
     opacity: 0;
     transition: opacity 0.3s;
 }
 
 /* position */
-.container #content.top {
+.top {
+    left: 50%;
     bottom: 100%;
-    left: 50%;
-    margin-left: -60px; /* Use half of the width (120/2 = 60), to center the tooltip */
+    transform: translateX(-50%);
 }
 
-.container #content.bottom {
+.bottom {
+    left: 50%;
     top: 100%;
-    left: 50%;
-    margin-left: -60px; /* Use half of the width (120/2 = 60), to center the tooltip */
+    transform: translateX(-50%);
 }
 
-.container #content.left {
-    top: -5px;
-    right: 105%;
+.left {
+    right: 100%;
+    top: 50%;
+    transform: translateY(-50%);
 }
 
-.container #content.right {
-    top: -5px;
-    left: 105%;
+.right {
+    left: 100%;
+    top: 50%;
+    transform: translateY(-50%);
 }
 
 /* arrow */
-.container #content::after {
+#content::after {
     content: "";
     position: absolute;
     border-width: 5px;
     border-style: solid;
 }
 
-.container #content.top::after {
+#content.top::after {
     top: 100%; /* At the bottom of the tooltip */  
     left: 50%;
     margin-left: -5px;
-    border-color: black transparent transparent transparent;
+    border-color: var(--gcs-tooltip-background-color) transparent transparent transparent;
 }
 
-.container #content.bottom::after {
+#content.bottom::after {
     bottom: 100%;  /* At the top of the tooltip */
     left: 50%;
     margin-left: -5px; 
-    border-color: transparent transparent black transparent;
+    border-color: transparent transparent var(--gcs-tooltip-background-color) transparent;
 }
 
-.container #content.left::after {
+#content.left::after {
     top: 50%;
     left: 100%; /* To the right of the tooltip */
     margin-top: -5px;
-    border-color: transparent transparent transparent black;
+    border-color: transparent transparent transparent var(--gcs-tooltip-background-color);
 }
 
-.container #content.right::after {
+#content.right::after {
     top: 50%;
     right: 100%; /* To the left of the tooltip */   
     margin-top: -5px;
-    border-color: transparent black transparent transparent;
+    border-color: transparent var(--gcs-tooltip-background-color) transparent transparent;
 }
   
 /* Show the container text when you mouse over the container container */
-.container:hover #content {
+:host(:hover) #content {
     visibility: visible;
     opacity: 1;
 }`;

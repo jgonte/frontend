@@ -207,7 +207,19 @@ export default class NodePatcher implements INodePatcher {
                     {
                         if (Array.isArray(newValue)) {
 
-                            patchChildren(node, oldValue as NodePatchingData[], newValue as NodePatchingData[]);
+                            if (Array.isArray(oldValue)) {
+
+                                patchChildren(node, oldValue as NodePatchingData[], newValue as NodePatchingData[]);
+                            }
+                            else { // New value is a single node, replace it with the array of nodes
+
+                                if (!isUndefinedOrNull(oldValue)) {
+
+                                    removeLeftSibling(node);
+                                }
+
+                                newValue.forEach(pd => insertBefore(node, pd as NodePatchingData));
+                            }
                         }
                         else { // Single node
 
@@ -226,7 +238,16 @@ export default class NodePatcher implements INodePatcher {
                                     }
                                     else {
 
-                                        replaceChild(node, newValue as NodePatchingData, oldValue as NodePatchingData);
+                                        if (Array.isArray(oldValue)) {
+
+                                            removeLeftSiblings(node);
+
+                                            insertBefore(node, newValue as NodePatchingData);
+                                        }
+                                        else { // Old value is single node
+
+                                            replaceChild(node, newValue as NodePatchingData, oldValue as NodePatchingData);
+                                        }
                                     }
                                 }
                             }
@@ -273,8 +294,6 @@ export default class NodePatcher implements INodePatcher {
 
         }
     }
-
-
 }
 
 function patchChildren(markerNode: Node, oldChildren: NodePatchingData[] = [], newChildren: NodePatchingData[] = []): void {

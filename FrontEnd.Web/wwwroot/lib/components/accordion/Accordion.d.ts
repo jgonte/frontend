@@ -6,6 +6,6 @@ export default class Accordion extends CustomElement {
     static get properties(): Record<string, CustomElementPropertyMetadata>;
     constructor();
     render(): NodePatchingData;
-    toggleContentVisibility(): void;
+    toggleContentVisibility(evt: Event): void;
     renderExpanderIcon(): NodePatchingData;
 }

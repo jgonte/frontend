@@ -18,66 +18,76 @@ export default class ToolTip extends CustomElement {
         };
     }
     render() {
-        return html `<div class="container">
-            <span id="trigger">
-                <slot name="trigger"></slot>
-            </span>       
-            <span id="content">
-                <slot name="content"></slot>
-            </span>
-        </div>`;
+        return html `
+<span id="trigger">
+    <slot name="trigger"></slot>
+</span>       
+<span id="content">
+    <slot name="content"></slot>
+</span>`;
     }
     connectedCallback() {
         super.connectedCallback?.();
-        window.addEventListener('resize', () => this.handleResize());
+        this.addEventListener('mouseenter', this.positionContent);
     }
-    didMountCallback() {
-        this._positionContent();
+    disconnectedCallback() {
+        super.disconnectedCallback?.();
+        this.removeEventListener('mouseenter', this.positionContent);
     }
-    didUpdateCallback() {
-        this._positionContent();
-    }
-    handleResize() {
-        this._positionContent();
+    positionContent() {
+        setTimeout(() => this._positionContent(), 100);
     }
     _positionContent() {
-        const trigger = this.document.getElementById("trigger");
+        const { position } = this;
         const content = this.document.getElementById("content");
-        const p = this.getFittingPosition(trigger, content, this.position);
+        let p = position;
+        const contentView = this.findAdoptingParent((p) => p.nodeName === "GCS-CONTENT-VIEW");
+        const parentViewRect = contentView !== null ?
+            contentView.getBoundingClientRect() :
+            {
+                left: window.screenLeft,
+                right: window.innerWidth,
+                top: window.screenTop,
+                bottom: window.innerHeight
+            };
+        const rect = content.getBoundingClientRect();
+        switch (position) {
+            case 'top':
+                {
+                    if (rect.top < parentViewRect.top) {
+                        p = 'bottom';
+                    }
+                }
+                break;
+            case 'bottom':
+                {
+                    if (rect.bottom > parentViewRect.bottom) {
+                        p = 'top';
+                    }
+                }
+                break;
+            case 'left':
+                {
+                    if (rect.left < parentViewRect.left) {
+                        p = 'right';
+                    }
+                }
+                break;
+            case 'right':
+                {
+                    if (rect.right > parentViewRect.right) {
+                        p = 'left';
+                    }
+                }
+                break;
+            default: throw new Error(`Unknown position: ${position}`);
+        }
         applyClasses(content, {
             'top': p === 'top',
             'bottom': p === 'bottom',
             'left': p === 'left',
             'right': p === 'right',
         });
-    }
-    getFittingPosition(trigger, content, pos) {
-        const { clientWidth, clientHeight } = document.documentElement;
-        const { x: triggerX, y: triggerY, height: triggerHeight, width: triggerWidth } = trigger.getBoundingClientRect();
-        const { height: contentHeight, width: contentWidth } = content.getBoundingClientRect();
-        switch (pos) {
-            case 'top':
-                {
-                    pos = triggerY < triggerHeight ? 'bottom' : 'top';
-                }
-                break;
-            case 'bottom':
-                {
-                    pos = triggerY + triggerHeight + contentHeight > clientHeight ? 'top' : 'bottom';
-                }
-                break;
-            case 'left':
-                {
-                    pos = triggerX < triggerWidth ? 'right' : 'left';
-                }
-                break;
-            case 'right':
-                {
-                    pos = triggerX + triggerWidth + contentWidth > clientWidth ? 'left' : 'right';
-                }
-                break;
-        }
-        return pos;
     }
 }
 defineCustomElement('gcs-tool-tip', ToolTip);

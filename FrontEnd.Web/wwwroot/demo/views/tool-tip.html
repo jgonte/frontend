@@ -2,52 +2,112 @@
 <html lang="en">
 
 <head>
+    <script>
+
+        function onButtonClicked() {
+
+            alert('Button clicked');
+        }
+
+    </script>
+
+    <style>
+        .bordered {
+            border: 2px solid red;
+        }
+
+        .top-left-corner {
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        .top-right-corner {
+            position: absolute;
+            top: 0;
+            right: 0;
+        }
+
+        .bottom-left-corner {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+        }
+
+        .bottom-right-corner {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+        }
+    
+    </style>
 </head>
 
 <body>
 
-    <gcs-tool-tip position="top">
-        <div slot="trigger">Top not really - Hover me now</div>
-        <div slot="content">Top works!</div>
-    </gcs-tool-tip>
+    <div class="top-left-corner">
+        <gcs-tool-tip style="border: 2px solid red;" position="top">
+            <div slot="trigger">Top not really - Hover me now</div>
+            <div slot="content">Top works!</div>
+        </gcs-tool-tip>
+    </div>
 
-    <br/>
+    <div class="top-right-corner">
+        <gcs-tool-tip style="border: 2px solid red;" position="left">
+            <span slot="trigger">Left not really - Hover me now</span>
+            <div slot="content">Left works!</div>
+        </gcs-tool-tip>
+    </div>
 
-    <gcs-tool-tip position="left">
-        <span slot="trigger">Left not really - Hover me now</span>
-        <div slot="content">Left works!</div>
-    </gcs-tool-tip>
-
-    <div style="display: flex; justify-content:space-around; height: 100px;">
-
-        <gcs-tool-tip position="top">
+    <div class="bottom-left-corner">
+        <gcs-tool-tip style="border: 2px solid red;" position="top">
             <div slot="trigger">Top - Hover me now</div>
             <div slot="content">Top works!</div>
         </gcs-tool-tip>
+    </div>
 
-        <gcs-tool-tip position="bottom">
+    <div class="bottom-right-corner">
+        <gcs-tool-tip style="border: 2px solid red;" position="bottom">
             <div slot="trigger">Bottom - Hover me now</div>
             <div slot="content" style="padding: 5px;">
                 Some quite large content
-                Bottom works!</div>
+                Bottom works!
+            </div>
         </gcs-tool-tip>
+    </div>
 
-        <gcs-tool-tip position="right">
+        
+
+        <gcs-tool-tip style="border: 2px solid red;" position="right">
             <div slot="trigger">Right - Hover me now</div>
             <div slot="content">Right works!</div>
         </gcs-tool-tip>
 
-        <gcs-tool-tip position="left">
+        <gcs-tool-tip style="border: 2px solid red;" position="left">
             <div slot="trigger">Left - Hover me now</div>
             <div slot="content">Left works!</div>
         </gcs-tool-tip>
 
-        <gcs-tool-tip position="right">
+        <gcs-tool-tip style="border: 2px solid red;" position="right">
             <div slot="trigger">Right not really - Hover me now</div>
             <div slot="content">Right works!</div>
         </gcs-tool-tip>
 
-    </div>
+        <h4>Button with tooltip (or viceversa)</h4>
+
+        <gcs-tool-tip>
+
+            <gcs-button slot="trigger"
+                        click="onButtonClicked()"
+                        kind="warning">
+                <gcs-icon name="pencil"></gcs-icon>
+            </gcs-button>
+
+            <gcs-localized-text slot="content">
+                Edit
+            </gcs-localized-text>
+
+        </gcs-tool-tip>
 
 </body>
 

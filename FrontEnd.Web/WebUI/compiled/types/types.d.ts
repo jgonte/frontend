@@ -3,7 +3,7 @@ export declare class Accordion extends CustomElement {
     static get properties(): Record<string, CustomElementPropertyMetadata>;
     constructor();
     render(): NodePatchingData;
-    toggleContentVisibility(): void;
+    toggleContentVisibility(evt: Event): void;
     renderExpanderIcon(): NodePatchingData;
 }
 
@@ -217,8 +217,8 @@ declare interface CustomHTMLElement extends HTMLElement {
     get updateComplete(): Promise<void>;
     stylesAdded: boolean;
     adoptedChildren: Set<Node>;
-    didAdoptChildCallback(parent: CustomHTMLElement, child: HTMLElement): void;
-    didAdoptChildrenCallback(parent: CustomHTMLElement, children: Set<Node>): void;
+    childAdoptedParentCallback(parent: CustomHTMLElement, child: HTMLElement): void;
+    parentAdoptedChildCallback(child: HTMLElement): void;
     willAbandonChildCallback(parent: CustomHTMLElement, child: HTMLElement): void;
     handleSlotChange: EventListenerOrEventListenerObject;
     enableEvents(): void;
@@ -251,7 +251,7 @@ export declare class DataGrid extends DataGrid_base {
     static get properties(): Record<string, CustomElementPropertyMetadata>;
     render(): NodePatchingData;
     renderHeader(): NodePatchingData;
-    renderBody(): NodePatchingData[];
+    renderBody(): NodePatchingData[] | NodePatchingData;
     load(): void;
 }
 
@@ -285,7 +285,7 @@ export declare class DataHeaderCell extends CustomElement {
 export declare class DataList extends DataList_base {
     static get styles(): string;
     static get properties(): Record<string, CustomElementPropertyMetadata>;
-    render(): NodePatchingData[];
+    render(): NodePatchingData[] | NodePatchingData;
 }
 
 declare const DataList_base: CustomHTMLElementConstructor;
@@ -377,7 +377,7 @@ declare abstract class Field extends Field_base {
     static get properties(): Record<string, CustomElementPropertyMetadata>;
     attributeChangedCallback(attributeName: string, oldValue: string, newValue: string): void;
     hasRequiredValidator(): boolean;
-    didAdoptChildCallback(parent: CustomHTMLElement, child: HTMLElement): void;
+    childAdoptedParentCallback(parent: CustomHTMLElement, child: HTMLElement): void;
     handleBlur(): void;
     handleInput(event: Event): void;
     createValidationContext(): FieldValidationContext & {
@@ -669,7 +669,7 @@ export declare class SorterTool extends Tool {
     static get properties(): Record<string, CustomElementPropertyMetadata>;
     static get state(): Record<string, CustomElementStateMetadata>;
     iconName: () => "arrow-down-up" | "arrow-up" | "arrow-down";
-    handleClick(): void;
+    handleClick(evt: Event): void;
 }
 
 export declare class StarRating extends StarRating_base {
@@ -708,11 +708,9 @@ export declare class ToolTip extends CustomElement {
     static get properties(): Record<string, CustomElementPropertyMetadata>;
     render(): NodePatchingData;
     connectedCallback(): void;
-    didMountCallback(): void;
-    didUpdateCallback(): void;
-    handleResize(): void;
+    disconnectedCallback(): void;
+    positionContent(): void;
     private _positionContent;
-    getFittingPosition(trigger: HTMLElement, content: HTMLElement, pos: string): string;
 }
 
 declare interface User {

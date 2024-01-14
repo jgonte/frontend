@@ -37,6 +37,9 @@ export default class DataGrid extends RemoteLoadableHolder(CollectionDataHolder(
     }
     renderBody() {
         const { columns, data, idField } = this;
+        if (data.length === 0) {
+            return this.renderEmptyData('body');
+        }
         return data.map((record) => html `
 <gcs-data-row 
     slot="body"
@@ -47,7 +50,7 @@ export default class DataGrid extends RemoteLoadableHolder(CollectionDataHolder(
     }
     load() {
         if (this.loadUrl) {
-            this.loadRemote();
+            this.loadRemote('body');
         }
         else {
             throw new Error('load local is not implemented');

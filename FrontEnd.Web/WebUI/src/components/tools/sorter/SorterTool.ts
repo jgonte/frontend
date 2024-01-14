@@ -49,7 +49,9 @@ export default class SorterTool extends Tool {
             'arrow-down';
     }
 
-    handleClick(): void {
+    handleClick(evt: Event): void {
+
+        evt.stopPropagation();
 
         this.ascending = !this.ascending;
 

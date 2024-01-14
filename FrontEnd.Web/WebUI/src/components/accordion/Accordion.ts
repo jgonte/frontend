@@ -61,7 +61,9 @@ export default class Accordion extends CustomElement {
 </div>`;
     }
 
-    toggleContentVisibility(): void {
+    toggleContentVisibility(evt: Event): void {
+
+        evt.stopPropagation();
 
         this.collapsed = !this.collapsed;
     }

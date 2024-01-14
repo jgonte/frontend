@@ -6,13 +6,13 @@ export default function ParentChild(Base) {
         adoptedChildren = new Set();
         async connectedCallback() {
             super.connectedCallback?.();
-            this.adoptingParent = await this.findAdoptingParent();
+            this.adoptingParent = await this._findAdoptingParent();
             const { adoptingParent } = this;
             if (isUndefinedOrNull(adoptingParent)) {
                 return;
             }
             adoptingParent.adoptedChildren.add(this);
-            this.didAdoptChildCallback?.(adoptingParent, this);
+            this.childAdoptedParentCallback?.(adoptingParent, this);
         }
         disconnectedCallback() {
             super.disconnectedCallback?.();
@@ -25,31 +25,29 @@ export default function ParentChild(Base) {
         }
         async didMountCallback() {
             await super.didMountCallback?.();
-            const slot = this.document.querySelector('slot');
-            if (slot === null) {
+            const slots = this.document.querySelectorAll('slot');
+            if (slots.length === 0) {
                 const { adoptingParent } = this;
                 if (!isUndefinedOrNull(adoptingParent)) {
                     adoptingParent.adoptedChildren.add(this);
-                    this.didAdoptChildCallback?.(adoptingParent, this);
+                    this.childAdoptedParentCallback?.(adoptingParent, this);
                 }
                 return;
             }
-            const children = slot.assignedNodes();
-            if (children.length > 0) {
-                children.forEach((child) => {
-                    this.adoptedChildren.add(child);
-                    this.didAdoptChildCallback?.(this, child);
-                });
-            }
-            else {
-                slot.addEventListener('slotchange', this.handleSlotChange);
-            }
-            const { adoptedChildren } = this;
-            if (adoptedChildren.size > 0) {
-                this.didAdoptChildrenCallback?.(this, adoptedChildren);
-            }
+            slots.forEach(slot => {
+                const children = slot.assignedNodes();
+                if (children.length > 0) {
+                    children.forEach((child) => {
+                        this.adoptedChildren.add(child);
+                        this.parentAdoptedChildCallback?.(child);
+                    });
+                }
+                else {
+                    slot.addEventListener('slotchange', this.handleSlotChange);
+                }
+            });
         }
-        async findAdoptingParent() {
+        async _findAdoptingParent() {
             let parent = this.parentNode;
             while (parent !== null) {
                 if (parent instanceof DocumentFragment) {
@@ -73,19 +71,32 @@ export default function ParentChild(Base) {
             console.dir(e);
             alert('kuku');
         }
-        findChild(predicate) {
+        findAdoptingParent(predicate) {
+            let parent = this.adoptingParent;
+            while (!isUndefinedOrNull(parent)) {
+                if (predicate(parent) === true) {
+                    return parent;
+                }
+                parent = parent.adoptingParent;
+            }
+            return null;
+        }
+        findAdoptedChild(predicate) {
             const children = Array.from(this.adoptedChildren);
             for (let i = 0; i < children.length; ++i) {
                 const child = children[i];
                 if (predicate(child) === true) {
                     return child;
                 }
-                const grandChild = child?.findChild?.(predicate);
+                const grandChild = child?.findAdoptedChild?.(predicate);
                 if (grandChild) {
                     return grandChild;
                 }
             }
             return null;
+        }
+        findAdoptedChildById(id) {
+            return this.findAdoptedChild(n => n.id === id);
         }
     };
 }
