@@ -7,6 +7,5 @@ export default class ToolTip extends CustomElement {
     render(): NodePatchingData;
     connectedCallback(): void;
     disconnectedCallback(): void;
-    positionContent(): void;
     private _positionContent;
 }

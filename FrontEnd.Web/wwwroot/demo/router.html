@@ -97,12 +97,10 @@
 
             return {
                 '/': {
-                    text: 'Home',
-                    intlKey: 'home'
+                    text: 'Home'
                 },
                 '/about': {
-                    text: 'About',
-                    intlKey: 'about'
+                    text: 'About'
                 }
             }
         }
@@ -110,32 +108,27 @@
         function getSidebarLinks() {
 
             const postsGroup = {
-                text: 'Posts',
-                intlKey: 'posts'
+                text: 'Posts'
             };
 
             const customersGroup = {
-                text: 'Customers',
-                intlKey: 'customers'
+                text: 'Customers'
             };
 
             return {
                 // Posts
                 '/posts': {
                     group: postsGroup,
-                    text: 'View Posts',
-                    intlKey: 'view posts'
+                    text: 'View Posts'
                 },
                 '/posts/:id': {
                     group: postsGroup,
-                    text: 'Edit Posts',
-                    intlKey: 'edit posts'
+                    text: 'Edit Posts'
                 },
                 // Customers
                 '/customers/:id/:country': {
                     group: customersGroup,
-                    text: 'Edit Customer',
-                    intlKey: 'customer'
+                    text: 'Edit Customer'
                 }
             }
         }

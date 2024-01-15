@@ -217,7 +217,7 @@ declare interface CustomHTMLElement extends HTMLElement {
     get updateComplete(): Promise<void>;
     stylesAdded: boolean;
     adoptedChildren: Set<Node>;
-    childAdoptedParentCallback(parent: CustomHTMLElement, child: HTMLElement): void;
+    didAdoptChildCallback(parent: CustomHTMLElement, child: HTMLElement): void;
     parentAdoptedChildCallback(child: HTMLElement): void;
     willAbandonChildCallback(parent: CustomHTMLElement, child: HTMLElement): void;
     handleSlotChange: EventListenerOrEventListenerObject;
@@ -377,7 +377,7 @@ declare abstract class Field extends Field_base {
     static get properties(): Record<string, CustomElementPropertyMetadata>;
     attributeChangedCallback(attributeName: string, oldValue: string, newValue: string): void;
     hasRequiredValidator(): boolean;
-    childAdoptedParentCallback(parent: CustomHTMLElement, child: HTMLElement): void;
+    didAdoptChildCallback(parent: CustomHTMLElement, child: HTMLElement): void;
     handleBlur(): void;
     handleInput(event: Event): void;
     createValidationContext(): FieldValidationContext & {
@@ -709,7 +709,6 @@ export declare class ToolTip extends CustomElement {
     render(): NodePatchingData;
     connectedCallback(): void;
     disconnectedCallback(): void;
-    positionContent(): void;
     private _positionContent;
 }
 

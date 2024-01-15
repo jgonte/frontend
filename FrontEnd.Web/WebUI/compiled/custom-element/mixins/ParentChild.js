@@ -12,7 +12,7 @@ export default function ParentChild(Base) {
                 return;
             }
             adoptingParent.adoptedChildren.add(this);
-            this.childAdoptedParentCallback?.(adoptingParent, this);
+            this.didAdoptChildCallback?.(adoptingParent, this);
         }
         disconnectedCallback() {
             super.disconnectedCallback?.();
@@ -30,7 +30,7 @@ export default function ParentChild(Base) {
                 const { adoptingParent } = this;
                 if (!isUndefinedOrNull(adoptingParent)) {
                     adoptingParent.adoptedChildren.add(this);
-                    this.childAdoptedParentCallback?.(adoptingParent, this);
+                    this.didAdoptChildCallback?.(adoptingParent, this);
                 }
                 return;
             }

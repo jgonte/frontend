@@ -2,12 +2,12 @@ import CustomElement from "../../custom-element/CustomElement";
 import defineCustomElement from "../../custom-element/defineCustomElement";
 import { DataTypes } from "../../utils/data/DataTypes";
 import { resourceLoader } from "../../utils/resourceLoader";
-function createScriptNode(oldScript, newValue) {
-    const newScript = document.createElement("script");
-    Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
-    newScript.setAttribute('data-view', newValue);
-    newScript.appendChild(document.createTextNode(oldScript.innerHTML));
-    return newScript;
+function copyNode(source, dataView) {
+    const newNode = document.createElement(source.nodeName);
+    Array.from(source.attributes).forEach(attr => newNode.setAttribute(attr.name, attr.value));
+    newNode.setAttribute('data-view', dataView);
+    newNode.appendChild(document.createTextNode(source.textContent || ''));
+    return newNode;
 }
 export default class ContentView extends CustomElement {
     static get component() {
@@ -41,21 +41,23 @@ export default class ContentView extends CustomElement {
                     const content = await resourceLoader.get(value);
                     const parser = new DOMParser();
                     const { head, body } = parser.parseFromString(content, "text/html");
-                    document.head.querySelectorAll('[data-view]').forEach(script => script.remove());
-                    document.body.querySelectorAll('[data-view]').forEach(script => script.remove());
+                    document.head.querySelectorAll('[data-view]').forEach(s => s.remove());
+                    document.body.querySelectorAll('[data-view]').forEach(s => s.remove());
                     Array.from(head.children).forEach(child => {
-                        if (child.tagName === 'SCRIPT') {
-                            const newScript = createScriptNode(child, value);
+                        if (child.tagName === 'SCRIPT' ||
+                            child.tagName === 'STYLE') {
+                            const newScript = copyNode(child, value);
                             document.head.appendChild(newScript);
                         }
                     });
-                    Array.from(body.childNodes).forEach(node => {
-                        if (node.tagName === 'SCRIPT') {
-                            const newScript = createScriptNode(node, value);
+                    Array.from(body.children).forEach(child => {
+                        if (child.tagName === 'SCRIPT' ||
+                            child.tagName === 'STYLE') {
+                            const newScript = copyNode(child, value);
                             document.body.appendChild(newScript);
                         }
                         else {
-                            d.appendChild(node);
+                            d.appendChild(child);
                         }
                     });
                 }

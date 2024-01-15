@@ -129,7 +129,6 @@ export default class CollectionPanel extends CustomElement {
                         return html `
 <gcs-button 
     kind="warning" 
-    size="large" 
     click=${() => showEditForm(record)}
 >
     Edit

@@ -1,117 +1,93 @@
 function getAppLinks() {
 
     const layoutGroup = {
-        text: 'Layout',
-        intlKey: 'layout'
+        text: 'Layout'
     };
 
     const navigationGroup = {
-        text: 'Navigation',
-        intlKey: 'navigation'
+        text: 'Navigation'
     };
 
     const displayGroup = {
-        text: 'Display',
-        intlKey: 'display'
+        text: 'Display'
     };
 
     const toolsGroup = {
-        text: 'Tools',
-        intlKey: 'tools'
+        text: 'Tools'
     };
 
     const fieldsGroup = {
-        text: 'Fields',
-        intlKey: 'fields'
+        text: 'Fields'
     };
 
     const tipsGroup = {
-        text: 'Tips',
-        intlKey: 'tips'
+        text: 'Tips'
     };
 
-    const authGroup = {
-        text: 'Auth',
-        intlKey: 'auth'
-    };
+    //const authGroup = {
+    //    text: 'Auth'
+    //};
 
     return {
         '/': {
-            text: 'Intro',
-            intlKey: 'intro'
+            text: 'Intro'
         },
         '/localized-text': {
-            text: 'Localized Text',
-            intlKey: 'localized text'
+            text: 'Localized Text'
         },
         '/icon': {
-            text: 'Icon',
-            intlKey: 'icon'
+            text: 'Icon'
         },
         '/pill': {
-            text: 'Pill',
-            intlKey: 'pill'
+            text: 'Pill'
         },
         '/alert': {
-            text: 'Alert',
-            intlKey: 'alert'
+            text: 'Alert'
         },
         '/button': {
-            text: 'Button',
-            intlKey: 'button'
+            text: 'Button'
         },
         '/dialog': {
-            text: 'Dialog',
-            intlKey: 'dialog'
+            text: 'Dialog'
         },
         '/drop-down': {
-            text: 'Drop Down',
-            intlKey: 'drop down'
+            text: 'Drop Down'
         },
         '/tool-tip': {
-            text: 'Tool Tip',
-            intlKey: 'tool tip'
+            text: 'Tool Tip'
         },
         '/validation-summary': {
-            text: 'Validation Summary',
-            intlKey: 'validation summary'
+            text: 'Validation Summary'
         },
         '/wizard': {
-            text: 'Wizard',
-            intlKey: 'wizard'
+            text: 'Wizard'
         },
         // Layout
         '/layout/center': {
             group: layoutGroup,
-            text: 'Center',
-            intlKey: 'center'
+            text: 'Center'
         },
         '/layout/panel': {
             group: layoutGroup,
-            text: 'Panel',
-            intlKey: 'panel'
+            text: 'Panel'
         },
         '/layout/accordion': {
             group: layoutGroup,
-            text: 'Accordion',
-            intlKey: 'accordion'
+            text: 'Accordion'
         },
         // Navigation
         '/navigation/link': {
             group: navigationGroup,
-            text: 'Link',
-            intlKey: 'link'
+            text: 'Link'
         },
         // Display
         '/display/data-template': {
             group: displayGroup,
-            text: 'Data Template',
-            intlKey: 'data template'
+            text: 'Data Template'
         },
         '/display/data-list': {
             group: displayGroup,
-            text: 'Data List',
-            intlKey: 'data list'
+            text: 'Data List'
         },
         '/display/data-header-cell': {
             group: displayGroup,
@@ -129,69 +105,56 @@ function getAppLinks() {
         // Tools
         '/tools/close': {
             group: toolsGroup,
-            text: 'Close',
-            intlKey: 'close'
+            text: 'Close'
         },
         '/tools/expander': {
             group: toolsGroup,
-            text: 'Expander',
-            intlKey: 'expander'
+            text: 'Expander'
         },
         '/tools/sorter': {
             group: toolsGroup,
-            text: 'Sorter',
-            intlKey: 'sorter'
+            text: 'Sorter'
         },
         // Fields
         '/fields/combo-box': {
             group: fieldsGroup,
-            text: 'Combo Box',
-            intlKey: 'combo Box'
+            text: 'Combo Box'
         },
         '/fields/slider': {
             group: fieldsGroup,
-            text: 'Slider',
-            intlKey: 'slider'
+            text: 'Slider'
         },
         '/fields/switch': {
             group: fieldsGroup,
-            text: 'Switch',
-            intlKey: 'switch'
+            text: 'Switch'
         },
         '/fields/text-field': {
             group: fieldsGroup,
-            text: 'Text Field',
-            intlKey: 'text field'
+            text: 'Text Field'
         },
         '/fields/star-rating': {
             group: fieldsGroup,
-            text: 'Star Rating',
-            intlKey: 'star rating'
+            text: 'Star Rating'
         },
         // Form
         '/form-field': {
-            text: 'Form Field',
-            intlKey: 'form field'
+            text: 'Form Field'
         },
         '/form': {
-            text: 'Form ',
-            intlKey: 'form '
+            text: 'Form'
         },
         // Tips
         '/tips/help': {
             group: tipsGroup,
-            text: 'Help',
-            intlKey: 'help'
+            text: 'Help'
         },
         '/tips/modified': {
             group: tipsGroup,
-            text: 'Modified',
-            intlKey: 'modified'
+            text: 'Modified'
         },
         '/tips/required': {
             group: tipsGroup,
-            text: 'Required',
-            intlKey: 'required'
+            text: 'Required'
         }
     };
 }
