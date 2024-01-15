@@ -44,6 +44,7 @@ export default class ApplicationView extends Loadable(CustomElement) {
         const moduleLinks = this.getModuleLinks(application);
         return html `
 <div id="header">
+    
     <gcs-app-header 
         application=${application}>
     </gcs-app-header>
@@ -52,22 +53,25 @@ export default class ApplicationView extends Loadable(CustomElement) {
     Application links go here
 </div>
 <div id="left">
+
     <gcs-nav-bar 
         router-name="app"
         orientation="vertical"
         links=${moduleLinks}>
     </gcs-nav-bar>
+    
 </div>
 <div id="center">
+
     <gcs-hash-router 
         name="app"
         content-view-id="app-content-view" 
         routes=${routes}>
     </gcs-hash-router>
-    <gcs-content-view 
-        id="app-content-view" 
-        style="height: 100%; overflow-y: scroll;">
+
+    <gcs-content-view id="app-content-view">
     </gcs-content-view>
+    
 </div>
 <div id="footer"> 
     Copyright GCS &copy;2022
@@ -85,8 +89,7 @@ export default class ApplicationView extends Loadable(CustomElement) {
         return application.type.modules.reduce((links, module) => {
             const { name } = module;
             const group = {
-                text: name,
-                intlKey: name
+                text: name
             };
             application.type.routes
                 .filter(route => route.module === name)
@@ -94,8 +97,7 @@ export default class ApplicationView extends Loadable(CustomElement) {
                 const { name, path } = route;
                 links[path] = {
                     group,
-                    text: name,
-                    intlKey: name
+                    text: name
                 };
             });
             return links;

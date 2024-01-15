@@ -6,17 +6,17 @@ import IRenderable from "../../custom-element/mixins/metadata/types/IRenderable"
 import { DataTypes } from "../../utils/data/DataTypes";
 import { resourceLoader } from "../../utils/resourceLoader";
 
-function createScriptNode(oldScript: Element, newValue: string) {
+function copyNode(source: Element, dataView: string) {
 
-    const newScript = document.createElement("script");
+    const newNode = document.createElement(source.nodeName);
 
-    Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute((attr as Attr).name, (attr as Attr).value));
+    Array.from(source.attributes).forEach(attr => newNode.setAttribute((attr as Attr).name, (attr as Attr).value));
 
-    newScript.setAttribute('data-view', newValue); // Set the view attribute so we can remove it when other views are selected
+    newNode.setAttribute('data-view', dataView); // Set the view attribute so we can remove it when other views are selected
 
-    newScript.appendChild(document.createTextNode(oldScript.innerHTML));
+    newNode.appendChild(document.createTextNode(source.textContent || ''));
 
-    return newScript;
+    return newNode;
 }
 
 /**
@@ -28,7 +28,9 @@ export default class ContentView extends CustomElement {
 
         return {
 
-            shadow: false // Do not create a shadow DOM for this component since the scripts are placed in the parent document
+            // Do not create a shadow DOM for this component since the
+            // scripts and styles are placed in the parent document
+            shadow: false
         }
     }
 
@@ -94,38 +96,36 @@ export default class ContentView extends CustomElement {
                         body
                     } = parser.parseFromString(content, "text/html");
 
-                    // Remove any scripts with the data-view attributes set
-                    document.head.querySelectorAll('[data-view]').forEach(script => script.remove());
+                    // Remove any scripts and styles with the data-view attributes set
+                    document.head.querySelectorAll('[data-view]').forEach(s => s.remove());
 
-                    document.body.querySelectorAll('[data-view]').forEach(script => script.remove());
+                    document.body.querySelectorAll('[data-view]').forEach(s => s.remove());
 
                     // Add any script that appears in the head
                     Array.from(head.children).forEach(child => {
 
-                        if (child.tagName === 'SCRIPT') {
+                        if (child.tagName === 'SCRIPT' ||
+                            child.tagName === 'STYLE') {
 
-                            const newScript = createScriptNode(child, value as string);
+                            const newScript = copyNode(child, value as string);
 
                             document.head.appendChild(newScript);
                         }
-                        // else { // Maybe CSS or Meta
-
-                        //     throw Error('Not implemented');
-                        // }
                     });
 
                     // Add the new content
-                    Array.from(body.childNodes).forEach(node => {
+                    Array.from(body.children).forEach(child => {
 
-                        if ((node as HTMLElement).tagName === 'SCRIPT') {
-
-                            const newScript = createScriptNode(node as HTMLElement, value as string);
+                        if (child.tagName === 'SCRIPT' ||
+                            child.tagName === 'STYLE'
+                        ) {
+                            const newScript = copyNode(child, value as string);
 
                             document.body.appendChild(newScript);
                         }
                         else { // Add it to this component
 
-                            d.appendChild(node);
+                            d.appendChild(child);
                         }
                     });
 

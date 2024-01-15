@@ -19,7 +19,7 @@ function ParentChild(Base) {
                 return;
             }
             adoptingParent.adoptedChildren.add(this);
-            this.childAdoptedParentCallback?.(adoptingParent, this);
+            this.didAdoptChildCallback?.(adoptingParent, this);
         }
         disconnectedCallback() {
             super.disconnectedCallback?.();
@@ -37,7 +37,7 @@ function ParentChild(Base) {
                 const { adoptingParent } = this;
                 if (!isUndefinedOrNull(adoptingParent)) {
                     adoptingParent.adoptedChildren.add(this);
-                    this.childAdoptedParentCallback?.(adoptingParent, this);
+                    this.didAdoptChildCallback?.(adoptingParent, this);
                 }
                 return;
             }
@@ -437,7 +437,7 @@ function PropertiesHolder(Base) {
                 throw new Error(`The attributes: [${missingValueAttributes.join(', ')}] must have a value`);
             }
         }
-        childAdoptedParentCallback(parent, child) {
+        didAdoptChildCallback(parent, child) {
             const { metadata } = child.constructor;
             if (metadata === undefined) {
                 return;
@@ -2819,14 +2819,11 @@ class ToolTip extends CustomElement {
     }
     connectedCallback() {
         super.connectedCallback?.();
-        this.addEventListener('mouseenter', this.positionContent);
+        this.addEventListener('mouseenter', this._positionContent);
     }
     disconnectedCallback() {
         super.disconnectedCallback?.();
-        this.removeEventListener('mouseenter', this.positionContent);
-    }
-    positionContent() {
-        setTimeout(() => this._positionContent(), 100);
+        this.removeEventListener('mouseenter', this._positionContent);
     }
     _positionContent() {
         const { position } = this;
@@ -3904,8 +3901,8 @@ class Field extends Validatable(CustomElement) {
     hasRequiredValidator() {
         return this.validators.filter((v) => v instanceof RequiredValidator).length > 0;
     }
-    childAdoptedParentCallback(parent, child) {
-        super.childAdoptedParentCallback?.(parent, child);
+    didAdoptChildCallback(parent, child) {
+        super.didAdoptChildCallback?.(parent, child);
         if (child !== this) {
             return;
         }
@@ -4633,12 +4630,12 @@ const resourceLoader = {
     }
 };
 
-function createScriptNode(oldScript, newValue) {
-    const newScript = document.createElement("script");
-    Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
-    newScript.setAttribute('data-view', newValue);
-    newScript.appendChild(document.createTextNode(oldScript.innerHTML));
-    return newScript;
+function copyNode(source, dataView) {
+    const newNode = document.createElement(source.nodeName);
+    Array.from(source.attributes).forEach(attr => newNode.setAttribute(attr.name, attr.value));
+    newNode.setAttribute('data-view', dataView);
+    newNode.appendChild(document.createTextNode(source.textContent || ''));
+    return newNode;
 }
 class ContentView extends CustomElement {
     static get component() {
@@ -4672,21 +4669,23 @@ class ContentView extends CustomElement {
                     const content = await resourceLoader.get(value);
                     const parser = new DOMParser();
                     const { head, body } = parser.parseFromString(content, "text/html");
-                    document.head.querySelectorAll('[data-view]').forEach(script => script.remove());
-                    document.body.querySelectorAll('[data-view]').forEach(script => script.remove());
+                    document.head.querySelectorAll('[data-view]').forEach(s => s.remove());
+                    document.body.querySelectorAll('[data-view]').forEach(s => s.remove());
                     Array.from(head.children).forEach(child => {
-                        if (child.tagName === 'SCRIPT') {
-                            const newScript = createScriptNode(child, value);
+                        if (child.tagName === 'SCRIPT' ||
+                            child.tagName === 'STYLE') {
+                            const newScript = copyNode(child, value);
                             document.head.appendChild(newScript);
                         }
                     });
-                    Array.from(body.childNodes).forEach(node => {
-                        if (node.tagName === 'SCRIPT') {
-                            const newScript = createScriptNode(node, value);
+                    Array.from(body.children).forEach(child => {
+                        if (child.tagName === 'SCRIPT' ||
+                            child.tagName === 'STYLE') {
+                            const newScript = copyNode(child, value);
                             document.body.appendChild(newScript);
                         }
                         else {
-                            d.appendChild(node);
+                            d.appendChild(child);
                         }
                     });
                 }
@@ -6370,7 +6369,6 @@ class CollectionPanel extends CustomElement {
                         return html `
 <gcs-button 
     kind="warning" 
-    size="large" 
     click=${() => showEditForm(record)}
 >
     Edit
@@ -6856,6 +6854,8 @@ const applicationViewStyles = css `
 #center,
 #right {
   	height: 100%; 
+	display: block;
+	position: relative;
   	overflow-y: scroll;
 }`;
 
@@ -6897,6 +6897,7 @@ class ApplicationView extends RemoteLoadableHolder(CustomElement) {
         const moduleLinks = this.getModuleLinks(application);
         return html `
 <div id="header">
+    
     <gcs-app-header 
         application=${application}>
     </gcs-app-header>
@@ -6905,22 +6906,25 @@ class ApplicationView extends RemoteLoadableHolder(CustomElement) {
     Application links go here
 </div>
 <div id="left">
+
     <gcs-nav-bar 
         router-name="app"
         orientation="vertical"
         links=${moduleLinks}>
     </gcs-nav-bar>
+    
 </div>
 <div id="center">
+
     <gcs-hash-router 
         name="app"
         content-view-id="app-content-view" 
         routes=${routes}>
     </gcs-hash-router>
-    <gcs-content-view 
-        id="app-content-view" 
-        style="height: 100%; overflow-y: scroll;">
+
+    <gcs-content-view id="app-content-view">
     </gcs-content-view>
+    
 </div>
 <div id="footer"> 
     Copyright GCS &copy;2022
@@ -6938,8 +6942,7 @@ class ApplicationView extends RemoteLoadableHolder(CustomElement) {
         return application.type.modules.reduce((links, module) => {
             const { name } = module;
             const group = {
-                text: name,
-                intlKey: name
+                text: name
             };
             application.type.routes
                 .filter(route => route.module === name)
@@ -6947,8 +6950,7 @@ class ApplicationView extends RemoteLoadableHolder(CustomElement) {
                 const { name, path } = route;
                 links[path] = {
                     group,
-                    text: name,
-                    intlKey: name
+                    text: name
                 };
             });
             return links;

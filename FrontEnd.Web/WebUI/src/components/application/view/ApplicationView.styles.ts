@@ -49,5 +49,7 @@ export const applicationViewStyles = css`
 #center,
 #right {
   	height: 100%; 
+	display: block;
+	position: relative;
   	overflow-y: scroll;
 }`;

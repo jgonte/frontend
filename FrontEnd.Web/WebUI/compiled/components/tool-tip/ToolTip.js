@@ -28,14 +28,11 @@ export default class ToolTip extends CustomElement {
     }
     connectedCallback() {
         super.connectedCallback?.();
-        this.addEventListener('mouseenter', this.positionContent);
+        this.addEventListener('mouseenter', this._positionContent);
     }
     disconnectedCallback() {
         super.disconnectedCallback?.();
-        this.removeEventListener('mouseenter', this.positionContent);
-    }
-    positionContent() {
-        setTimeout(() => this._positionContent(), 100);
+        this.removeEventListener('mouseenter', this._positionContent);
     }
     _positionContent() {
         const { position } = this;
