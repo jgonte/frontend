@@ -52,11 +52,14 @@ export default function SelectionContainer(Base) {
             this.removeEventListener(selectionChangedEvent, this.updateSelection);
         }
         updateSelection(event) {
-            const { selectable, multiple, selection, selectionChanged, idField } = this;
-            if (selectable !== true) {
+            const { element, selected, value } = event.detail;
+            this._updateSelection(element, selected, value);
+        }
+        _updateSelection(element, selected, value) {
+            if (this.selectable !== true) {
                 return;
             }
-            const { element, selected, value } = event.detail;
+            const { multiple, selection, selectionChanged, idField } = this;
             const oldSelection = this.selection;
             if (multiple === true) {
                 if (selected === true) {
@@ -94,7 +97,8 @@ export default function SelectionContainer(Base) {
             const { selectedChildren, idField } = this;
             const selectedChild = selectedChildren
                 .filter((el) => el.selectValue[idField] === id)[0];
-            selectedChild.setSelected(false);
+            selectedChild.selected = false;
+            this._updateSelection(selectedChild, false, selectedChild.selectValue);
         }
         selectByValue(value) {
             const selectors = (this?.shadowRoot).querySelectorAll('gcs-selector');
@@ -104,6 +108,7 @@ export default function SelectionContainer(Base) {
                     value.includes(v) :
                     value === v;
                 s.selected = select;
+                this._updateSelection(s, select, s.selectValue);
             });
         }
     };

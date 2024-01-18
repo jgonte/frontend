@@ -164,42 +164,18 @@ export default class ComboBox extends
 
     renderContent(): NodePatchingData {
 
-        const {
-            data,
-            loadUrl,
-            renderItem,
-            multiple,
-            idField,
-            onSelectionChanged
-        } = this;
-
-        if (loadUrl ||
-            data?.length > 0) { // There are records
-
-            return html`
+        return html`
 <gcs-data-list 
     id="selection-container"
     slot="content" 
-    data=${data}
-    load-url=${loadUrl}
-    item-template=${renderItem} 
+    data=${this.data}
+    load-url=${this.loadUrl}
+    item-template=${this.renderItem} 
     initialized=${dataList => this.selectionContainer = dataList}
-    multiple=${multiple}
-    id-field=${idField} 
-    selection-changed=${onSelectionChanged}>
+    multiple=${this.multiple}
+    id-field=${this.idField} 
+    selection-changed=${this.onSelectionChanged}>
 </gcs-data-list>`;
-        }
-        else {
-
-            this.selectionContainer = null;
-
-            return html`
-<gcs-alert 
-    slot="content"
-    kind="warning">
-    <gcs-localized-text>No Data Available</gcs-localized-text>
-</gcs-alert>`;
-        }
     }
 
     renderSelectTemplate(): NodePatchingData {
@@ -290,15 +266,6 @@ export default class ComboBox extends
     beforeValueSet(value: unknown): unknown {
 
         return this.unwrapValue(value);
-    }
-
-    onValueChanged(value: unknown, oldValue: unknown): void {
-
-        super.onValueChanged?.(value, oldValue);
-
-        value = this.unwrapValue(value);
-
-        this.selectionContainer.selectByValue(value);
     }
 
     /**

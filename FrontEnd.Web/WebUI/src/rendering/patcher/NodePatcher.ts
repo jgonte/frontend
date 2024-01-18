@@ -82,7 +82,8 @@ export default class NodePatcher implements INodePatcher {
             length
         } = rules;
 
-        for (let i = 0; i < length; ++i) { // The index of the values of the rules match 1 to 1 with the number of rules
+        // The index of the values of the rules match 1 to 1 with the number of rules
+        for (let i = 0; i < length; ++i) {
 
             const value = values[i];
 
@@ -181,7 +182,8 @@ export default class NodePatcher implements INodePatcher {
             length
         } = rules;
 
-        for (let i = 0; i < length; ++i) { // The index of the values of the rules match 1 to 1 with the number of rules
+        // The index of the values of the rules match 1 to 1 with the number of rules
+        for (let i = 0; i < length; ++i) {
 
             const oldValue = oldValues[i];
 
@@ -296,7 +298,11 @@ export default class NodePatcher implements INodePatcher {
     }
 }
 
-function patchChildren(markerNode: Node, oldChildren: NodePatchingData[] = [], newChildren: NodePatchingData[] = []): void {
+function patchChildren(
+    markerNode: Node, 
+    oldChildren: NodePatchingData[] = [], 
+    newChildren: NodePatchingData[] = []
+): void {
 
     oldChildren = oldChildren || [];
 
@@ -312,7 +318,7 @@ function patchChildren(markerNode: Node, oldChildren: NodePatchingData[] = [], n
 
         const newChildKey = getKey(newChild);
 
-        const oldChild = oldChildren[i];
+        const oldChild = oldChildren[i] as NodePatchingData;
 
         if (oldChild === undefined) { // No more old children
 
@@ -320,7 +326,11 @@ function patchChildren(markerNode: Node, oldChildren: NodePatchingData[] = [], n
 
                 const oldChild = keyedNodes.get(newChildKey);
 
-                updateNodes((oldChild as NodePatchingData).node as ExtensibleHTMLElement, oldChild as NodePatchingData, newChild); // Patch the old node if there are differences
+                updateNodes(
+                    oldChild?.node as ExtensibleHTMLElement, 
+                    oldChild as NodePatchingData, 
+                    newChild
+                );
             }
             else { // There is no old child with that key
 
@@ -341,24 +351,34 @@ function patchChildren(markerNode: Node, oldChildren: NodePatchingData[] = [], n
                 }
                 else {
 
-                    updateNodes((oldChild as NodePatchingData).node as ExtensibleHTMLElement, oldChild as NodePatchingData, newChild); // Patch the old node if there are differences
+                    updateNodes(
+                        oldChild?.node as ExtensibleHTMLElement, 
+                        oldChild as NodePatchingData, 
+                        newChild
+                    );
                 }
             }
             else { // newChildKey !== oldChildKey
 
                 if (keyedNodes.has(newChildKey)) { // There is an old child with the same key
 
-                    const oldKeyedChild = keyedNodes.get(newChildKey);
+                    const oldKeyedChild = keyedNodes.get(newChildKey) as NodePatchingData;
 
-                    updateNodes((oldKeyedChild as NodePatchingData).node as ExtensibleHTMLElement, oldKeyedChild as NodePatchingData, newChild); // Patch the old node if there are differences
+                    updateNodes(
+                        oldKeyedChild.node as ExtensibleHTMLElement, 
+                        oldKeyedChild, 
+                        newChild
+                    );
 
-                    replaceChild(markerNode, oldKeyedChild as NodePatchingData, oldChild as NodePatchingData);
+                    replaceChild(
+                        markerNode, 
+                        oldKeyedChild, 
+                        oldChild
+                    );
                 }
                 else {
-
-                    const { parentNode } = markerNode;
-
-                    const existingChild = parentNode?.childNodes[i + 1]; // Skip the begin marker node
+                    
+                    const existingChild = markerNode.parentNode?.childNodes[i + 1]; // Skip the begin marker node
 
                     insertBefore(existingChild as ChildNode, newChild);
 
@@ -425,5 +445,8 @@ function getKey(patchingData: NodePatchingData): string | null {
 
 function insertBefore(markerNode: Node, newChild: NodePatchingData): void {
 
-    (markerNode.parentNode as Node).insertBefore(createNodes(newChild as NodePatchingData), markerNode);
+    (markerNode.parentNode as Node).insertBefore(
+        createNodes(newChild as NodePatchingData), 
+        markerNode
+    );
 }

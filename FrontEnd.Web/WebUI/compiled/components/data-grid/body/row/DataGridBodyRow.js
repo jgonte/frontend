@@ -30,11 +30,11 @@ export default class DataGridBodyRow extends Selectable(CustomElement) {
     render() {
         const { record, columns } = this;
         return columns.map((column) => html `
-    <gcs-data-cell 
-        column=${column} 
-        record=${record} 
-        key=${column.name || column}>
-    </gcs-data-cell>`);
+<gcs-data-cell 
+    column=${column} 
+    record=${record} 
+    key=${column.name || column}>
+</gcs-data-cell>`);
     }
 }
 defineCustomElement('gcs-data-row', DataGridBodyRow);

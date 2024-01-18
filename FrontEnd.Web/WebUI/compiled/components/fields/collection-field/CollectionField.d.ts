@@ -1,5 +1,3 @@
-import CustomElement from "../../../custom-element/CustomElement";
-import { NodePatchingData } from "../../../rendering/nodes/NodePatchingData";
-export default class CollectionField extends CustomElement {
-    render(): NodePatchingData;
+import CollectionPanel from "../../collection-panel/CollectionPanel";
+export default class CollectionField extends CollectionPanel {
 }

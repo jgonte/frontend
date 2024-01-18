@@ -8,6 +8,9 @@ import { resourceLoader } from "../../utils/resourceLoader";
 
 function copyNode(source: Element, dataView: string) {
 
+    // https://stackoverflow.com/questions/28771542/why-dont-clonenode-script-tags-execute
+    // const newNode = source.cloneNode(true) as Element;
+
     const newNode = document.createElement(source.nodeName);
 
     Array.from(source.attributes).forEach(attr => newNode.setAttribute((attr as Attr).name, (attr as Attr).value));

@@ -98,6 +98,9 @@ export declare class CloseTool extends Tool {
     handleClick(evt: Event): void;
 }
 
+export declare class CollectionField extends CollectionPanel {
+}
+
 export declare class CollectionPanel extends CustomElement {
     private _deleteFetcher?;
     static get properties(): Record<string, CustomElementPropertyMetadata>;
@@ -111,7 +114,8 @@ export declare class CollectionPanel extends CustomElement {
     renderInsertDialog(): NodePatchingData | null;
     showOverlay(id: string, show: boolean): void;
     resetForm(id: string): void;
-    renderFormBody(): NodePatchingData;
+    renderCreateFormBody(): NodePatchingData;
+    renderUpdateFormBody(): NodePatchingData;
     renderUpdateDialog(): NodePatchingData | null;
     renderDeleteDialog(): NodePatchingData;
     showEditForm(record: GenericRecord): void;
@@ -132,7 +136,6 @@ export declare class ComboBox extends ComboBox_base {
     renderSingleSelectionTemplate(selection: string): NodePatchingData;
     renderMultipleSelectionTemplate(selection: SelectionTypes): NodePatchingData;
     beforeValueSet(value: unknown): unknown;
-    onValueChanged(value: unknown, oldValue: unknown): void;
     private unwrapValue;
     private unwrapSingleValue;
 }

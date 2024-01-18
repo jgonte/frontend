@@ -1,9 +1,6 @@
-import CustomElement from "../../../custom-element/CustomElement";
-import html from "../../../rendering/html";
-export default class CollectionField extends CustomElement {
-    render() {
-        return html `
-chaqui`;
-    }
+import defineCustomElement from "../../../custom-element/defineCustomElement";
+import CollectionPanel from "../../collection-panel/CollectionPanel";
+export default class CollectionField extends CollectionPanel {
 }
+defineCustomElement('gcs-collection-field', CollectionField);
 //# sourceMappingURL=CollectionField.js.map

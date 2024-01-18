@@ -12,6 +12,7 @@
                 {
                     id: 1,
                     name: "Sarah",
+                    gender: "F",
                     age: 19,
                     description: 'Smart and beautiful',
                     dob: new Date(2002, 6, 26)
@@ -19,6 +20,7 @@
                 {
                     id: 2,
                     name: "Mark",
+                    gender: "M",
                     age: 31,
                     description: 'Dedicated and perseverant',
                     dob: new Date(1990, 10, 4)
@@ -26,6 +28,7 @@
                 {
                     id: 3,
                     name: "Sasha",
+                    gender: "M",
                     age: 1,
                     description: 'A little giant',
                     dob: new Date(2020, 6, 27)
@@ -124,14 +127,20 @@
     <gcs-collection-panel 
         columns="getColumns()"
         data="getData()"
-        delete-url="https://localhost:7000/api/contacts/{{id}}"
+        create-form-content="getFormContent()"
+        update-form-content="getFormContent()"
+        create-url="local"
+        update-url="local"
+        load-record-url="local"
+        delete-url="local"
     >
     </gcs-collection-panel>
 
     <h4>Collection panel with remote data</h4>
     <gcs-collection-panel 
         columns="getColumns()"
-        form-content="getFormContent()"
+        create-form-content="getFormContent()"
+        update-form-content="getFormContent()"
         load-url="https://localhost:7000/api/contacts/"
         create-url="https://localhost:7000/api/contacts/"
         update-url="https://localhost:7000/api/contacts/{{id}}"

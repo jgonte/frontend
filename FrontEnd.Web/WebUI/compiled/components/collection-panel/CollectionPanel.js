@@ -48,8 +48,13 @@ export default class CollectionPanel extends CustomElement {
                 attribute: 'delete-url',
                 type: DataTypes.String
             },
-            formContent: {
-                attribute: 'form-content',
+            createFormContent: {
+                attribute: 'create-form-content',
+                type: DataTypes.Function,
+                defer: true
+            },
+            updateFormContent: {
+                attribute: 'update-form-content',
                 type: DataTypes.Function,
                 defer: true
             },
@@ -63,10 +68,12 @@ export default class CollectionPanel extends CustomElement {
     }
     connectedCallback() {
         super.connectedCallback?.();
-        this._deleteFetcher = new Fetcher({
-            onSuccess: () => this.handleSuccessfulDelete(),
-            onError: error => notifyError(this, error)
-        });
+        if (this.deleteUrl !== undefined) {
+            this._deleteFetcher = new Fetcher({
+                onSuccess: () => this.handleSuccessfulDelete(),
+                onError: error => notifyError(this, error)
+            });
+        }
         this.addEventListener(closingEvent, this.handleClose);
     }
     disconnectedCallback() {
@@ -103,8 +110,7 @@ export default class CollectionPanel extends CustomElement {
 `;
     }
     renderToolbar() {
-        const { createUrl } = this;
-        if (!createUrl) {
+        if (!this.createUrl) {
             return null;
         }
         return html `
@@ -124,15 +130,18 @@ export default class CollectionPanel extends CustomElement {
             columns = [
                 ...columns,
                 {
-                    value: 'edit',
+                    value: '_$action',
                     render: function (_value, record) {
                         return html `
-<gcs-button 
-    kind="warning" 
-    click=${() => showEditForm(record)}
->
-    Edit
-</gcs-button>`;
+<gcs-tool-tip>
+    <gcs-button 
+        slot="trigger"
+        click=${() => showEditForm(record)}
+        kind="warning">
+        <gcs-icon name="pencil"></gcs-icon>
+    </gcs-button>
+    <gcs-localized-text slot="content">Edit</gcs-localized-text>
+</gcs-tool-tip>`;
                     }
                 }
             ];
@@ -141,15 +150,19 @@ export default class CollectionPanel extends CustomElement {
             columns = [
                 ...columns,
                 {
-                    value: 'delete',
+                    value: '_$action',
                     render: function (_value, record) {
                         return html `
-<gcs-button 
-    kind="danger" 
-    click=${() => showConfirmDelete(record)}
->
-    Delete
-</gcs-button>`;
+<gcs-tool-tip>
+    <gcs-button 
+        slot="trigger"
+        click=${() => showConfirmDelete(record)}
+        kind="danger" 
+    >
+        <gcs-icon name="trash"></gcs-icon>
+    </gcs-button>
+    <gcs-localized-text slot="content">Delete</gcs-localized-text>
+</gcs-tool-tip>`;
                     }
                 }
             ];
@@ -195,7 +208,7 @@ export default class CollectionPanel extends CustomElement {
             this.resetForm('create-form');
         }}
         >
-        ${this.renderFormBody()}
+        ${this.renderCreateFormBody()}
         </gcs-form>
         
     </gcs-panel>
@@ -210,17 +223,31 @@ export default class CollectionPanel extends CustomElement {
         const form = this.findAdoptedChildById(id);
         form.reset();
     }
-    renderFormBody() {
-        const { formContent } = this;
-        if (formContent) {
-            return formContent();
+    renderCreateFormBody() {
+        const { createFormContent } = this;
+        if (createFormContent) {
+            return createFormContent();
         }
         else {
             return html `
 <gcs-alert 
     kind="danger" 
 >
-    <gcs-localized-text>No content for the form has been found.</gcs-localized-text>
+    <gcs-localized-text>No content for the create form has been found.</gcs-localized-text>
+</gcs-alert>`;
+        }
+    }
+    renderUpdateFormBody() {
+        const { updateFormContent } = this;
+        if (updateFormContent) {
+            return updateFormContent();
+        }
+        else {
+            return html `
+<gcs-alert 
+    kind="danger" 
+>
+    <gcs-localized-text>No content for the update form has been found.</gcs-localized-text>
 </gcs-alert>`;
         }
     }
@@ -254,7 +281,7 @@ export default class CollectionPanel extends CustomElement {
             this.showOverlay('update-overlay', false);
         }}
         >
-        ${this.renderFormBody()}
+        ${this.renderUpdateFormBody()}
         </gcs-form>
         
     </gcs-panel>
@@ -271,11 +298,16 @@ export default class CollectionPanel extends CustomElement {
     }
     showEditForm(record) {
         const form = this.findAdoptedChildById('update-form');
-        const { idField } = this;
+        const { idField, loadRecordUrl } = this;
         const params = {
             [idField]: record[idField]
         };
-        form.loadRemote(params);
+        if (loadRecordUrl === 'local') {
+            form.setData(record, true);
+        }
+        else {
+            form.loadRemote(params);
+        }
         this.showOverlay('update-overlay', true);
     }
     showConfirmDelete(record) {
