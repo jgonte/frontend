@@ -96,10 +96,19 @@ export default class CollectionPanel extends CustomElement {
             },
 
             /**
-             * The content of the create/update form to render
+             * The content of the create form to render
              */
-            formContent: {
-                attribute: 'form-content',
+            createFormContent: {
+                attribute: 'create-form-content',
+                type: DataTypes.Function,
+                defer: true
+            },
+
+            /**
+             * The content of the update form to render
+             */
+            updateFormContent: {
+                attribute: 'update-form-content',
                 type: DataTypes.Function,
                 defer: true
             },
@@ -121,10 +130,13 @@ export default class CollectionPanel extends CustomElement {
 
         super.connectedCallback?.();
 
-        this._deleteFetcher = new Fetcher({
-            onSuccess: () => this.handleSuccessfulDelete(),
-            onError: error => notifyError(this, error)
-        });
+        if (this.deleteUrl !== undefined) {
+
+            this._deleteFetcher = new Fetcher({
+                onSuccess: () => this.handleSuccessfulDelete(),
+                onError: error => notifyError(this, error)
+            });
+        }
 
         this.addEventListener(closingEvent, this.handleClose);
     }
@@ -178,11 +190,7 @@ export default class CollectionPanel extends CustomElement {
 
     renderToolbar(): NodePatchingData | null {
 
-        const {
-            createUrl
-        } = this;
-
-        if (!createUrl) {
+        if (!this.createUrl) {
 
             return null;
         }
@@ -217,15 +225,18 @@ export default class CollectionPanel extends CustomElement {
             columns = [
                 ...columns,
                 {
-                    value: 'edit',
+                    value: '_$action',
                     render: function (_value: unknown, record: GenericRecord) {
                         return html`
-<gcs-button 
-    kind="warning" 
-    click=${() => showEditForm(record)}
->
-    Edit
-</gcs-button>`
+<gcs-tool-tip>
+    <gcs-button 
+        slot="trigger"
+        click=${() => showEditForm(record)}
+        kind="warning">
+        <gcs-icon name="pencil"></gcs-icon>
+    </gcs-button>
+    <gcs-localized-text slot="content">Edit</gcs-localized-text>
+</gcs-tool-tip>`
                     }
                 }
             ];
@@ -236,15 +247,19 @@ export default class CollectionPanel extends CustomElement {
             columns = [
                 ...columns,
                 {
-                    value: 'delete',
+                    value: '_$action',
                     render: function (_value: unknown, record: GenericRecord) {
                         return html`
-<gcs-button 
-    kind="danger" 
-    click=${() => showConfirmDelete(record)}
->
-    Delete
-</gcs-button>`
+<gcs-tool-tip>
+    <gcs-button 
+        slot="trigger"
+        click=${() => showConfirmDelete(record)}
+        kind="danger" 
+    >
+        <gcs-icon name="trash"></gcs-icon>
+    </gcs-button>
+    <gcs-localized-text slot="content">Delete</gcs-localized-text>
+</gcs-tool-tip>`
                     }
                 }
             ];
@@ -297,7 +312,7 @@ export default class CollectionPanel extends CustomElement {
                 this.resetForm('create-form');
             }}
         >
-        ${this.renderFormBody()}
+        ${this.renderCreateFormBody()}
         </gcs-form>
         
     </gcs-panel>
@@ -316,18 +331,18 @@ export default class CollectionPanel extends CustomElement {
 
         const form = this.findAdoptedChildById(id) as Form;
 
-        form.reset();      
+        form.reset();
     }
 
-    renderFormBody(): NodePatchingData {
+    renderCreateFormBody(): NodePatchingData {
 
         const {
-            formContent
+            createFormContent
         } = this;
 
-        if (formContent) {
+        if (createFormContent) {
 
-            return formContent();
+            return createFormContent();
         }
         else {
 
@@ -335,7 +350,28 @@ export default class CollectionPanel extends CustomElement {
 <gcs-alert 
     kind="danger" 
 >
-    <gcs-localized-text>No content for the form has been found.</gcs-localized-text>
+    <gcs-localized-text>No content for the create form has been found.</gcs-localized-text>
+</gcs-alert>`;
+        }
+    }
+
+    renderUpdateFormBody(): NodePatchingData {
+
+        const {
+            updateFormContent
+        } = this;
+
+        if (updateFormContent) {
+
+            return updateFormContent();
+        }
+        else {
+
+            return html`
+<gcs-alert 
+    kind="danger" 
+>
+    <gcs-localized-text>No content for the update form has been found.</gcs-localized-text>
 </gcs-alert>`;
         }
     }
@@ -374,7 +410,7 @@ export default class CollectionPanel extends CustomElement {
                 this.showOverlay('update-overlay', false);
             }}
         >
-        ${this.renderFormBody()}
+        ${this.renderUpdateFormBody()}
         </gcs-form>
         
     </gcs-panel>
@@ -397,15 +433,22 @@ export default class CollectionPanel extends CustomElement {
         const form = this.findAdoptedChildById('update-form');
 
         const {
-            idField
+            idField,
+            loadRecordUrl
         } = this;
 
-        const params =
-        {
+        const params = {
             [idField]: record[idField]
         };
 
-        form.loadRemote(params);
+        if (loadRecordUrl === 'local') {
+
+            form.setData(record, true);
+        }
+        else {
+
+            form.loadRemote(params);
+        }
 
         this.showOverlay('update-overlay', true);
     }

@@ -179,7 +179,7 @@ function patchChildren(markerNode, oldChildren = [], newChildren = []) {
         if (oldChild === undefined) {
             if (keyedNodes.has(newChildKey)) {
                 const oldChild = keyedNodes.get(newChildKey);
-                updateNodes(oldChild.node, oldChild, newChild);
+                updateNodes(oldChild?.node, oldChild, newChild);
             }
             else {
                 insertBefore(markerNode, newChild);
@@ -193,7 +193,7 @@ function patchChildren(markerNode, oldChildren = [], newChildren = []) {
                     replaceChild(markerNode, newChild, oldChild);
                 }
                 else {
-                    updateNodes(oldChild.node, oldChild, newChild);
+                    updateNodes(oldChild?.node, oldChild, newChild);
                 }
             }
             else {
@@ -203,8 +203,7 @@ function patchChildren(markerNode, oldChildren = [], newChildren = []) {
                     replaceChild(markerNode, oldKeyedChild, oldChild);
                 }
                 else {
-                    const { parentNode } = markerNode;
-                    const existingChild = parentNode?.childNodes[i + 1];
+                    const existingChild = markerNode.parentNode?.childNodes[i + 1];
                     insertBefore(existingChild, newChild);
                     ++oldChildrenCount;
                 }

@@ -122,28 +122,38 @@ export default function SelectionContainer<TBase extends CustomHTMLElementConstr
             this.removeEventListener(selectionChangedEvent, this.updateSelection as EventListenerOrEventListenerObject);
         }
 
+        /**
+         * Fired when a child of a container (selector) is clicked
+         * @param event 
+         */
         updateSelection(event: CustomEvent) {
 
             // event.stopPropagation(); Allow propagation to the drop down
-
-            const {
-                selectable,
-                multiple,
-                selection,
-                selectionChanged,
-                idField
-            } = this;
-
-            if (selectable !== true) {
-
-                return;
-            }
 
             const {
                 element,
                 selected,
                 value
             } = event.detail;
+
+            this._updateSelection(element, selected, value);
+        }
+
+        private _updateSelection(element: Element, selected: boolean, value: unknown) {
+
+            // event.stopPropagation(); Allow propagation to the drop down
+
+            if (this.selectable !== true) {
+
+                return;
+            }
+
+            const {
+                multiple,
+                selection,
+                selectionChanged,
+                idField
+            } = this;
 
             const oldSelection = this.selection;
 
@@ -159,7 +169,7 @@ export default function SelectionContainer<TBase extends CustomHTMLElementConstr
 
                     if (idField !== undefined) {
 
-                        this.selection = selection.filter((record: GenericRecord) => record[idField] !== value[idField]);
+                        this.selection = selection.filter((record: GenericRecord) => record[idField] !== (value as GenericRecord)[idField]);
                     }
                     else {
 
@@ -205,9 +215,11 @@ export default function SelectionContainer<TBase extends CustomHTMLElementConstr
             } = this;
 
             const selectedChild = selectedChildren
-                .filter((el: { selectValue: { [x: string]: unknown; }; }) => el.selectValue[idField] === id)[0];
+                .filter((el: { selectValue: { [x: string]: unknown; }; }) => el.selectValue[idField] === id)[0] as Selector;
 
-            selectedChild.setSelected(false);
+            selectedChild.selected = false;
+
+            this._updateSelection(selectedChild, false, selectedChild.selectValue);
         }
 
         /**
@@ -228,6 +240,8 @@ export default function SelectionContainer<TBase extends CustomHTMLElementConstr
                     value === v;
 
                 (s as Selector).selected = select;
+
+                this._updateSelection(s, select, (s as Selector).selectValue);
             });
         }
     }

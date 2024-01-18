@@ -57,11 +57,11 @@ export default class DataGridBodyRow
 
         return columns.map((column: string | number) =>
             html`
-    <gcs-data-cell 
-        column=${column} 
-        record=${record} 
-        key=${(column as unknown as DataGridColumnDescriptor).name || column}>
-    </gcs-data-cell>`
+<gcs-data-cell 
+    column=${column} 
+    record=${record} 
+    key=${(column as unknown as DataGridColumnDescriptor).name || column}>
+</gcs-data-cell>`
         );
     }
 }

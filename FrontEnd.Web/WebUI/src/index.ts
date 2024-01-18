@@ -67,6 +67,7 @@ import CheckBox from "./components/fields/check-box/CheckBox";
 import Slider from "./components/fields/slider/Slider";
 import StarRating from "./components/fields/star-rating/StarRating";
 import PasswordField from "./components/fields/password/PasswordField";
+import CollectionField from "./components/fields/collection-field/CollectionField";
 
 // Form
 import FormField from "./components/form/form-field/FormField";
@@ -173,6 +174,7 @@ export {
     Slider,
     StarRating,
     PasswordField,
+    CollectionField,
 
     // Form
     FormField,

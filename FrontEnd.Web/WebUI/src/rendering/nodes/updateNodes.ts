@@ -9,7 +9,11 @@ import { AnyPatchedNode, NodePatchingData } from "./NodePatchingData";
 
 addPatcherComparer();
 
-export default function updateNodes(container: Node, oldPatchingData: NodePatchingData | NodePatchingData[], newPatchingData: NodePatchingData | NodePatchingData[]) {
+export default function updateNodes(
+    container: Node, 
+    oldPatchingData: NodePatchingData | NodePatchingData[], 
+    newPatchingData: NodePatchingData | NodePatchingData[]
+) {
 
     if (areEquivalent(oldPatchingData, newPatchingData)) {
 
@@ -20,7 +24,20 @@ export default function updateNodes(container: Node, oldPatchingData: NodePatchi
 
     if (Array.isArray(newPatchingData)) {
 
-        updateArrayNodes(container, oldPatchingData as NodePatchingData[], newPatchingData);
+        if (Array.isArray(oldPatchingData)) {
+
+            updateArrayNodes(
+                container, 
+                oldPatchingData as NodePatchingData[], 
+                newPatchingData
+            );
+        }
+        else { // oldPatchingData is a single node
+
+            (oldPatchingData.node as HTMLElement).remove();
+
+            mountNodes(container, newPatchingData);
+        }
     }
     else if (isPrimitive(newPatchingData)) {
 
@@ -29,58 +46,76 @@ export default function updateNodes(container: Node, oldPatchingData: NodePatchi
     }
     else {
 
-        const {
-            node
-        } = oldPatchingData as NodePatchingData;
+        if (Array.isArray(oldPatchingData)) {
 
-        if (node === undefined) {
+            removeAllNodes(container);
 
-            throw new Error('There must be an existing node');
+            mountNodes(container, newPatchingData);
         }
+        else {
 
-        const {
-            patcher: oldPatcher,
-            values: oldValues,
-            rules
-        } = oldPatchingData as NodePatchingData;
-
-        const {
-            patcher,
-            values
-        } = newPatchingData;
-
-        if (oldPatcher === patcher) {
-
-            newPatchingData.rules = rules; // Set the compiled rules in the new patched data
-
-            newPatchingData.node = node; // Set the node in the new patching data
-
-            if (areEquivalent(oldPatchingData.values, newPatchingData.values)) {
-
-                transferPatchingData(oldPatchingData.values as NodePatchingData[], newPatchingData.values as NodePatchingData[]);
-
-                return; // Same patcher and same values mean no changes to apply
+            const {
+                node
+            } = oldPatchingData as NodePatchingData;
+    
+            if (node === undefined) {
+    
+                throw new Error('There must be an existing node');
+            }
+    
+            const {
+                patcher: oldPatcher,
+                values: oldValues,
+                rules
+            } = oldPatchingData as NodePatchingData;
+    
+            const {
+                patcher,
+                values
+            } = newPatchingData;
+    
+            if (oldPatcher === patcher) {
+    
+                newPatchingData.rules = rules; // Set the compiled rules in the new patched data
+    
+                newPatchingData.node = node; // Set the node in the new patching data
+    
+                if (areEquivalent(oldPatchingData.values, newPatchingData.values)) {
+    
+                    transferPatchingData(
+                        oldPatchingData.values as NodePatchingData[], 
+                        newPatchingData.values as NodePatchingData[]
+                    );
+    
+                    return; // Same patcher and same values mean no changes to apply
+                }
+    
+                oldPatcher.patchNode(rules || [], oldValues, values);
+    
+                node._$patchingData = newPatchingData;
+            }
+            else { // Different type of node, replace it with a new one
+    
+                const newNode = createNodes(newPatchingData);
+    
+                if ((node as unknown as Comment).data === beginMarker) {
+    
+                    (node.nextSibling as HTMLElement).remove(); // Remove the end marker as well
+                }
+    
+                container.replaceChild(newNode, node as Node); // Replace the end marker with the node      
             }
 
-            oldPatcher.patchNode(rules || [], oldValues, values);
-
-            node._$patchingData = newPatchingData;
         }
-        else { // Different type of node, replace it with a new one
-
-            const newNode = createNodes(newPatchingData);
-
-            if ((node as unknown as Comment).data === beginMarker) {
-
-                (node.nextSibling as HTMLElement).remove(); // Remove the end marker as well
-            }
-
-            container.replaceChild(newNode, node as Node); // Replace the end marker with the node      
-        }
+        
     }
 }
 
-function updateArrayNodes(container: Node, oldPatchingData: NodePatchingData[], newPatchingData: NodePatchingData[]) {
+function updateArrayNodes(
+    container: Node, 
+    oldPatchingData: NodePatchingData[], 
+    newPatchingData: NodePatchingData[]
+) {
 
     let { length: oldCount } = oldPatchingData;
 
@@ -155,7 +190,9 @@ function updateArrayNodes(container: Node, oldPatchingData: NodePatchingData[], 
                     const keyedNode = keyedNodes.get(valueKey as string);
 
                     // If the values of the keyed node match the ones of the oldChild then just swap them
-                    if (areEquivalent(newChildPatchingData.values, ((keyedNode as AnyPatchedNode)._$patchingData as NodePatchingData).values)) {
+                    if (areEquivalent(
+                        newChildPatchingData.values, 
+                        ((keyedNode as AnyPatchedNode)._$patchingData as NodePatchingData).values)) {
 
                         if (i >= container.childNodes.length) {
 
@@ -198,3 +235,12 @@ function updateArrayNodes(container: Node, oldPatchingData: NodePatchingData[], 
         (oldPatchingData[i].node as HTMLElement).remove();
     }
 }
+
+function removeAllNodes(parent: Node) {
+    
+    while (parent.firstChild) {
+        
+        parent.removeChild(parent.firstChild);
+    }
+}
+

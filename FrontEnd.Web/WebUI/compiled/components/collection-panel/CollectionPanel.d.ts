@@ -15,7 +15,8 @@ export default class CollectionPanel extends CustomElement {
     renderInsertDialog(): NodePatchingData | null;
     showOverlay(id: string, show: boolean): void;
     resetForm(id: string): void;
-    renderFormBody(): NodePatchingData;
+    renderCreateFormBody(): NodePatchingData;
+    renderUpdateFormBody(): NodePatchingData;
     renderUpdateDialog(): NodePatchingData | null;
     renderDeleteDialog(): NodePatchingData;
     showEditForm(record: GenericRecord): void;

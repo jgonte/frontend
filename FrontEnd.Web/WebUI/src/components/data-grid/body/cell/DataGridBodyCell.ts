@@ -1,6 +1,7 @@
 import CustomElement from "../../../../custom-element/CustomElement";
 import defineCustomElement from "../../../../custom-element/defineCustomElement";
 import CustomElementPropertyMetadata from "../../../../custom-element/mixins/metadata/types/CustomElementPropertyMetadata";
+import applyClasses from "../../../../custom-element/styles/applyClasses";
 import mergeStyles from "../../../../custom-element/styles/mergeStyles";
 import html from "../../../../rendering/html";
 import { NodePatchingData } from "../../../../rendering/nodes/NodePatchingData";
@@ -61,6 +62,10 @@ export default class DataGridBodyCell extends CustomElement {
 
             throw new Error(`Undefined or null value in column: ${name}`);
         }
+
+        applyClasses(this, {
+            'data-cell': value !== '_$action' // Special value to set the column as an action one
+        });
 
         if (column.render !== undefined) {
 

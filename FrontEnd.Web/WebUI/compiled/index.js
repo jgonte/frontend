@@ -44,6 +44,7 @@ import CheckBox from "./components/fields/check-box/CheckBox";
 import Slider from "./components/fields/slider/Slider";
 import StarRating from "./components/fields/star-rating/StarRating";
 import PasswordField from "./components/fields/password/PasswordField";
+import CollectionField from "./components/fields/collection-field/CollectionField";
 import FormField from "./components/form/form-field/FormField";
 import Form from "./components/form/Form";
 import ValidationSummary from "./components/validation-summary/ValidationSummary";
@@ -62,5 +63,5 @@ import { navigateToRoute } from "./components/routers/hash-router/utils/routersR
 window.appCtrl = appCtrl;
 window.html = html;
 window.viewsRegistry = viewsRegistry;
-export { CustomElement, DataTypes, defineCustomElement, html, css, viewsRegistry, appCtrl, AppInitializedEvent, Theme, Icon, LocalizedText, Alert, Accordion, Pill, Button, ToolTip, DataTemplate, Selector, DropDown, WizardStep, Wizard, NavigationLink, NavigationBar, ContentView, RequiredTip, ModifiedTip, HelpTip, Center, Overlay, PanelHeader, Panel, Tool, CloseTool, ExpanderTool, SorterTool, DisplayableField, TextField, TextArea, NumberField, CheckBox, DateField, FileField, ComboBox, HiddenField, Slider, StarRating, PasswordField, FormField, Form, ValidationSummary, DataList, DataGridHeaderCell as DataHeaderCell, DataGridHeader, DataGridBodyCell as DataCell, DataGridBodyRow as DataRow, DataGrid, CollectionPanel, HashRouter, ApplicationHeader, ApplicationView, getNotFoundView, navigateToRoute };
+export { CustomElement, DataTypes, defineCustomElement, html, css, viewsRegistry, appCtrl, AppInitializedEvent, Theme, Icon, LocalizedText, Alert, Accordion, Pill, Button, ToolTip, DataTemplate, Selector, DropDown, WizardStep, Wizard, NavigationLink, NavigationBar, ContentView, RequiredTip, ModifiedTip, HelpTip, Center, Overlay, PanelHeader, Panel, Tool, CloseTool, ExpanderTool, SorterTool, DisplayableField, TextField, TextArea, NumberField, CheckBox, DateField, FileField, ComboBox, HiddenField, Slider, StarRating, PasswordField, CollectionField, FormField, Form, ValidationSummary, DataList, DataGridHeaderCell as DataHeaderCell, DataGridHeader, DataGridBodyCell as DataCell, DataGridBodyRow as DataRow, DataGrid, CollectionPanel, HashRouter, ApplicationHeader, ApplicationView, getNotFoundView, navigateToRoute };
 //# sourceMappingURL=index.js.map

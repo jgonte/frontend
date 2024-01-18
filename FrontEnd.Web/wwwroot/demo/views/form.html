@@ -6,11 +6,11 @@
     <script>
 
         window.addEventListener('change', event => alert(`
-            Event type: 'change'
-            Field name: '${event.detail.name}'
-            Field old value: '${event.detail.oldValue}'
-            Field new value: '${event.detail.newValue}'
-        `));
+                Event type: 'change'
+                Field name: '${event.detail.name}'
+                Field old value: '${event.detail.oldValue}'
+                Field new value: '${event.detail.newValue}'
+            `));
 
         window.displayNameTextFieldPropertyChanged = (name, value) => {
 
@@ -31,11 +31,87 @@
         ];
 
         window.getValidatorsForPassword = () => [
-            { 
-                type: 'max-length', 
-                maxLength: 32 
+            {
+                type: 'max-length',
+                maxLength: 32
             }
         ];
+
+        function getColumns() {
+
+            return [
+                {
+                    name: "name",
+                    display: "Name",
+                    sortable: true
+                },
+                //{
+                //    name: "age",
+                //    display: "Age",
+                //    sortable: true
+                //},
+                {
+                    name: "description",
+                    display: "Description",
+                    sortable: true
+                },
+                //{
+                //    name: "dob",
+                //    display: "Date of Birth",
+                //    sortable: true,
+                //    render: value => value.toLocaleDateString()
+                //}
+            ];
+        }
+
+        function getFormContent() {
+
+            return html`
+<gcs-hidden-field name="id" is-id="true"></gcs-hidden-field>
+
+<gcs-form-field required>
+    <gcs-localized-text slot="label">Full Name</gcs-localized-text>
+    <gcs-help-tip slot="tools">Here it goes the first, middle and last name of the person</gcs-help-tip>
+    <gcs-text-field 
+        slot="field"
+        name="name"
+        property-changed="displayNameTextFieldPropertyChanged()"
+    >
+</gcs-text-field>
+</gcs-form-field>
+
+<gcs-form-field required help="This is the gender of the person">
+    <gcs-localized-text slot="label">Gender</gcs-localized-text>
+    <gcs-combo-box slot="field" name="gender" data='[
+        {
+            "code": "M",
+            "description": "Male"
+        },
+        {
+            "code": "F",
+            "description": "Female"
+        }
+    ]' id-field="code" display-field="description">
+    </gcs-combo-box>
+</gcs-form-field>
+
+<gcs-form-field required>
+    <gcs-localized-text slot="label">Date of Birth</gcs-localized-text>
+    <gcs-date-field slot="field" name="dateOfBirth"></gcs-date-field>
+</gcs-form-field>
+
+<gcs-form-field required>
+    <gcs-localized-text slot="label">Single</gcs-localized-text>
+    <span slot="tools">!</span>
+    <gcs-check-box slot="field" name="single"></gcs-check-box>
+</gcs-form-field>
+
+<gcs-form-field required>
+    <gcs-localized-text slot="label">Avatar</gcs-localized-text>
+    <span slot="tools">!</span>
+    <gcs-file-field slot="field" name="avatar"></gcs-file-field>
+</gcs-form-field>`;
+        }
 
     </script>
 
@@ -53,7 +129,6 @@
     </gcs-form>
 
     <br /> -->
-
     <!-- <h4>Submit only</h4>
     <gcs-form id="submitOnly" submit-url="https://localhost:7000/api/contacts/" label-align="center">
 
@@ -72,14 +147,12 @@
     </gcs-form> -->
 
     <h4>Load and submit</h4>
-    <gcs-form 
-        id="loadAndSubmit"
-        load-url="https://localhost:7000/api/contacts/1"
-        submit-url="https://localhost:7000/api/contacts/1" 
-        label-width="20ch" 
-        label-align="right"
-        style="width: 80%; min-width: none;"
-    >
+    <gcs-form id="loadAndSubmit"
+              load-url="https://localhost:7000/api/contacts/1"
+              submit-url="https://localhost:7000/api/contacts/1"
+              label-width="20ch"
+              label-align="right"
+              style="width: 80%; min-width: none;">
 
         <gcs-hidden-field name="id" is-id="true"></gcs-hidden-field>
 
@@ -114,6 +187,22 @@
             <gcs-localized-text slot="label">Single</gcs-localized-text>
             <span slot="tools">!</span>
             <gcs-check-box slot="field" name="single"></gcs-check-box>
+        </gcs-form-field>
+
+        <gcs-form-field required>
+            <gcs-localized-text slot="label">Contacts</gcs-localized-text>
+            <span slot="tools">&nabla;</span>
+            <gcs-collection-field 
+                slot="field"
+                name="contacts"
+                columns="getColumns()"
+                create-form-content="getFormContent()"
+                update-form-content="getFormContent()"
+                create-url="local"
+                update-url="local"
+                load-record-url="local"
+                delete-url="local"
+            ></gcs-collection-field>
         </gcs-form-field>
 
         <gcs-form-field required>

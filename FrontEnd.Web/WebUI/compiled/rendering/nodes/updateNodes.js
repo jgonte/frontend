@@ -12,7 +12,13 @@ export default function updateNodes(container, oldPatchingData, newPatchingData)
         return;
     }
     if (Array.isArray(newPatchingData)) {
-        updateArrayNodes(container, oldPatchingData, newPatchingData);
+        if (Array.isArray(oldPatchingData)) {
+            updateArrayNodes(container, oldPatchingData, newPatchingData);
+        }
+        else {
+            oldPatchingData.node.remove();
+            mountNodes(container, newPatchingData);
+        }
     }
     else if (isPrimitive(newPatchingData)) {
         container.childNodes[container.childNodes.length - 1].textContent = newPatchingData.toString();

@@ -1,5 +1,6 @@
 import CustomElement from "../../../../custom-element/CustomElement";
 import defineCustomElement from "../../../../custom-element/defineCustomElement";
+import applyClasses from "../../../../custom-element/styles/applyClasses";
 import mergeStyles from "../../../../custom-element/styles/mergeStyles";
 import html from "../../../../rendering/html";
 import { DataTypes } from "../../../../utils/data/DataTypes";
@@ -37,6 +38,9 @@ export default class DataGridBodyCell extends CustomElement {
         if (isUndefinedOrNull(value)) {
             throw new Error(`Undefined or null value in column: ${name}`);
         }
+        applyClasses(this, {
+            'data-cell': value !== '_$action'
+        });
         if (column.render !== undefined) {
             return column.render(value, record, column);
         }

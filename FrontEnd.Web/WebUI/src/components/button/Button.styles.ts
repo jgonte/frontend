@@ -26,7 +26,6 @@ button {
       box-shadow: 0 2px 0 rgba(0, 0, 0, .015);
       -webkit-transition: all .3s cubic-bezier(.645, .045, .355, 1);
       transition: all .3s cubic-bezier(.645, .045, .355, 1);
-      user-select: none;
       -ms-touch-action: manipulation;
       touch-action: manipulation;
        */
