@@ -136,6 +136,7 @@ export declare class ComboBox extends ComboBox_base {
     renderSingleSelectionTemplate(selection: string): NodePatchingData;
     renderMultipleSelectionTemplate(selection: SelectionTypes): NodePatchingData;
     beforeValueSet(value: unknown): unknown;
+    onValueChanged(value: unknown, oldValue: unknown): void;
     private unwrapValue;
     private unwrapSingleValue;
 }

@@ -761,28 +761,34 @@ function updateNodes(container, oldPatchingData, newPatchingData) {
         container.childNodes[container.childNodes.length - 1].textContent = newPatchingData.toString();
     }
     else {
-        const { node } = oldPatchingData;
-        if (node === undefined) {
-            throw new Error('There must be an existing node');
-        }
-        const { patcher: oldPatcher, values: oldValues, rules } = oldPatchingData;
-        const { patcher, values } = newPatchingData;
-        if (oldPatcher === patcher) {
-            newPatchingData.rules = rules;
-            newPatchingData.node = node;
-            if (areEquivalent(oldPatchingData.values, newPatchingData.values)) {
-                transferPatchingData(oldPatchingData.values, newPatchingData.values);
-                return;
-            }
-            oldPatcher.patchNode(rules || [], oldValues, values);
-            node._$patchingData = newPatchingData;
+        if (Array.isArray(oldPatchingData)) {
+            removeAllNodes(container);
+            mountNodes(container, newPatchingData);
         }
         else {
-            const newNode = createNodes(newPatchingData);
-            if (node.data === beginMarker) {
-                node.nextSibling.remove();
+            const { node } = oldPatchingData;
+            if (node === undefined) {
+                throw new Error('There must be an existing node');
             }
-            container.replaceChild(newNode, node);
+            const { patcher: oldPatcher, values: oldValues, rules } = oldPatchingData;
+            const { patcher, values } = newPatchingData;
+            if (oldPatcher === patcher) {
+                newPatchingData.rules = rules;
+                newPatchingData.node = node;
+                if (areEquivalent(oldPatchingData.values, newPatchingData.values)) {
+                    transferPatchingData(oldPatchingData.values, newPatchingData.values);
+                    return;
+                }
+                oldPatcher.patchNode(rules || [], oldValues, values);
+                node._$patchingData = newPatchingData;
+            }
+            else {
+                const newNode = createNodes(newPatchingData);
+                if (node.data === beginMarker) {
+                    node.nextSibling.remove();
+                }
+                container.replaceChild(newNode, node);
+            }
         }
     }
 }
@@ -843,6 +849,11 @@ function updateArrayNodes(container, oldPatchingData, newPatchingData) {
     }
     for (let i = oldCount - 1; i >= newCount; --i) {
         oldPatchingData[i].node.remove();
+    }
+}
+function removeAllNodes(parent) {
+    while (parent.firstChild) {
+        parent.removeChild(parent.firstChild);
     }
 }
 
@@ -5270,6 +5281,10 @@ class ComboBox extends SelectionContainerPassthrough(RemoteLoadableHolderPassthr
     beforeValueSet(value) {
         return this.unwrapValue(value);
     }
+    onValueChanged(value, oldValue) {
+        super.onValueChanged?.(value, oldValue);
+        this.selectionContainer.selectByValue(value);
+    }
     unwrapValue(value) {
         if (Array.isArray(value)) {
             if (this.multiple === true) {
@@ -5682,12 +5697,14 @@ function SelectionContainer(Base) {
                 }
                 else {
                     if (idField !== undefined) {
-                        this.selection = selection.filter((record) => record[idField] !== value[idField]);
+                        this.selection = selection
+                            .filter((record) => record[idField] !== value[idField]);
                     }
                     else {
                         this.selection = selection.filter((record) => record !== value);
                     }
-                    this.selectedChildren = this.selectedChildren.filter((el) => el !== element);
+                    this.selectedChildren = this.selectedChildren
+                        .filter((el) => el !== element);
                 }
             }
             else {
@@ -5715,14 +5732,15 @@ function SelectionContainer(Base) {
             this._updateSelection(selectedChild, false, selectedChild.selectValue);
         }
         selectByValue(value) {
-            const selectors = (this?.shadowRoot).querySelectorAll('gcs-selector');
-            Array.from(selectors).forEach(s => {
+            const selectors = Array.from(this.adoptedChildren);
+            selectors.forEach(s => {
                 const v = s.selectValue[this.idField];
                 const select = Array.isArray(value) ?
                     value.includes(v) :
                     value === v;
-                s.selected = select;
-                this._updateSelection(s, select, s.selectValue);
+                if ((s.selected || false) !== select) {
+                    this._updateSelection(s, select, s.selectValue);
+                }
             });
         }
     };

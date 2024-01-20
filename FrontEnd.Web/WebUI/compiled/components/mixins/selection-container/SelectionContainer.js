@@ -68,12 +68,14 @@ export default function SelectionContainer(Base) {
                 }
                 else {
                     if (idField !== undefined) {
-                        this.selection = selection.filter((record) => record[idField] !== value[idField]);
+                        this.selection = selection
+                            .filter((record) => record[idField] !== value[idField]);
                     }
                     else {
                         this.selection = selection.filter((record) => record !== value);
                     }
-                    this.selectedChildren = this.selectedChildren.filter((el) => el !== element);
+                    this.selectedChildren = this.selectedChildren
+                        .filter((el) => el !== element);
                 }
             }
             else {
@@ -101,14 +103,15 @@ export default function SelectionContainer(Base) {
             this._updateSelection(selectedChild, false, selectedChild.selectValue);
         }
         selectByValue(value) {
-            const selectors = (this?.shadowRoot).querySelectorAll('gcs-selector');
-            Array.from(selectors).forEach(s => {
+            const selectors = Array.from(this.adoptedChildren);
+            selectors.forEach(s => {
                 const v = s.selectValue[this.idField];
                 const select = Array.isArray(value) ?
                     value.includes(v) :
                     value === v;
-                s.selected = select;
-                this._updateSelection(s, select, s.selectValue);
+                if ((s.selected || false) !== select) {
+                    this._updateSelection(s, select, s.selectValue);
+                }
             });
         }
     };

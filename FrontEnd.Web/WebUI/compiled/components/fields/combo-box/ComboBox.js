@@ -155,6 +155,10 @@ export default class ComboBox extends SelectionContainerPassthrough(RemoteLoadab
     beforeValueSet(value) {
         return this.unwrapValue(value);
     }
+    onValueChanged(value, oldValue) {
+        super.onValueChanged?.(value, oldValue);
+        this.selectionContainer.selectByValue(value);
+    }
     unwrapValue(value) {
         if (Array.isArray(value)) {
             if (this.multiple === true) {
