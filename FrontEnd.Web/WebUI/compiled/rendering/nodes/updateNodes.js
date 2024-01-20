@@ -24,28 +24,34 @@ export default function updateNodes(container, oldPatchingData, newPatchingData)
         container.childNodes[container.childNodes.length - 1].textContent = newPatchingData.toString();
     }
     else {
-        const { node } = oldPatchingData;
-        if (node === undefined) {
-            throw new Error('There must be an existing node');
-        }
-        const { patcher: oldPatcher, values: oldValues, rules } = oldPatchingData;
-        const { patcher, values } = newPatchingData;
-        if (oldPatcher === patcher) {
-            newPatchingData.rules = rules;
-            newPatchingData.node = node;
-            if (areEquivalent(oldPatchingData.values, newPatchingData.values)) {
-                transferPatchingData(oldPatchingData.values, newPatchingData.values);
-                return;
-            }
-            oldPatcher.patchNode(rules || [], oldValues, values);
-            node._$patchingData = newPatchingData;
+        if (Array.isArray(oldPatchingData)) {
+            removeAllNodes(container);
+            mountNodes(container, newPatchingData);
         }
         else {
-            const newNode = createNodes(newPatchingData);
-            if (node.data === beginMarker) {
-                node.nextSibling.remove();
+            const { node } = oldPatchingData;
+            if (node === undefined) {
+                throw new Error('There must be an existing node');
             }
-            container.replaceChild(newNode, node);
+            const { patcher: oldPatcher, values: oldValues, rules } = oldPatchingData;
+            const { patcher, values } = newPatchingData;
+            if (oldPatcher === patcher) {
+                newPatchingData.rules = rules;
+                newPatchingData.node = node;
+                if (areEquivalent(oldPatchingData.values, newPatchingData.values)) {
+                    transferPatchingData(oldPatchingData.values, newPatchingData.values);
+                    return;
+                }
+                oldPatcher.patchNode(rules || [], oldValues, values);
+                node._$patchingData = newPatchingData;
+            }
+            else {
+                const newNode = createNodes(newPatchingData);
+                if (node.data === beginMarker) {
+                    node.nextSibling.remove();
+                }
+                container.replaceChild(newNode, node);
+            }
         }
     }
 }
@@ -106,6 +112,11 @@ function updateArrayNodes(container, oldPatchingData, newPatchingData) {
     }
     for (let i = oldCount - 1; i >= newCount; --i) {
         oldPatchingData[i].node.remove();
+    }
+}
+function removeAllNodes(parent) {
+    while (parent.firstChild) {
+        parent.removeChild(parent.firstChild);
     }
 }
 //# sourceMappingURL=updateNodes.js.map

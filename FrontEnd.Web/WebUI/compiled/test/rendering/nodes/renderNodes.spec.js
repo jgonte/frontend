@@ -1393,5 +1393,23 @@ describe("render nodes tests", () => {
         updateNodes(container, patchingData, newPatchingData);
         expect(container.outerHTML).toEqual("<div><!--_$bm_--><!--_$em_--><!--_$bm_--><!--_$em_--></div>");
     });
+    it('should transition from one element to a collection of items', () => {
+        const patchingData = html `<span>Single element</span>`;
+        const container = document.createElement('div');
+        mountNodes(container, patchingData);
+        expect(container.outerHTML).toEqual("<div><span>Single element</span></div>");
+        const newPatchingData = ['Sarah', 'Mark', 'Sasha', 'Zoe'].map((name) => html `<span>${name}</span>`);
+        updateNodes(container, patchingData, newPatchingData);
+        expect(container.outerHTML).toEqual("<div><span><!--_$bm_-->Sarah<!--_$em_--></span><span><!--_$bm_-->Mark<!--_$em_--></span><span><!--_$bm_-->Sasha<!--_$em_--></span><span><!--_$bm_-->Zoe<!--_$em_--></span></div>");
+    });
+    it('should transition from a collection of items to one element', () => {
+        const patchingData = ['Sarah', 'Mark', 'Sasha', 'Zoe'].map((name) => html `<span>${name}</span>`);
+        const container = document.createElement('div');
+        mountNodes(container, patchingData);
+        expect(container.outerHTML).toEqual("<div><span><!--_$bm_-->Sarah<!--_$em_--></span><span><!--_$bm_-->Mark<!--_$em_--></span><span><!--_$bm_-->Sasha<!--_$em_--></span><span><!--_$bm_-->Zoe<!--_$em_--></span></div>");
+        const newPatchingData = html `<span>Single element</span>`;
+        updateNodes(container, patchingData, newPatchingData);
+        expect(container.outerHTML).toEqual("<div><span>Single element</span></div>");
+    });
 });
 //# sourceMappingURL=renderNodes.spec.js.map

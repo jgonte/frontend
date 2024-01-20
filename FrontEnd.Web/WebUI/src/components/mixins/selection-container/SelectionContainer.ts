@@ -141,8 +141,6 @@ export default function SelectionContainer<TBase extends CustomHTMLElementConstr
 
         private _updateSelection(element: Element, selected: boolean, value: unknown) {
 
-            // event.stopPropagation(); Allow propagation to the drop down
-
             if (this.selectable !== true) {
 
                 return;
@@ -169,14 +167,16 @@ export default function SelectionContainer<TBase extends CustomHTMLElementConstr
 
                     if (idField !== undefined) {
 
-                        this.selection = selection.filter((record: GenericRecord) => record[idField] !== (value as GenericRecord)[idField]);
+                        this.selection = selection
+                            .filter((record: GenericRecord) => record[idField] !== (value as GenericRecord)[idField]);
                     }
                     else {
 
                         this.selection = selection.filter((record: unknown) => record !== value);
                     }
 
-                    this.selectedChildren = this.selectedChildren.filter((el: CustomElement) => el !== element);
+                    this.selectedChildren = this.selectedChildren
+                        .filter((el: CustomElement) => el !== element);
                 }
             }
             else { // Replace the old selection with the new one
@@ -215,7 +215,7 @@ export default function SelectionContainer<TBase extends CustomHTMLElementConstr
             } = this;
 
             const selectedChild = selectedChildren
-                .filter((el: { selectValue: { [x: string]: unknown; }; }) => el.selectValue[idField] === id)[0] as Selector;
+                .filter((el: Selector) => el.selectValue[idField] === id)[0] as Selector;
 
             selectedChild.selected = false;
 
@@ -229,19 +229,23 @@ export default function SelectionContainer<TBase extends CustomHTMLElementConstr
          */
         selectByValue(value: Array<unknown> | unknown) {
 
-            const selectors = (this?.shadowRoot as ShadowRoot).querySelectorAll('gcs-selector');
+            const selectors = Array.from(this.adoptedChildren) as Selector[];
 
-            Array.from(selectors).forEach(s => {
+            selectors.forEach(s => {
 
-                const v = (s as Selector).selectValue[this.idField];
+                const v = s.selectValue[this.idField];
 
                 const select = Array.isArray(value) ?
                     value.includes(v) :
                     value === v;
 
-                (s as Selector).selected = select;
+                if ((s.selected || false) !== select) { // Selection changed
 
-                this._updateSelection(s, select, (s as Selector).selectValue);
+                    // s.selected = select; It will be updated in _updateSelection
+
+                    this._updateSelection(s, select, s.selectValue);
+                }
+                
             });
         }
     }

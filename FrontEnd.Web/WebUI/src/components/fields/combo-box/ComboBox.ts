@@ -268,6 +268,13 @@ export default class ComboBox extends
         return this.unwrapValue(value);
     }
 
+    onValueChanged(value: unknown, oldValue: unknown): void {
+
+        super.onValueChanged?.(value, oldValue);
+
+        this.selectionContainer.selectByValue(value);
+    }
+
     /**
      * Unwraps a value from array/object to a primitive
      * @param value The value to unwrap
