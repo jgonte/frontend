@@ -1,8 +1,8 @@
 import { AnyFunction } from "../../../utils/getGlobalFunction";
 import html from "../../../rendering/html";
-import mountNodes from "../../../rendering/nodes/mountNodes";
+import { mountNode, mountNodes } from "../../../rendering/nodes/mountNodes";
 import { NodePatchingData, NodePatchingDataValues } from "../../../rendering/nodes/NodePatchingData";
-import updateNodes from "../../../rendering/nodes/updateNodes";
+import { updateNode, updateNodes } from "../../../rendering/nodes/updateNodes";
 import { INodePatcher } from "../../../rendering/patcher/INodePatcher";
 import { CompiledNodePatcherAttributeRule } from "../../../rendering/rules/NodePatcherAttributeRule";
 import { CompiledNodePatcherEventRule } from "../../../rendering/rules/NodePatcherEventRule";
@@ -40,7 +40,7 @@ describe("render nodes tests", () => {
         // Insert a child
         const container = document.createElement('span');
 
-        mountNodes(container, patchingData);
+        mountNode(container, patchingData);
 
         expect(container.outerHTML).toEqual("<span><!--_$bm_-->Sarah<!--_$em_--></span>");
 
@@ -51,7 +51,7 @@ describe("render nodes tests", () => {
 
         patchingData = html`${name}`;
 
-        updateNodes(container, oldPatchingData, patchingData);
+        updateNode(container, oldPatchingData, patchingData);
 
         expect(container.outerHTML).toEqual("<span><!--_$bm_-->Sarah<!--_$em_--></span>");
 
@@ -62,7 +62,7 @@ describe("render nodes tests", () => {
 
         patchingData = html`${name}`;
 
-        updateNodes(container, oldPatchingData, patchingData);
+        updateNode(container, oldPatchingData, patchingData);
 
         expect(container.outerHTML).toEqual("<span><!--_$bm_-->Mark<!--_$em_--></span>");
 
@@ -73,7 +73,7 @@ describe("render nodes tests", () => {
 
         patchingData = html`${name}`;
 
-        updateNodes(container, oldPatchingData, patchingData);
+        updateNode(container, oldPatchingData, patchingData);
 
         expect(container.outerHTML).toEqual("<span><!--_$bm_--><!--_$em_--></span>");
 
@@ -84,7 +84,7 @@ describe("render nodes tests", () => {
 
         patchingData = html`${name}`;
 
-        updateNodes(container, oldPatchingData, patchingData);
+        updateNode(container, oldPatchingData, patchingData);
 
         expect(container.outerHTML).toEqual("<span><!--_$bm_-->Sarah<!--_$em_--></span>");
     });
@@ -117,7 +117,7 @@ describe("render nodes tests", () => {
         // Insert a child
         const container = document.createElement('span');
 
-        mountNodes(container, patchingData);
+        mountNode(container, patchingData);
 
         expect(container.outerHTML).toEqual("<span><!--_$bm_-->Sarah is beautiful<!--_$em_--></span>");
 
@@ -131,7 +131,7 @@ describe("render nodes tests", () => {
 
         patchingData = html`${name}`;
 
-        updateNodes(container, oldPatchingData, patchingData);
+        updateNode(container, oldPatchingData, patchingData);
 
         expect(container.outerHTML).toEqual("<span><!--_$bm_-->Sarah is beautiful<!--_$em_--></span>");
 
@@ -145,7 +145,7 @@ describe("render nodes tests", () => {
 
         patchingData = html`${name}`;
 
-        updateNodes(container, oldPatchingData, patchingData);
+        updateNode(container, oldPatchingData, patchingData);
 
         expect(container.outerHTML).toEqual("<span><!--_$bm_-->Mark is hard worker<!--_$em_--></span>");
 
@@ -156,7 +156,7 @@ describe("render nodes tests", () => {
 
         patchingData = html`${name}`;
 
-        updateNodes(container, oldPatchingData, patchingData);
+        updateNode(container, oldPatchingData, patchingData);
 
         expect(container.outerHTML).toEqual("<span><!--_$bm_--><!--_$em_--></span>");
 
@@ -170,7 +170,7 @@ describe("render nodes tests", () => {
 
         patchingData = html`${name}`;
 
-        updateNodes(container, oldPatchingData, patchingData);
+        updateNode(container, oldPatchingData, patchingData);
 
         expect(container.outerHTML).toEqual("<span><!--_$bm_-->Sarah is beautiful<!--_$em_--></span>");
     });
@@ -223,7 +223,7 @@ describe("render nodes tests", () => {
         // Insert children
         const container = document.createElement('div');
 
-        mountNodes(container, patchingData);
+        mountNode(container, patchingData);
 
         expect(container.outerHTML).toEqual("<div><ul><!--_$bm_--><li key=\"1\">\n                    <gcs-selector><!--_$bm_--><!--_$bm_-->Item 1<!--_$em_--><!--_$em_--></gcs-selector>\n                </li><li key=\"2\">\n                    <gcs-selector><!--_$bm_--><!--_$bm_-->Item 2<!--_$em_--><!--_$em_--></gcs-selector>\n                </li><!--_$em_--></ul></div>");
 
@@ -263,7 +263,7 @@ describe("render nodes tests", () => {
             ${renderItems(data)}
         </ul>`;
 
-        updateNodes(container, oldPatchingData, patchingData);
+        updateNode(container, oldPatchingData, patchingData);
 
         expect(container.outerHTML).toEqual("<div><ul><!--_$bm_--><li key=\"2\">\n                    <gcs-selector><!--_$bm_--><!--_$bm_-->Item 2<!--_$em_--><!--_$em_--></gcs-selector>\n                </li><!--_$em_--></ul></div>");
 
@@ -285,7 +285,7 @@ describe("render nodes tests", () => {
             ${renderItems(data)}
         </ul>`;
 
-        updateNodes(container, oldPatchingData, patchingData);
+        updateNode(container, oldPatchingData, patchingData);
 
         expect(container.outerHTML).toEqual("<div><ul><!--_$bm_--><li key=\"1\">\n                    <gcs-selector><!--_$bm_--><!--_$bm_-->Item 1<!--_$em_--><!--_$em_--></gcs-selector>\n                </li><li key=\"2\">\n                    <gcs-selector><!--_$bm_--><!--_$bm_-->Item 2<!--_$em_--><!--_$em_--></gcs-selector>\n                </li><!--_$em_--></ul></div>");
 
@@ -298,7 +298,7 @@ describe("render nodes tests", () => {
             ${renderItems(data)}
         </ul>`;
 
-        updateNodes(container, oldPatchingData, patchingData);
+        updateNode(container, oldPatchingData, patchingData);
 
         expect(container.outerHTML).toEqual("<div><ul><!--_$bm_--><!--_$em_--></ul></div>");
 
@@ -320,7 +320,7 @@ describe("render nodes tests", () => {
             ${renderItems(data)}
         </ul>`;
 
-        updateNodes(container, oldPatchingData, patchingData);
+        updateNode(container, oldPatchingData, patchingData);
 
         expect(container.outerHTML).toEqual("<div><ul><!--_$bm_--><li key=\"1\">\n                    <gcs-selector><!--_$bm_--><!--_$bm_-->Item 1<!--_$em_--><!--_$em_--></gcs-selector>\n                </li><li key=\"2\">\n                    <gcs-selector><!--_$bm_--><!--_$bm_-->Item 2<!--_$em_--><!--_$em_--></gcs-selector>\n                </li><!--_$em_--></ul></div>");
 
@@ -346,7 +346,7 @@ describe("render nodes tests", () => {
             ${renderItems(data)}
         </ul>`;
 
-        updateNodes(container, oldPatchingData, patchingData);
+        updateNode(container, oldPatchingData, patchingData);
 
         expect(container.outerHTML).toEqual("<div><ul><!--_$bm_--><li key=\"3\">\n                    <gcs-selector><!--_$bm_--><!--_$bm_-->Item 3<!--_$em_--><!--_$em_--></gcs-selector>\n                </li><li key=\"1\">\n                    <gcs-selector><!--_$bm_--><!--_$bm_-->Item 1<!--_$em_--><!--_$em_--></gcs-selector>\n                </li><li key=\"2\">\n                    <gcs-selector><!--_$bm_--><!--_$bm_-->Item 2<!--_$em_--><!--_$em_--></gcs-selector>\n                </li><!--_$em_--></ul></div>");
 
@@ -376,7 +376,7 @@ describe("render nodes tests", () => {
             ${renderItems(data)}
         </ul>`;
 
-        updateNodes(container, oldPatchingData, patchingData);
+        updateNode(container, oldPatchingData, patchingData);
 
         expect(container.outerHTML).toEqual("<div><ul><!--_$bm_--><li key=\"3\">\n                    <gcs-selector><!--_$bm_--><!--_$bm_-->Item 3<!--_$em_--><!--_$em_--></gcs-selector>\n                </li><li key=\"1\">\n                    <gcs-selector><!--_$bm_--><!--_$bm_-->Item 1<!--_$em_--><!--_$em_--></gcs-selector>\n                </li><li key=\"4\">\n                    <gcs-selector><!--_$bm_--><!--_$bm_-->Item 4<!--_$em_--><!--_$em_--></gcs-selector>\n                </li><li key=\"2\">\n                    <gcs-selector><!--_$bm_--><!--_$bm_-->Item 2<!--_$em_--><!--_$em_--></gcs-selector>\n                </li><!--_$em_--></ul></div>");
     });
@@ -1027,7 +1027,7 @@ describe("render nodes tests", () => {
 
         const container = document.createElement('div');
 
-        mountNodes(container, patchingData);
+        mountNode(container, patchingData);
 
         expect(container.outerHTML).toEqual("<div><x-container class=\"container\"></x-container></div>");
 
@@ -1043,7 +1043,7 @@ describe("render nodes tests", () => {
 
         patchingData = html`<x-container class="container" record=${data}></x-container>`;
 
-        updateNodes(container, oldPatchingData, patchingData);
+        updateNode(container, oldPatchingData, patchingData);
 
         expect(container.outerHTML).toEqual("<div><x-container class=\"container\"></x-container></div>");
 
@@ -1063,7 +1063,7 @@ describe("render nodes tests", () => {
             </x-container>
         `;
 
-        mountNodes(container, containerPatchingData);
+        mountNode(container, containerPatchingData);
 
         expect(container.outerHTML).toEqual("<div><x-container class=\"container\"><!--_$bm_--><!--_$em_--></x-container></div>");
 
@@ -1082,7 +1082,7 @@ describe("render nodes tests", () => {
             </x-container>
         `;
 
-        updateNodes(container, oldPatchingData, containerPatchingData);
+        updateNode(container, oldPatchingData, containerPatchingData);
 
         expect(container.outerHTML).toEqual("<div><x-container class=\"container\"><!--_$bm_--><!--_$bm_--><span><!--_$bm_-->Sarah<!--_$em_--></span><span><!--_$bm_-->Mark<!--_$em_--></span><span><!--_$bm_-->Sasha<!--_$em_--></span><!--_$em_--><slot></slot><!--_$em_--></x-container></div>");
 
@@ -1101,7 +1101,7 @@ describe("render nodes tests", () => {
             </x-container>
         `;
 
-        updateNodes(container, oldPatchingData, containerPatchingData);
+        updateNode(container, oldPatchingData, containerPatchingData);
 
         expect(container.outerHTML).toEqual("<div><x-container class=\"container\"><!--_$bm_--><!--_$bm_--><span><!--_$bm_-->Mark<!--_$em_--></span><span><!--_$bm_-->Sasha<!--_$em_--></span><span><!--_$bm_-->Sarah<!--_$em_--></span><!--_$em_--><slot></slot><!--_$em_--></x-container></div>");
 
@@ -1116,7 +1116,7 @@ describe("render nodes tests", () => {
             </x-container>
         `;
 
-        updateNodes(container, oldPatchingData, containerPatchingData);
+        updateNode(container, oldPatchingData, containerPatchingData);
 
         expect(container.outerHTML).toEqual("<div><x-container class=\"container\"><!--_$bm_--><!--_$em_--></x-container></div>");
     });
@@ -1140,7 +1140,7 @@ describe("render nodes tests", () => {
 
         const container = document.createElement('div');
 
-        mountNodes(container, containerPatchingData);
+        mountNode(container, containerPatchingData);
 
         // At this time the node should be created, ensure that the patching data has a reference to it
         const {
@@ -1176,7 +1176,7 @@ describe("render nodes tests", () => {
             </x-container>
         `;
 
-        updateNodes(container, oldPatchingData, containerPatchingData);
+        updateNode(container, oldPatchingData, containerPatchingData);
 
         expect(container.outerHTML).toEqual("<div><x-container class=\"container\"><!--_$bm_--><x-item class=\"item\">\n                My name is: <!--_$bm_-->Mark<!--_$em_--></x-item><!--_$em_--></x-container></div>");
 
@@ -1191,7 +1191,7 @@ describe("render nodes tests", () => {
             </x-container>
         `;
 
-        updateNodes(container, oldPatchingData, containerPatchingData);
+        updateNode(container, oldPatchingData, containerPatchingData);
 
         expect(container.outerHTML).toEqual("<div><x-container class=\"container\"><!--_$bm_--><!--_$em_--></x-container></div>");
 
@@ -1212,7 +1212,7 @@ describe("render nodes tests", () => {
             </x-container>
         `;
 
-        updateNodes(container, oldPatchingData, containerPatchingData);
+        updateNode(container, oldPatchingData, containerPatchingData);
 
         expect(container.outerHTML).toEqual("<div><x-container class=\"container\"><!--_$bm_--><x-item class=\"item\">\n                My name is: <!--_$bm_-->Sarah<!--_$em_--></x-item><!--_$em_--></x-container></div>");
     });
@@ -1225,13 +1225,13 @@ describe("render nodes tests", () => {
 
         const container = document.createElement('div');
 
-        mountNodes(container, patchingData);
+        mountNode(container, patchingData);
 
         expect(container.outerHTML).toEqual('<div><span><!--_$bm_-->Sarah<!--_$em_--></span></div>');
 
         const newPatchingData = html`<h1>${name}</h1>`;
 
-        updateNodes(container, patchingData, newPatchingData);
+        updateNode(container, patchingData, newPatchingData);
 
         expect(container.outerHTML).toEqual('<div><h1><!--_$bm_-->Sarah<!--_$em_--></h1></div>');
     });
@@ -1244,7 +1244,7 @@ describe("render nodes tests", () => {
 
         const container = document.createElement('div');
 
-        mountNodes(container, patchingData);
+        mountNode(container, patchingData);
 
         expect(container.outerHTML).toEqual('<div><!--_$bm_--><!--_$em_--></div>');
 
@@ -1252,7 +1252,7 @@ describe("render nodes tests", () => {
 
         let newPatchingData = html`${name === "Sarah" ? html`<span style="color: green;">Special for Sarah</span>` : null}`;
 
-        updateNodes(container, patchingData, newPatchingData);
+        updateNode(container, patchingData, newPatchingData);
 
         expect(container.outerHTML).toEqual("<div><!--_$bm_--><span style=\"color: green;\">Special for Sarah</span><!--_$em_--></div>");
 
@@ -1262,7 +1262,7 @@ describe("render nodes tests", () => {
 
         newPatchingData = html`${name === "Sarah" ? html`<span style="color: green;">Special for Sarah</span>` : null}`;
 
-        updateNodes(container, patchingData, newPatchingData);
+        updateNode(container, patchingData, newPatchingData);
 
         expect(container.outerHTML).toEqual("<div><!--_$bm_--><!--_$em_--></div>");
     });
@@ -1286,7 +1286,7 @@ describe("render nodes tests", () => {
 
         const container = document.createElement('div');
 
-        mountNodes(container, containerPatchingData);
+        mountNode(container, containerPatchingData);
 
         // At this time the node should be created, ensure that the patching data has a reference to it
         const {
@@ -1312,7 +1312,7 @@ describe("render nodes tests", () => {
             </x-container>
         `;
 
-        updateNodes(container, oldPatchingData, containerPatchingData);
+        updateNode(container, oldPatchingData, containerPatchingData);
 
         expect(container.outerHTML).toEqual("<div><x-container class=\"container\"><!--_$bm_--><x-item class=\"item\">\n                My name is: <!--_$bm_-->Mark<!--_$em_--></x-item><x-item class=\"item\">\n                My name is: <!--_$bm_-->Sasha<!--_$em_--></x-item><x-item class=\"item\">\n                My name is: <!--_$bm_-->Sarah<!--_$em_--></x-item><!--_$em_--></x-container></div>");
 
@@ -1327,7 +1327,7 @@ describe("render nodes tests", () => {
             </x-container>
         `;
 
-        updateNodes(container, oldPatchingData, containerPatchingData);
+        updateNode(container, oldPatchingData, containerPatchingData);
 
         expect(container.outerHTML).toEqual("<div><x-container class=\"container\"><!--_$bm_--><!--_$em_--></x-container></div>");
     });
@@ -1340,7 +1340,7 @@ describe("render nodes tests", () => {
 
         let patchingData = html`<span cool=${isCool}></span>`;
 
-        mountNodes(container, patchingData);
+        mountNode(container, patchingData);
 
         expect(container.outerHTML).toEqual("<div><span cool=\"\"></span></div>");
 
@@ -1381,7 +1381,7 @@ describe("render nodes tests", () => {
 
         let newPatchingData = html`<span cool=${isCool}></span>`;
 
-        updateNodes(container, patchingData, newPatchingData);
+        updateNode(container, patchingData, newPatchingData);
 
         expect(container.outerHTML).toEqual("<div><span></span></div>");
 
@@ -1394,7 +1394,7 @@ describe("render nodes tests", () => {
 
         newPatchingData = html`<span cool=${isCool}></span>`;
 
-        updateNodes(container, patchingData, newPatchingData);
+        updateNode(container, patchingData, newPatchingData);
 
         expect(container.outerHTML).toEqual("<div><span cool=\"\"></span></div>");
 
@@ -1409,7 +1409,7 @@ describe("render nodes tests", () => {
 
         newPatchingData = html`<span cool=${isCool}></span>`;
 
-        updateNodes(container, patchingData, newPatchingData);
+        updateNode(container, patchingData, newPatchingData);
 
         expect(container.outerHTML).toEqual("<div><span></span></div>"); // It should not render a boolean false attribute
 
@@ -1427,7 +1427,7 @@ describe("render nodes tests", () => {
 
         let patchingData = html`<span action=${doSomething}></span>`;
 
-        mountNodes(container, patchingData);
+        mountNode(container, patchingData);
 
         expect(container.outerHTML).toEqual("<div><span></span></div>");
 
@@ -1466,7 +1466,7 @@ describe("render nodes tests", () => {
 
         let newPatchingData = html`<span action=${doSomething}></span>`;
 
-        updateNodes(container, patchingData, newPatchingData);
+        updateNode(container, patchingData, newPatchingData);
 
         expect(container.outerHTML).toEqual("<div><span></span></div>");
 
@@ -1482,7 +1482,7 @@ describe("render nodes tests", () => {
 
         newPatchingData = html`<span action=${doSomething}></span>`;
 
-        updateNodes(container, patchingData, newPatchingData);
+        updateNode(container, patchingData, newPatchingData);
 
         expect(container.outerHTML).toEqual("<div><span></span></div>");
 
@@ -1497,7 +1497,7 @@ describe("render nodes tests", () => {
 
         let patchingData = html`<span value=${value}></span>`;
 
-        mountNodes(container, patchingData);
+        mountNode(container, patchingData);
 
         expect(container.outerHTML).toEqual("<div><span value=\"5\"></span></div>");
 
@@ -1538,7 +1538,7 @@ describe("render nodes tests", () => {
 
         let newPatchingData = html`<span value=${value}></span>`;
 
-        updateNodes(container, patchingData, newPatchingData);
+        updateNode(container, patchingData, newPatchingData);
 
         expect(container.outerHTML).toEqual("<div><span></span></div>");
 
@@ -1551,7 +1551,7 @@ describe("render nodes tests", () => {
 
         newPatchingData = html`<span value=${value}></span>`;
 
-        updateNodes(container, patchingData, newPatchingData);
+        updateNode(container, patchingData, newPatchingData);
 
         expect(container.outerHTML).toEqual("<div><span value=\"10\"></span></div>");
 
@@ -1571,7 +1571,7 @@ describe("render nodes tests", () => {
 
         let patchingData = html`<span onClick=${handler}></span>`;
 
-        mountNodes(container, patchingData);
+        mountNode(container, patchingData);
 
         expect(container.outerHTML).toEqual("<div><span></span></div>");
 
@@ -1612,7 +1612,7 @@ describe("render nodes tests", () => {
 
         let newPatchingData = html`<span onClick=${newHandler}></span>`;
 
-        updateNodes(container, patchingData, newPatchingData);
+        updateNode(container, patchingData, newPatchingData);
 
         expect(container.outerHTML).toEqual("<div><span></span></div>");
 
@@ -1623,7 +1623,7 @@ describe("render nodes tests", () => {
 
         newPatchingData = html`<span onClick=${handler}></span>`;
 
-        updateNodes(container, patchingData, newPatchingData);
+        updateNode(container, patchingData, newPatchingData);
 
         expect(container.outerHTML).toEqual("<div><span></span></div>");
 
@@ -1643,7 +1643,7 @@ describe("render nodes tests", () => {
 
         const container = document.createElement('div');
 
-        mountNodes(container, patchingData);
+        mountNode(container, patchingData);
 
         expect(container.outerHTML).toEqual("<div><span></span></div>");
 
@@ -1684,7 +1684,7 @@ describe("render nodes tests", () => {
 
         let newPatchingData = html`<span onClick=${newHandler}></span>`;
 
-        updateNodes(container, patchingData, newPatchingData);
+        updateNode(container, patchingData, newPatchingData);
 
         expect(container.outerHTML).toEqual("<div><span></span></div>");
 
@@ -1695,7 +1695,7 @@ describe("render nodes tests", () => {
 
         newPatchingData = html`<span onClick=${handler}></span>`;
 
-        updateNodes(container, patchingData, newPatchingData);
+        updateNode(container, patchingData, newPatchingData);
 
         expect(container.outerHTML).toEqual("<div><span></span></div>");
 
@@ -1729,7 +1729,7 @@ describe("render nodes tests", () => {
 
         const container = document.createElement('div');
 
-        mountNodes(container, patchingData);
+        mountNode(container, patchingData);
 
         expect(container.outerHTML).toEqual("<div><div style=\"width: 200px; margin: 10px;\">\n            <div style=\"background-color: lightgreen; padding: 5px;\"><!--_$bm_-->Sarah<!--_$em_--></div>\n            <div style=\"background-color: yellow;\"><!--_$bm_-->19<!--_$em_--></div>\n            <div style=\"background-color: darkred; color: white; font-weight: bold;\"><!--_$bm_-->Smart and beautiful<!--_$em_--></div>\n            <gcs-data-list id-field=\"id\"></gcs-data-list>\n        </div></div>");
 
@@ -1756,7 +1756,7 @@ describe("render nodes tests", () => {
             <gcs-data-list id-field="id" data=${data.skills}></gcs-data-list>
         </div>`;
 
-        updateNodes(container, patchingData, newPatchingData);
+        updateNode(container, patchingData, newPatchingData);
 
         expect(container.outerHTML).toEqual("<div><div style=\"width: 200px; margin: 10px;\">\n            <div style=\"background-color: lightgreen; padding: 5px;\"><!--_$bm_-->Mark<!--_$em_--></div>\n            <div style=\"background-color: yellow;\"><!--_$bm_-->31<!--_$em_--></div>\n            <div style=\"background-color: darkred; color: white; font-weight: bold;\"><!--_$bm_-->Hard worker<!--_$em_--></div>\n            <gcs-data-list id-field=\"id\"></gcs-data-list>\n        </div></div>");
 
@@ -1789,7 +1789,7 @@ describe("render nodes tests", () => {
 
         const container = document.createElement('div');
 
-        mountNodes(container, patchingData);
+        mountNode(container, patchingData);
 
         expect(container.outerHTML).toEqual("<div><div style=\"width: 200px; margin: 10px;\">\n            <div style=\"background-color: lightgreen; padding: 5px;\"><!--_$bm_-->Sarah<!--_$em_--></div>\n            <div style=\"background-color: yellow;\"><!--_$bm_--><!--_$em_--></div>\n            <div style=\"background-color: darkred; color: white; font-weight: bold;\"><!--_$bm_-->Smart and beautiful<!--_$em_--></div>\n            <gcs-data-list id-field=\"id\"></gcs-data-list>\n        </div></div>");
 
@@ -1815,7 +1815,7 @@ describe("render nodes tests", () => {
             <gcs-data-list id-field="id" data=${data.skills}></gcs-data-list>
         </div>`;
 
-        updateNodes(container, patchingData, newPatchingData);
+        updateNode(container, patchingData, newPatchingData);
 
         expect(container.outerHTML).toEqual("<div><div style=\"width: 200px; margin: 10px;\">\n            <div style=\"background-color: lightgreen; padding: 5px;\"><!--_$bm_-->Mark<!--_$em_--></div>\n            <div style=\"background-color: yellow;\"><!--_$bm_-->31<!--_$em_--></div>\n            <div style=\"background-color: darkred; color: white; font-weight: bold;\"><!--_$bm_--><!--_$em_--></div>\n            <gcs-data-list id-field=\"id\"></gcs-data-list>\n        </div></div>");
 
@@ -2021,7 +2021,7 @@ describe("render nodes tests", () => {
 
         const container = document.createElement('div');
 
-        mountNodes(container, patchingData);
+        mountNode(container, patchingData);
 
         expect(container.outerHTML).toEqual("<div><!--_$bm_--><!--_$em_--><!--_$bm_--><!--_$em_--></div>");
 
@@ -2032,7 +2032,7 @@ describe("render nodes tests", () => {
         let newPatchingData = html`${name === "Sarah" ? html`<span style="color: green;">Special for Sarah</span>` : null}
             ${age < 50 ? html`<span style="color: green;">You are too young</span>` : null}`;
 
-        updateNodes(container, patchingData, newPatchingData);
+        updateNode(container, patchingData, newPatchingData);
 
         expect(container.outerHTML).toEqual("<div><!--_$bm_--><span style=\"color: green;\">Special for Sarah</span><!--_$em_--><!--_$bm_--><span style=\"color: green;\">You are too young</span><!--_$em_--></div>");
 
@@ -2045,7 +2045,7 @@ describe("render nodes tests", () => {
         newPatchingData = html`${name === "Sarah" ? html`<span style="color: green;">Special for Sarah</span>` : null}
             ${age < 50 ? html`<span style="color: green;">You are too young</span>` : null}`;
 
-        updateNodes(container, patchingData, newPatchingData);
+        updateNode(container, patchingData, newPatchingData);
 
         expect(container.outerHTML).toEqual("<div><!--_$bm_--><!--_$em_--><!--_$bm_--><span style=\"color: green;\">You are too young</span><!--_$em_--></div>");
 
@@ -2056,7 +2056,7 @@ describe("render nodes tests", () => {
         newPatchingData = html`${name === "Sarah" ? html`<span style="color: green;">Special for Sarah</span>` : null}
             ${age < 50 ? html`<span style="color: green;">You are too young</span>` : null}`;
 
-        updateNodes(container, patchingData, newPatchingData);
+        updateNode(container, patchingData, newPatchingData);
 
         expect(container.outerHTML).toEqual("<div><!--_$bm_--><!--_$em_--><!--_$bm_--><!--_$em_--></div>");
     });
@@ -2072,7 +2072,7 @@ describe("render nodes tests", () => {
 
         const container = document.createElement('div');
 
-        mountNodes(container, patchingData);
+        mountNode(container, patchingData);
 
         expect(container.outerHTML).toEqual("<div><!--_$bm_--><!--_$em_--><!--_$bm_--><!--_$em_--></div>");
 
@@ -2080,7 +2080,7 @@ describe("render nodes tests", () => {
 
         let newPatchingData = html`${name === "Sarah" ? html`<span style="color: green;">Special for Sarah</span>` : null}`;
 
-        updateNodes(container, patchingData, newPatchingData);
+        updateNode(container, patchingData, newPatchingData);
 
         expect(container.outerHTML).toEqual("<div><!--_$bm_--><span style=\"color: green;\">Special for Sarah</span><!--_$em_--><!--_$bm_--><!--_$em_--></div>");
 
@@ -2090,7 +2090,7 @@ describe("render nodes tests", () => {
 
         newPatchingData = html`${name === "Sarah" ? html`<span style="color: green;">Special for Sarah</span>` : null}`;
 
-        updateNodes(container, patchingData, newPatchingData);
+        updateNode(container, patchingData, newPatchingData);
 
         expect(container.outerHTML).toEqual("<div><!--_$bm_--><!--_$em_--><!--_$bm_--><!--_$em_--></div>");
     });
@@ -2158,7 +2158,7 @@ describe("render nodes tests", () => {
 
         const container = document.createElement('div');
 
-        mountNodes(container, patchingData);
+        mountNode(container, patchingData);
 
         expect(container.outerHTML).toEqual("<div><div>\n            <span slot=\"header\"><!--_$bm_--><span style=\"color: yellow;\"><!--_$bm_-->Jorge<!--_$em_--> - <!--_$bm_-->55<!--_$em_--> years</span><!--_$em_--></span>\n        </div></div>");
 
@@ -2170,7 +2170,7 @@ describe("render nodes tests", () => {
             <span slot="header">${renderHeader(name, age)}</span>
         </div>`;
 
-        updateNodes(container, patchingData, newPatchingData);
+        updateNode(container, patchingData, newPatchingData);
 
         expect(container.outerHTML).toEqual("<div><div>\n            <span slot=\"header\"><!--_$bm_--><span style=\"color: green;\"><!--_$bm_-->Sarah<!--_$em_--> - <!--_$bm_-->20<!--_$em_--> years</span><!--_$em_--></span>\n        </div></div>");
 
@@ -2184,7 +2184,7 @@ describe("render nodes tests", () => {
             <span slot="header">${renderHeader(name, age)}</span>
         </div>`;
 
-        updateNodes(container, patchingData, newPatchingData);
+        updateNode(container, patchingData, newPatchingData);
 
         expect(container.outerHTML).toEqual("<div><div>\n            <span slot=\"header\"><!--_$bm_--><span style=\"color: green;\"><!--_$bm_-->Jorge<!--_$em_--> - <!--_$bm_-->45<!--_$em_--> years</span><!--_$em_--></span>\n        </div></div>");
 
@@ -2195,7 +2195,7 @@ describe("render nodes tests", () => {
         newPatchingData = html`${name === "Sarah" ? html`<span style="color: green;">Special for Sarah</span>` : null}
             ${age < 50 ? html`<span style="color: green;">You are too young</span>` : null}`;
 
-        updateNodes(container, patchingData, newPatchingData);
+        updateNode(container, patchingData, newPatchingData);
 
         expect(container.outerHTML).toEqual("<div><!--_$bm_--><!--_$em_--><!--_$bm_--><!--_$em_--></div>");
     });
@@ -2206,27 +2206,27 @@ describe("render nodes tests", () => {
 
         const container = document.createElement('div');
 
-        mountNodes(container, patchingData);
+        mountNode(container, patchingData);
 
         expect(container.outerHTML).toEqual("<div><span>Single element</span></div>");
 
         const newPatchingData = ['Sarah', 'Mark', 'Sasha', 'Zoe'].map((name) => html`<span>${name}</span>`);
 
-        updateNodes(container, patchingData, newPatchingData);
+        updateNode(container, patchingData, newPatchingData);
 
         expect(container.outerHTML).toEqual("<div><span><!--_$bm_-->Sarah<!--_$em_--></span><span><!--_$bm_-->Mark<!--_$em_--></span><span><!--_$bm_-->Sasha<!--_$em_--></span><span><!--_$bm_-->Zoe<!--_$em_--></span></div>");
     });
 
     it('should transition from a collection of items to one element', () => {
 
-        const patchingData =  ['Sarah', 'Mark', 'Sasha', 'Zoe'].map((name) => html`<span>${name}</span>`);
+        const patchingData = ['Sarah', 'Mark', 'Sasha', 'Zoe'].map((name) => html`<span>${name}</span>`);
 
         const container = document.createElement('div');
 
         mountNodes(container, patchingData);
 
         expect(container.outerHTML).toEqual("<div><span><!--_$bm_-->Sarah<!--_$em_--></span><span><!--_$bm_-->Mark<!--_$em_--></span><span><!--_$bm_-->Sasha<!--_$em_--></span><span><!--_$bm_-->Zoe<!--_$em_--></span></div>");
-        
+
         const newPatchingData = html`<span>Single element</span>`;
 
         updateNodes(container, patchingData, newPatchingData);

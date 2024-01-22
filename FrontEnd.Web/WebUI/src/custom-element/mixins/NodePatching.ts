@@ -1,7 +1,7 @@
 import CustomHTMLElementConstructor from "./metadata/types/CustomHTMLElementConstructor";
 import { NodePatchingData } from "../../rendering/nodes/NodePatchingData";
-import mountNodes from "../../rendering/nodes/mountNodes";
-import updateNodes from "../../rendering/nodes/updateNodes";
+import { mountNode, mountNodes } from "../../rendering/nodes/mountNodes";
+import { updateNode, updateNodes } from "../../rendering/nodes/updateNodes";
 import CustomHTMLElement from "./metadata/types/CustomHTMLElement";
 import { DataTypes } from "../../utils/data/DataTypes";
 import CustomElementPropertyMetadata from "./metadata/types/CustomElementPropertyMetadata";
@@ -37,33 +37,40 @@ export default function NodePatching<TBase extends CustomHTMLElementConstructor>
 
             try {
 
-                let newPatchingData = await this.render();
+                let newPd = await this.render();
 
-                if (newPatchingData !== null) { // Only if there is something to render
+                if (newPd !== null) { // Only if there is something to render
 
-                    newPatchingData = this.beforeRender(newPatchingData); // Modify the original patching data if needed
+                    newPd = this.beforeRender(newPd); // Modify the original patching data if needed
                 }
 
                 const {
                     document,
-                    _oldPatchingData
+                    _oldPatchingData: oldPd
                 } = this;
 
-                if (_oldPatchingData === null) {
+                if (oldPd === null) {
 
-                    if (newPatchingData !== null) { // Mount
+                    if (newPd !== null) { // Mount
 
-                        await this.mountDom(document, newPatchingData);
+                        await this.mountDom(document, newPd);
                     }
                     // else newPatchingData === null - Nothing to do
                 }
                 else { // this._oldPatchingData !== null
 
-                    if (newPatchingData !== null) { // Update
+                    if (newPd !== null) { // Update
 
                         this.willUpdateCallback?.();
 
-                        updateNodes(document, _oldPatchingData, newPatchingData);
+                        if (Array.isArray(oldPd)) {
+
+                            updateNodes(document, oldPd, newPd);
+                        }
+                        else {
+
+                            updateNode(document, oldPd, newPd);
+                        }
 
                         await this._waitForChildrenToUpdate();
 
@@ -79,7 +86,7 @@ export default function NodePatching<TBase extends CustomHTMLElementConstructor>
                     }
                 }
 
-                this._oldPatchingData = newPatchingData;
+                this._oldPatchingData = newPd;
             }
             catch (error) {
 
@@ -88,8 +95,15 @@ export default function NodePatching<TBase extends CustomHTMLElementConstructor>
         }
 
         async mountDom(document: HTMLElement | ShadowRoot, newPatchingData: NodePatchingData | NodePatchingData[]) {
-            
-            mountNodes(document, newPatchingData);
+
+            if (Array.isArray(newPatchingData)) {
+
+                mountNodes(document, newPatchingData);
+            }
+            else {
+
+                mountNode(document, newPatchingData);
+            }
 
             await this._waitForChildrenToMount();
 

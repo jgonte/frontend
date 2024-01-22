@@ -1,122 +1,133 @@
 import areEquivalent from "../../utils/areEquivalent";
+import { assert } from "../../utils/assert";
 import isPrimitive from "../../utils/isPrimitive";
+import isUndefinedOrNull from "../../utils/isUndefinedOrNull";
 import { beginMarker } from "../template/markers";
 import addPatcherComparer from "../utils/addPatcherComparer";
 import transferPatchingData from "../utils/transferPatchingData";
 import createNodes from "./createNodes";
-import mountNodes from "./mountNodes";
+import { mountNode, mountNodes } from "./mountNodes";
 addPatcherComparer();
-export default function updateNodes(container, oldPatchingData, newPatchingData) {
-    if (areEquivalent(oldPatchingData, newPatchingData)) {
-        transferPatchingData(oldPatchingData, newPatchingData);
+export function updateNode(p, oldPd, newPd) {
+    if (areEquivalent(oldPd, newPd)) {
+        transferPatchingData(oldPd, newPd);
         return;
     }
-    if (Array.isArray(newPatchingData)) {
-        if (Array.isArray(oldPatchingData)) {
-            updateArrayNodes(container, oldPatchingData, newPatchingData);
-        }
-        else {
-            oldPatchingData.node.remove();
-            mountNodes(container, newPatchingData);
-        }
+    const node = oldPd.node;
+    assert.isTrue(!isUndefinedOrNull(node), 'There must be an existing node');
+    if (Array.isArray(newPd)) {
+        node.remove();
+        mountNodes(p, newPd);
     }
-    else if (isPrimitive(newPatchingData)) {
-        container.childNodes[container.childNodes.length - 1].textContent = newPatchingData.toString();
+    else if (isUndefinedOrNull(newPd)) {
+        node.remove();
+    }
+    else if (isPrimitive(newPd)) {
+        node.textContent = newPd.toString();
     }
     else {
-        if (Array.isArray(oldPatchingData)) {
-            removeAllNodes(container);
-            mountNodes(container, newPatchingData);
+        const { patcher: oldPatcher, values: oldValues, rules } = oldPd;
+        const { patcher, values } = newPd;
+        if (oldPatcher === patcher) {
+            newPd.rules = rules;
+            newPd.node = node;
+            if (areEquivalent(oldPd.values, newPd.values)) {
+                transferPatchingData(oldPd.values, newPd.values);
+                return;
+            }
+            oldPatcher.patchNode(rules || [], oldValues, values);
+            node._$patchingData = newPd;
         }
         else {
-            const { node } = oldPatchingData;
-            if (node === undefined) {
-                throw new Error('There must be an existing node');
+            const newNode = createNodes(newPd);
+            if (node.data === beginMarker) {
+                node.nextSibling.remove();
             }
-            const { patcher: oldPatcher, values: oldValues, rules } = oldPatchingData;
-            const { patcher, values } = newPatchingData;
-            if (oldPatcher === patcher) {
-                newPatchingData.rules = rules;
-                newPatchingData.node = node;
-                if (areEquivalent(oldPatchingData.values, newPatchingData.values)) {
-                    transferPatchingData(oldPatchingData.values, newPatchingData.values);
-                    return;
-                }
-                oldPatcher.patchNode(rules || [], oldValues, values);
-                node._$patchingData = newPatchingData;
-            }
-            else {
-                const newNode = createNodes(newPatchingData);
-                if (node.data === beginMarker) {
-                    node.nextSibling.remove();
-                }
-                container.replaceChild(newNode, node);
-            }
+            p.replaceChild(newNode, node);
         }
     }
 }
-function updateArrayNodes(container, oldPatchingData, newPatchingData) {
-    let { length: oldCount } = oldPatchingData;
+export function updateNodes(p, oldPd, newPd) {
+    if (areEquivalent(oldPd, newPd)) {
+        transferPatchingData(oldPd, newPd);
+        return;
+    }
+    if (Array.isArray(newPd)) {
+        updateArrayNodes(p, oldPd, newPd);
+    }
+    else if (isPrimitive(newPd)) {
+        p.childNodes[p.childNodes.length - 1].textContent = newPd.toString();
+    }
+    else if (isUndefinedOrNull(newPd)) {
+        removeAllNodes(p);
+    }
+    else {
+        removeAllNodes(p);
+        mountNode(p, newPd);
+    }
+}
+function updateArrayNodes(p, oldPd, newPd) {
+    let { length: oldCount } = oldPd;
     const keyedNodes = new Map();
     for (let i = 0; i < oldCount; ++i) {
-        const { node: oldChild } = oldPatchingData[i];
+        const oldChild = oldPd[i].node;
         const key = oldChild.getAttribute?.('key') || null;
         if (key !== null) {
             keyedNodes.set(key, oldChild);
         }
     }
-    const { length: newCount } = newPatchingData;
+    const { length: newCount } = newPd;
     for (let i = 0; i < newCount; ++i) {
-        const oldChild = i < oldPatchingData.length ?
-            oldPatchingData[i].node :
+        const oldChild = i < oldPd.length ?
+            oldPd[i].node :
             undefined;
         if (oldChild === undefined) {
-            mountNodes(container, newPatchingData[i]);
+            mountNode(p, newPd[i]);
         }
         else {
-            const newChildPatchingData = newPatchingData[i];
-            const { patcher, values } = newChildPatchingData;
+            const newChildPd = newPd[i];
+            const { patcher, values } = newChildPd;
             const { keyIndex } = patcher;
             const valueKey = keyIndex !== undefined ?
                 values[keyIndex]?.toString() :
                 null;
             const oldChildKey = oldChild.getAttribute?.('key') || null;
             if (oldChildKey === valueKey) {
-                updateNodes(oldChild, oldPatchingData[i], newChildPatchingData);
-                if (i >= container.childNodes.length) {
-                    container.appendChild(oldChild);
+                updateNode(oldChild, oldPd[i], newChildPd);
+                if (i >= p.childNodes.length) {
+                    p.appendChild(oldChild);
                 }
             }
             else {
                 if (keyedNodes.has(valueKey)) {
                     const keyedNode = keyedNodes.get(valueKey);
-                    if (areEquivalent(newChildPatchingData.values, keyedNode._$patchingData.values)) {
-                        if (i >= container.childNodes.length) {
-                            container.appendChild(keyedNode);
+                    if (areEquivalent(newChildPd.values, keyedNode._$patchingData.values)) {
+                        if (i >= p.childNodes.length) {
+                            p.appendChild(keyedNode);
                         }
                         else {
-                            container.childNodes[i].replaceWith(keyedNode);
+                            p.childNodes[i].replaceWith(keyedNode);
                             --oldCount;
                         }
-                        newChildPatchingData.node = keyedNode;
+                        newChildPd.node = keyedNode;
                         const { rules, values } = keyedNode._$patchingData;
-                        newChildPatchingData.rules = rules;
-                        newChildPatchingData.values = values;
+                        newChildPd.rules = rules;
+                        newChildPd.values = values;
                     }
                 }
                 else {
-                    updateNodes(oldChild, oldPatchingData[i], newChildPatchingData);
+                    updateNode(oldChild, oldPd[i], newChildPd);
                 }
             }
         }
     }
     for (let i = oldCount - 1; i >= newCount; --i) {
-        oldPatchingData[i].node.remove();
+        oldPd[i].node.remove();
     }
 }
-function removeAllNodes(parent) {
-    while (parent.firstChild) {
-        parent.removeChild(parent.firstChild);
+function removeAllNodes(p) {
+    while (p.firstChild) {
+        p.removeChild(p.firstChild);
     }
 }
 //# sourceMappingURL=updateNodes.js.map

@@ -1,12 +1,11 @@
 import isPrimitive from "../../utils/isPrimitive";
 import isUndefinedOrNull from "../../utils/isUndefinedOrNull";
-import createNodes from "../nodes/createNodes";
-import mountNodes from "../nodes/mountNodes";
+import { mountNodeBefore, mountNodesBefore } from "../nodes/mountNodes";
 import createNodePatcherRules from "../rules/createNodePatcherRules";
 import { NodePatcherRuleTypes } from "../rules/NodePatcherRule";
 import createTemplate from "../template/createTemplate";
 import setAttribute from "../dom/setAttribute";
-import updateNodes from "../nodes/updateNodes";
+import { updateNode } from "../nodes/updateNodes";
 import replaceChild from "../dom/replaceChild";
 import removeLeftSiblings from "../dom/removeLeftSiblings";
 import removeLeftSibling from "../dom/removeLeftSibling";
@@ -38,30 +37,20 @@ export default class NodePatcher {
         for (let i = 0; i < length; ++i) {
             const value = values[i];
             const rule = rules[i];
-            const { type, node } = rule;
+            const node = rule.node;
             const attributeNames = node.getAttributeNames !== undefined ?
                 node.getAttributeNames() :
                 undefined;
             const attributesNotSet = new Set(attributeNames);
-            switch (type) {
+            switch (rule.type) {
                 case NodePatcherRuleTypes.PATCH_CHILDREN:
                     {
-                        const { parentNode } = node;
+                        const parentNode = node.parentNode;
                         if (Array.isArray(value)) {
-                            const df = document.createDocumentFragment();
-                            value.forEach(v => {
-                                if (isPrimitive(v)) {
-                                    const n = document.createTextNode(v.toString());
-                                    parentNode.insertBefore(n, node);
-                                }
-                                else {
-                                    mountNodes(df, v);
-                                }
-                            });
-                            parentNode.insertBefore(df, node);
+                            mountNodesBefore(parentNode, node, value);
                         }
                         else if (!isUndefinedOrNull(value)) {
-                            parentNode.insertBefore(createNodes(value), node);
+                            mountNodeBefore(parentNode, node, value);
                         }
                     }
                     break;
@@ -79,7 +68,7 @@ export default class NodePatcher {
                         attributesNotSet.delete(name);
                     }
                     break;
-                default: throw new Error(`firstPatch is not implemented for rule type: ${type}`);
+                default: throw new Error(`firstPatch is not implemented for rule type: ${rule.type}`);
             }
             attributesNotSet.forEach(a => {
                 const value = node.getAttribute(a);
@@ -111,23 +100,23 @@ export default class NodePatcher {
                                 if (!isUndefinedOrNull(oldValue)) {
                                     removeLeftSibling(node);
                                 }
-                                newValue.forEach(pd => insertBefore(node, pd));
+                                mountNodesBefore(node.parentNode, node, newValue);
                             }
                         }
                         else {
                             if (!isUndefinedOrNull(newValue)) {
                                 if (isUndefinedOrNull(oldValue)) {
-                                    insertBefore(node, newValue);
+                                    mountNodeBefore(node.parentNode, node, newValue);
                                 }
                                 else {
                                     if (isNodePatchingData(oldValue) &&
                                         oldValue.patcher === newValue.patcher) {
-                                        updateNodes(node, oldValue, newValue);
+                                        updateNode(node, oldValue, newValue);
                                     }
                                     else {
                                         if (Array.isArray(oldValue)) {
                                             removeLeftSiblings(node);
-                                            insertBefore(node, newValue);
+                                            mountNodeBefore(node.parentNode, node, newValue);
                                         }
                                         else {
                                             replaceChild(node, newValue, oldValue);
@@ -136,8 +125,7 @@ export default class NodePatcher {
                                 }
                             }
                             else {
-                                if (oldValue !== undefined &&
-                                    oldValue !== null) {
+                                if (!isUndefinedOrNull(oldValue)) {
                                     if (Array.isArray(oldValue) ||
                                         isNodePatchingData(oldValue)) {
                                         removeLeftSiblings(node);
@@ -167,22 +155,22 @@ export default class NodePatcher {
         }
     }
 }
-function patchChildren(markerNode, oldChildren = [], newChildren = []) {
-    oldChildren = oldChildren || [];
-    let { length: oldChildrenCount } = oldChildren;
-    const keyedNodes = MapKeyedNodes(oldChildren);
-    const { length: newChildrenCount } = newChildren;
+function patchChildren(markerNode, oldPatchingData = [], newPatchingData = []) {
+    oldPatchingData = oldPatchingData || [];
+    let { length: oldChildrenCount } = oldPatchingData;
+    const keyedNodes = MapKeyedNodes(oldPatchingData);
+    const { length: newChildrenCount } = newPatchingData;
     for (let i = 0; i < newChildrenCount; ++i) {
-        const newChild = newChildren[i];
+        const newChild = newPatchingData[i];
         const newChildKey = getKey(newChild);
-        const oldChild = oldChildren[i];
+        const oldChild = oldPatchingData[i];
         if (oldChild === undefined) {
             if (keyedNodes.has(newChildKey)) {
                 const oldChild = keyedNodes.get(newChildKey);
-                updateNodes(oldChild?.node, oldChild, newChild);
+                updateNode(oldChild?.node, oldChild, newChild);
             }
             else {
-                insertBefore(markerNode, newChild);
+                mountNodeBefore(markerNode.parentNode, markerNode, newChild);
                 ++oldChildrenCount;
             }
         }
@@ -193,18 +181,18 @@ function patchChildren(markerNode, oldChildren = [], newChildren = []) {
                     replaceChild(markerNode, newChild, oldChild);
                 }
                 else {
-                    updateNodes(oldChild?.node, oldChild, newChild);
+                    updateNode(oldChild?.node, oldChild, newChild);
                 }
             }
             else {
                 if (keyedNodes.has(newChildKey)) {
                     const oldKeyedChild = keyedNodes.get(newChildKey);
-                    updateNodes(oldKeyedChild.node, oldKeyedChild, newChild);
+                    updateNode(oldKeyedChild.node, oldKeyedChild, newChild);
                     replaceChild(markerNode, oldKeyedChild, oldChild);
                 }
                 else {
                     const existingChild = markerNode.parentNode?.childNodes[i + 1];
-                    insertBefore(existingChild, newChild);
+                    mountNodeBefore(existingChild.parentNode, existingChild, newChild);
                     ++oldChildrenCount;
                 }
             }
@@ -233,8 +221,5 @@ function getKey(patchingData) {
     return keyIndex !== undefined ?
         values[keyIndex] :
         null;
-}
-function insertBefore(markerNode, newChild) {
-    markerNode.parentNode.insertBefore(createNodes(newChild), markerNode);
 }
 //# sourceMappingURL=NodePatcher.js.map

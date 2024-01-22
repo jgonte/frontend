@@ -1,2 +1,3 @@
 import { NodePatchingData } from "./NodePatchingData";
-export default function updateNodes(container: Node, oldPatchingData: NodePatchingData | NodePatchingData[], newPatchingData: NodePatchingData | NodePatchingData[]): void;
+export declare function updateNode(p: Node, oldPd: NodePatchingData, newPd: NodePatchingData | NodePatchingData[]): void;
+export declare function updateNodes(p: Node, oldPd: NodePatchingData[], newPd: NodePatchingData | NodePatchingData[]): void;

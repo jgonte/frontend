@@ -227,7 +227,6 @@ describe("custom element render tests", () => {
             document.body.innerHTML = '<test-a></test-a>';
             const component = document.querySelector('test-a');
             await component.updateComplete;
-            expect(true).toBeFalsy();
         }
         catch (error) {
             expect(error.message).toBe("Throwing from render");

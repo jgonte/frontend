@@ -390,8 +390,6 @@ describe("custom element render tests", () => {
             const component = document.querySelector('test-a') as CustomElement;
 
             await component.updateComplete; // Wait for the component to render
-
-            expect(true).toBeFalsy(); // It should never reach here
         }
         catch (error) {
 

@@ -1,5 +1,5 @@
-import mountNodes from "../../rendering/nodes/mountNodes";
-import updateNodes from "../../rendering/nodes/updateNodes";
+import { mountNode, mountNodes } from "../../rendering/nodes/mountNodes";
+import { updateNode, updateNodes } from "../../rendering/nodes/updateNodes";
 import { DataTypes } from "../../utils/data/DataTypes";
 export default function NodePatching(Base) {
     return class NodePatchingMixin extends Base {
@@ -13,20 +13,25 @@ export default function NodePatching(Base) {
         }
         async updateDom() {
             try {
-                let newPatchingData = await this.render();
-                if (newPatchingData !== null) {
-                    newPatchingData = this.beforeRender(newPatchingData);
+                let newPd = await this.render();
+                if (newPd !== null) {
+                    newPd = this.beforeRender(newPd);
                 }
-                const { document, _oldPatchingData } = this;
-                if (_oldPatchingData === null) {
-                    if (newPatchingData !== null) {
-                        await this.mountDom(document, newPatchingData);
+                const { document, _oldPatchingData: oldPd } = this;
+                if (oldPd === null) {
+                    if (newPd !== null) {
+                        await this.mountDom(document, newPd);
                     }
                 }
                 else {
-                    if (newPatchingData !== null) {
+                    if (newPd !== null) {
                         this.willUpdateCallback?.();
-                        updateNodes(document, _oldPatchingData, newPatchingData);
+                        if (Array.isArray(oldPd)) {
+                            updateNodes(document, oldPd, newPd);
+                        }
+                        else {
+                            updateNode(document, oldPd, newPd);
+                        }
                         await this._waitForChildrenToUpdate();
                         this.callAfterUpdate();
                     }
@@ -36,14 +41,19 @@ export default function NodePatching(Base) {
                         this.stylesAdded = false;
                     }
                 }
-                this._oldPatchingData = newPatchingData;
+                this._oldPatchingData = newPd;
             }
             catch (error) {
                 console.error(error);
             }
         }
         async mountDom(document, newPatchingData) {
-            mountNodes(document, newPatchingData);
+            if (Array.isArray(newPatchingData)) {
+                mountNodes(document, newPatchingData);
+            }
+            else {
+                mountNode(document, newPatchingData);
+            }
             await this._waitForChildrenToMount();
             this.callAfterUpdate();
         }
