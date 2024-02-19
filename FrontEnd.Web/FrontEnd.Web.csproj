@@ -7,7 +7,23 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="WebUI\" />
+    <None Remove="WebUI\css\styles.css" />
+    <None Remove="WebUI\css\themes.css" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="WebUI\css\styles.css">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Include="WebUI\css\themes.css">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="WebUI\css - Copy\" />
   </ItemGroup>
 
   <ItemGroup>
