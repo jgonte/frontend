@@ -8,6 +8,5 @@ export default interface AppConfig {
     iconsPath: string;
     apiUrl: string;
     useThemeSelector: boolean;
-    themeNamesUrl: string;
     defaultTheme: string;
 }

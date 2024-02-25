@@ -27,7 +27,6 @@ declare class AppCtrl {
     iconsPath?: string;
     overlay: Overlay;
     apiUrl?: string;
-    themeNamesUrl?: string;
     defaultTheme?: string;
     routeParams?: Record<string, string>;
     init(): Promise<void>;
