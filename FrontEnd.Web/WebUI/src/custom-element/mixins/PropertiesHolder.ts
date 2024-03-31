@@ -4,6 +4,7 @@ import getGlobalFunction, { AnyFunction } from "../../utils/getGlobalFunction";
 import isClass from "../../utils/isClass";
 import isUndefinedOrNull from "../../utils/isUndefinedOrNull";
 import { GenericRecord } from "../../utils/types";
+import FunctionCall from "./helpers/FunctionCall";
 import ensureValueIsInOptions from "./helpers/ensureValueIsInOptions";
 import findSelfOrParent from "./helpers/findSelfOrParent";
 import valueConverter from "./helpers/valueConverter";
@@ -197,7 +198,7 @@ export default function PropertiesHolder<TBase extends CustomHTMLElementConstruc
 
                 if (newValue !== null) {
 
-                    newValue = valueConverter.toProperty(newValue, type)
+                    newValue = valueConverter.toProperty(newValue, type);
 
                     this._explicitlyInitializedProperties.add(name);
 
@@ -387,7 +388,22 @@ export default function PropertiesHolder<TBase extends CustomHTMLElementConstruc
 
             ensureValueIsInOptions(value, options);
 
-            if (typeof value === 'function') {
+            if (value instanceof FunctionCall) {
+
+                const functionCall = value as FunctionCall;
+
+                if (defer === true &&
+                    !isClass(value)) { // Do not bind a class
+
+                    value = (() => functionCall.execute()).bind(this); // Store the function as a property
+                }
+                else if (!isClass(value)) { // Not a class and not deferred
+
+                    value = functionCall.execute(); // Call the function
+                }
+                // else it is a class - defer it (do nothing) 
+            }
+            else if (typeof value === 'function') {
 
                 if (defer === true &&
                     !isClass(value)) { // Do not bind a class

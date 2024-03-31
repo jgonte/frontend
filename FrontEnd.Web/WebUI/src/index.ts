@@ -74,6 +74,9 @@ import FormField from "./components/form/form-field/FormField";
 import Form from "./components/form/Form";
 import ValidationSummary from "./components/validation-summary/ValidationSummary";
 
+// Editors
+import CellEditor from "./components/editors/cell/CellEditor";
+
 // Display
 import DataList from "./components/data-list/DataList";
 import DataGridBodyCell from "./components/data-grid/body/cell/DataGridBodyCell";
@@ -82,6 +85,8 @@ import DataGridHeaderCell from "./components/data-grid/header/cell/DataGridHeade
 import DataGridHeader from "./components/data-grid/header/DataGridHeader";
 import DataGrid from "./components/data-grid/DataGrid";
 import CollectionPanel from "./components/collection-panel/CollectionPanel";
+import PropertyGridRow from "./components/property-grid/row/PropertyGridRow";
+import PropertyGrid from "./components/property-grid/PropertyGrid";
 
 // Routers
 import HashRouter from "./components/routers/hash-router/HashRouter";
@@ -181,6 +186,9 @@ export {
     Form,
     ValidationSummary,
 
+    // Editors
+    CellEditor,
+
     // Display
     DataList,
     DataGridHeaderCell as DataHeaderCell,
@@ -189,6 +197,8 @@ export {
     DataGridBodyRow as DataRow,
     DataGrid,
     CollectionPanel,
+    PropertyGridRow,
+    PropertyGrid,
 
     // Routers
     HashRouter,

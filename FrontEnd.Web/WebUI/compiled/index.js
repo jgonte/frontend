@@ -48,6 +48,7 @@ import CollectionField from "./components/fields/collection-field/CollectionFiel
 import FormField from "./components/form/form-field/FormField";
 import Form from "./components/form/Form";
 import ValidationSummary from "./components/validation-summary/ValidationSummary";
+import CellEditor from "./components/editors/cell/CellEditor";
 import DataList from "./components/data-list/DataList";
 import DataGridBodyCell from "./components/data-grid/body/cell/DataGridBodyCell";
 import DataGridBodyRow from "./components/data-grid/body/row/DataGridBodyRow";
@@ -55,6 +56,8 @@ import DataGridHeaderCell from "./components/data-grid/header/cell/DataGridHeade
 import DataGridHeader from "./components/data-grid/header/DataGridHeader";
 import DataGrid from "./components/data-grid/DataGrid";
 import CollectionPanel from "./components/collection-panel/CollectionPanel";
+import PropertyGridRow from "./components/property-grid/row/PropertyGridRow";
+import PropertyGrid from "./components/property-grid/PropertyGrid";
 import HashRouter from "./components/routers/hash-router/HashRouter";
 import ApplicationHeader from "./components/application/view/header/ApplicationHeader";
 import ApplicationView from "./components/application/view/ApplicationView";
@@ -63,5 +66,5 @@ import { navigateToRoute } from "./components/routers/hash-router/utils/routersR
 window.appCtrl = appCtrl;
 window.html = html;
 window.viewsRegistry = viewsRegistry;
-export { CustomElement, DataTypes, defineCustomElement, html, css, viewsRegistry, appCtrl, AppInitializedEvent, Theme, Icon, LocalizedText, Alert, Accordion, Pill, Button, ToolTip, DataTemplate, Selector, DropDown, WizardStep, Wizard, NavigationLink, NavigationBar, ContentView, RequiredTip, ModifiedTip, HelpTip, Center, Overlay, PanelHeader, Panel, Tool, CloseTool, ExpanderTool, SorterTool, DisplayableField, TextField, TextArea, NumberField, CheckBox, DateField, FileField, ComboBox, HiddenField, Slider, StarRating, PasswordField, CollectionField, FormField, Form, ValidationSummary, DataList, DataGridHeaderCell as DataHeaderCell, DataGridHeader, DataGridBodyCell as DataCell, DataGridBodyRow as DataRow, DataGrid, CollectionPanel, HashRouter, ApplicationHeader, ApplicationView, getNotFoundView, navigateToRoute };
+export { CustomElement, DataTypes, defineCustomElement, html, css, viewsRegistry, appCtrl, AppInitializedEvent, Theme, Icon, LocalizedText, Alert, Accordion, Pill, Button, ToolTip, DataTemplate, Selector, DropDown, WizardStep, Wizard, NavigationLink, NavigationBar, ContentView, RequiredTip, ModifiedTip, HelpTip, Center, Overlay, PanelHeader, Panel, Tool, CloseTool, ExpanderTool, SorterTool, DisplayableField, TextField, TextArea, NumberField, CheckBox, DateField, FileField, ComboBox, HiddenField, Slider, StarRating, PasswordField, CollectionField, FormField, Form, ValidationSummary, CellEditor, DataList, DataGridHeaderCell as DataHeaderCell, DataGridHeader, DataGridBodyCell as DataCell, DataGridBodyRow as DataRow, DataGrid, CollectionPanel, PropertyGridRow, PropertyGrid, HashRouter, ApplicationHeader, ApplicationView, getNotFoundView, navigateToRoute };
 //# sourceMappingURL=index.js.map

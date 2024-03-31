@@ -6,7 +6,7 @@ import mergeStyles from "../../../../custom-element/styles/mergeStyles";
 import html from "../../../../rendering/html";
 import { NodePatchingData } from "../../../../rendering/nodes/NodePatchingData";
 import { DataTypes } from "../../../../utils/data/DataTypes";
-import DataGridColumnDescriptor from "../../DataGridColumnDescriptor";
+import IDataGridColumnDescriptor from "../../IDataGridColumnDescriptor";
 import { dataGridHeaderCellStyles } from "./DataGridHeaderCell.styles";
 
 export default class DataGridHeaderCell extends CustomElement {
@@ -49,7 +49,7 @@ export default class DataGridHeaderCell extends CustomElement {
             const {
                 name,
                 display
-            } = column as DataGridColumnDescriptor;
+            } = column as IDataGridColumnDescriptor;
 
             if (display !== undefined) {
 
@@ -69,7 +69,7 @@ export default class DataGridHeaderCell extends CustomElement {
         }
     }
 
-    renderCellContainer(column: DataGridColumnDescriptor, display: NodePatchingData): NodePatchingData {
+    renderCellContainer(column: IDataGridColumnDescriptor, display: NodePatchingData): NodePatchingData {
 
         const {
             headerStyle

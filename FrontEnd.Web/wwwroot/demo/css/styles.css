@@ -158,7 +158,7 @@ select {
 	--gcs-icon-size-small: .8rem;
 	/* Border */
 	--gcs-border-width: .1em;
-	--gcs-border-radius: 0.5rem;
+	--gcs-border-radius: .25rem;
 	/* Min height */
 	--gcs-min-height: 1.2em;
 	/* Margin */

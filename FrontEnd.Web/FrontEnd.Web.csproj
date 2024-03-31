@@ -26,4 +26,8 @@
     <PackageReference Include="System.Drawing.Common" Version="8.0.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwroot\demo\icons\" />
+  </ItemGroup>
+
 </Project>

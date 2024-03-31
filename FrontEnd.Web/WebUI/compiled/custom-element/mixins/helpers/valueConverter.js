@@ -1,19 +1,46 @@
 import { DataTypes } from "../../../utils/data/DataTypes";
 import getGlobalFunction from "../../../utils/getGlobalFunction";
+import isUndefinedOrNull from "../../../utils/isUndefinedOrNull";
+import parseFunctionCall from "../../../utils/parseFunctionCall";
+import FunctionCall from "./FunctionCall";
 const valueConverter = {
     toProperty: (value, type) => {
-        if (value === null) {
+        if (isUndefinedOrNull(value)) {
             return null;
         }
         if (!Array.isArray(type)) {
             type = [type];
         }
-        if (value[value.length - 2] === '(' && value[value.length - 1] === ')'
-            && type.includes(DataTypes.Function)) {
-            const fcn = getGlobalFunction(value);
-            if (fcn !== undefined) {
-                return fcn;
+        if (type.includes(DataTypes.Function)) {
+            const functionCallInfo = parseFunctionCall(value);
+            if (functionCallInfo !== null) {
+                const fcn = getGlobalFunction(functionCallInfo.functionName);
+                if (fcn !== undefined) {
+                    if (functionCallInfo.parameters.length > 0) {
+                        return new FunctionCall(fcn, functionCallInfo.parameters);
+                    }
+                    else {
+                        return fcn;
+                    }
+                }
             }
+        }
+        if (type.includes(DataTypes.Number)) {
+            const numberRegex = /^[+-]?\d+(\.\d+)?$/;
+            if (numberRegex.test(value)) {
+                return parseFloat(value);
+            }
+        }
+        if (type.includes(DataTypes.Boolean)) {
+            const lowerCaseValue = value.toLowerCase();
+            if (lowerCaseValue === 'true' ||
+                lowerCaseValue === 'false') {
+                return lowerCaseValue === 'true';
+            }
+        }
+        const dateValue = new Date(value);
+        if (!isNaN(dateValue.getTime())) {
+            return dateValue;
         }
         if (type.includes(DataTypes.Object) ||
             type.includes(DataTypes.Array)) {
@@ -22,7 +49,9 @@ const valueConverter = {
                 o = JSON.parse(value);
             }
             catch (error) {
-                if (!type.includes(DataTypes.String)) {
+                o = window[value];
+                if (!o &&
+                    !type.includes(DataTypes.String)) {
                     throw error;
                 }
             }
@@ -37,15 +66,6 @@ const valueConverter = {
                 }
                 return o;
             }
-        }
-        if (type.includes(DataTypes.Boolean)) {
-            if (value === 'false') {
-                return false;
-            }
-            return true;
-        }
-        if (type.includes(DataTypes.Number)) {
-            return Number(value);
         }
         return value;
     },

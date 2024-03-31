@@ -15,12 +15,6 @@ export const formConnectedEvent = "formConnectedEvent";
 export const formDisconnectedEvent = "formDisconnectedEvent";
 export default class Form extends Submittable(Validatable(Loadable(CustomElement))) {
     _fields = new Map();
-    constructor() {
-        super();
-        this.handleFieldAdded = this.handleFieldAdded.bind(this);
-        this.handleChange = this.handleChange.bind(this);
-        this.handleBeforeUnload = this.handleBeforeUnload.bind(this);
-    }
     static get styles() {
         return formStyles;
     }

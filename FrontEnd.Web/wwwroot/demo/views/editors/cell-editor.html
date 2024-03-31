@@ -1,0 +1,84 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+
+    <script>
+
+        function startEditing(id) {
+
+            const ce = document.getElementById(id);
+
+            ce.editing = true;
+        }
+
+        function update(id) {
+
+            const ce = document.getElementById(id);
+
+            ce.acceptChanges();
+        }
+
+        function cancel(id) {
+
+            const ce = document.getElementById(id);
+
+            ce.rejectChanges();
+        }
+
+
+    </script>
+    <title>Cell Editor</title>
+</head>
+<body>
+    <gcs-cell-editor id="ce1"
+                     name="age"
+                     type="number"
+                     value="10">
+    </gcs-cell-editor>
+    <br />
+
+    <div>
+        <gcs-button click="startEditing('ce1')">
+            Edit
+            <gcs-icon name="pen"></gcs-icon>
+        </gcs-button>
+
+        <gcs-button click="update('ce1')">
+            Update
+            <gcs-icon name="floppy"></gcs-icon>
+        </gcs-button>
+
+        <gcs-button click="cancel('ce1')">
+            Cancel
+            <gcs-icon name="x-square"></gcs-icon>
+        </gcs-button>
+
+    </div>
+
+    <gcs-cell-editor id="ce2"
+                     name="name"
+                     type="string"
+                     value="Sarah">
+    </gcs-cell-editor>
+    <br />
+
+    <div>
+        <gcs-button click="startEditing('ce2')">
+            Edit
+            <gcs-icon name="pen"></gcs-icon>
+        </gcs-button>
+
+        <gcs-button click="update('ce2')">
+            Update
+            <gcs-icon name="floppy"></gcs-icon>
+        </gcs-button>
+
+        <gcs-button click="cancel('ce2')">
+            Cancel
+            <gcs-icon name="x-square"></gcs-icon>
+        </gcs-button>
+
+    </div>
+
+</body>
+</html>

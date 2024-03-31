@@ -6,6 +6,7 @@ import html from "../../rendering/html";
 import { DataTypes } from "../../utils/data/DataTypes";
 import { dataGridStyles } from "./DataGrid.styles";
 import mergeStyles from "../../custom-element/styles/mergeStyles";
+import { renderEmptyData } from "../mixins/data-holder/renderEmptyData";
 export default class DataGrid extends RemoteLoadableHolder(CollectionDataHolder(CustomElement)) {
     static get styles() {
         return mergeStyles(super.styles, dataGridStyles);
@@ -38,7 +39,7 @@ export default class DataGrid extends RemoteLoadableHolder(CollectionDataHolder(
     renderBody() {
         const { columns, data, idField } = this;
         if (data.length === 0) {
-            return this.renderEmptyData('body');
+            return renderEmptyData('body');
         }
         return data.map((record) => html `
 <gcs-data-row 

@@ -8,9 +8,9 @@ window.appConfig = {
 
     defaultTheme: '180-light',
 
-    apiUrl: 'http://localhost:5000/api',
+    apiUrl: 'https://localhost:5000/api',
 
-    iconsPath: 'https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.2/icons/',
+    iconsPath: 'https://localhost:7000/demo/icons/',
 
     // auth: {
     //     authority: "https://localhost:5000",

@@ -10,6 +10,7 @@ import { DataTypes } from "../../utils/data/DataTypes";
 import { GenericRecord } from "../../utils/types";
 import { dataGridStyles } from "./DataGrid.styles";
 import mergeStyles from "../../custom-element/styles/mergeStyles";
+import { renderEmptyData } from "../mixins/data-holder/renderEmptyData";
 
 export default class DataGrid extends
     RemoteLoadableHolder(
@@ -68,7 +69,7 @@ export default class DataGrid extends
 
         if (data.length === 0) {
 
-            return this.renderEmptyData('body');
+            return renderEmptyData('body');
         }
 
         return data.map((record: GenericRecord) =>

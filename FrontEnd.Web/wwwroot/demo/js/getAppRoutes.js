@@ -53,6 +53,11 @@ function getAppRoutes() {
             view: `${views}/navigation/link.html`
         },
 
+        // Editors
+        '/editors/cell': {
+            view: `${views}/editors/cell-editor.html`
+        },
+
         // Display
         '/display/data-template': {
             view: `${views}/display/data-template.html`
@@ -68,6 +73,9 @@ function getAppRoutes() {
         },
         '/display/collection-panel': {
             view: `${views}/display/collection-panel.html`
+        },
+        '/display/property-grid': {
+            view: `${views}/display/property-grid.html`
         },
 
         // Tools

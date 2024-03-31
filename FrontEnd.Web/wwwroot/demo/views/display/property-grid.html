@@ -1,0 +1,147 @@
+﻿<!DOCTYPE html>
+<html  lang="en">
+
+<head>
+
+    <script>
+
+        var sourceForFile = {
+            label: "File",
+            iconName: "file",
+            children: [
+                {
+                    label: "Name",
+                    name: "name"
+                },
+                {
+                    label: "Extension",
+                    name: "extension"
+                },
+                {
+                    label: "Size",
+                    name: "size"
+                },
+                {
+                    label: "Content Type",
+                    name: "contentType"
+                },
+                {
+                    label: "Path",
+                    name: "path"
+                }
+            ]
+        };
+
+        
+        var dataForFile = {
+            "name": "My file",
+            "extension": "pdf",
+            "size": 15,
+            "contentType": "application/pdf",
+            "path": "temp/asxvul.tmp"
+        };
+
+        function getSourceForFolder() {
+
+            return {
+                label: "Folder",
+                iconName: "folder",
+                children: [
+                    {
+                        label: "Name",
+                        name: "name"
+                    }
+                ]
+            };
+        }
+
+        function getDataForFolder() {
+
+            return {
+                name: "My Folder"
+            };
+        }
+
+        function getSourceForLink() {
+
+            return {
+                label: "Link",
+                iconName: "link",
+                children: [
+                    {
+                        label: "Name",
+                        name: "name"
+                    }
+                ]
+            };
+        }
+
+        function getDataForLink() {
+
+            return {
+                name: "My Link"
+            };
+        }
+
+        function setFile() {
+
+            const pg = document.getElementById("pg");
+
+            pg.source = sourceForFile;
+
+            pg.data = dataForFile;
+        }
+
+        function setFolder() {
+
+            const pg = document.getElementById("pg");
+
+            pg.source = getSourceForFolder();
+
+            pg.data = getDataForFolder();
+        }
+
+        function setLink() {
+
+            const pg = document.getElementById("pg");
+
+            pg.source = getSourceForLink();
+
+            pg.data = getDataForLink();
+        }
+
+    </script>
+
+    <title>Property Grid demo</title>
+</head>
+
+<body>
+    <gcs-property-grid
+        id="pg"
+        style="min-width: 400px; width: 400px; overflow-x: auto;"
+        label-width="40%"
+        source="sourceForFile"
+        data="dataForFile"
+    >
+    </gcs-property-grid>
+
+    <div>
+        <gcs-button click="setFile()">
+            File
+            <gcs-icon name="file"></gcs-icon>
+        </gcs-button>
+
+        <gcs-button click="setFolder()">
+            Folder
+            <gcs-icon name="folder"></gcs-icon>
+        </gcs-button>
+
+        <gcs-button click="setLink()">
+            Link
+            <gcs-icon name="link"></gcs-icon>
+        </gcs-button>
+    </div>
+
+</body>
+
+</html>
