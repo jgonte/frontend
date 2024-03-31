@@ -27,7 +27,6 @@ declare class AppCtrl {
     iconsPath?: string;
     overlay: Overlay;
     apiUrl?: string;
-    themeNamesUrl?: string;
     defaultTheme?: string;
     routeParams?: Record<string, string>;
     init(): Promise<void>;
@@ -81,6 +80,20 @@ export declare class Button extends Button_base {
 }
 
 declare const Button_base: typeof Nuanced;
+
+export declare class CellEditor extends CustomElement {
+    private _field?;
+    static get styles(): string;
+    static get properties(): Record<string, CustomElementPropertyMetadata>;
+    static get state(): Record<string, CustomElementStateMetadata>;
+    connectedCallback(): void;
+    disconnectedCallback(): void;
+    acceptChanges(): void;
+    rejectChanges(): void;
+    handleFieldAdded(event: CustomEvent): void;
+    render(): NodePatchingData | null;
+    renderField(value: unknown): NodePatchingData;
+}
 
 export declare class Center extends CustomElement {
     static get styles(): string;
@@ -263,15 +276,6 @@ declare const DataGrid_base: CustomHTMLElementConstructor;
 
 declare const DataGridBodyRow_base: CustomHTMLElementConstructor;
 
-declare interface DataGridColumnDescriptor {
-    name: string;
-    display: string | (() => NodePatchingData);
-    width: string;
-    sortable: boolean;
-    headerStyle: string | GenericRecord;
-    render: (value: unknown, record: GenericRecord, column: DataGridColumnDescriptor) => NodePatchingData;
-}
-
 export declare class DataGridHeader extends CustomElement {
     static get styles(): string;
     static get properties(): Record<string, CustomElementPropertyMetadata>;
@@ -282,7 +286,7 @@ export declare class DataHeaderCell extends CustomElement {
     static get styles(): string;
     static get properties(): Record<string, CustomElementPropertyMetadata>;
     render(): NodePatchingData;
-    renderCellContainer(column: DataGridColumnDescriptor, display: NodePatchingData): NodePatchingData;
+    renderCellContainer(column: IDataGridColumnDescriptor, display: NodePatchingData): NodePatchingData;
     renderSorter(): NodePatchingData | null;
 }
 
@@ -408,7 +412,6 @@ export declare class FileField extends DisplayableField {
 
 export declare class Form extends Form_base {
     private _fields;
-    constructor();
     static get styles(): string;
     static get properties(): Record<string, CustomElementPropertyMetadata>;
     render(): NodePatchingData;
@@ -472,6 +475,15 @@ export declare class HiddenField extends Field {
 
 export declare function html(strings: TemplateStringsArray, ...values: NodePatchingDataValues): NodePatchingData;
 
+declare interface IComponentDescriptor {
+    id?: string;
+    label: string;
+    iconName: string;
+    name: string;
+    type: string;
+    children: IComponentDescriptor[];
+}
+
 export declare class Icon extends CustomElement {
     static get styles(): string;
     static get properties(): Record<string, CustomElementPropertyMetadata>;
@@ -480,6 +492,15 @@ export declare class Icon extends CustomElement {
 
 declare interface IContentHidable {
     hideContent?: () => void;
+}
+
+declare interface IDataGridColumnDescriptor {
+    name: string;
+    display: string | (() => NodePatchingData);
+    width: string;
+    sortable: boolean;
+    headerStyle: string | GenericRecord;
+    render: (value: unknown, record: GenericRecord, column: IDataGridColumnDescriptor) => NodePatchingData;
 }
 
 declare interface INodePatcher {
@@ -629,6 +650,30 @@ export declare class Pill extends Nuanced {
     static get styles(): string;
     render(): NodePatchingData;
 }
+
+export declare class PropertyGrid extends PropertyGrid_base {
+    static get styles(): string;
+    static get properties(): Record<string, CustomElementPropertyMetadata>;
+    render(): RenderReturnTypes;
+    configure(source: IComponentDescriptor): void;
+    private _renderLabel;
+    private _renderIcon;
+    private _renderBody;
+}
+
+declare const PropertyGrid_base: typeof CustomElement;
+
+export declare class PropertyGridRow extends PropertyGridRow_base {
+    static get styles(): string;
+    static get properties(): Record<string, CustomElementPropertyMetadata>;
+    connectedCallback(): void;
+    disconnectedCallback(): void;
+    handleKeyDown(event: KeyboardEvent): void;
+    render(): NodePatchingData;
+    handleClick(): void;
+}
+
+declare const PropertyGridRow_base: typeof CustomElement;
 
 export declare type RenderReturnTypes = NodePatchingData | NodePatchingData[] | Promise<NodePatchingData | null> | null;
 

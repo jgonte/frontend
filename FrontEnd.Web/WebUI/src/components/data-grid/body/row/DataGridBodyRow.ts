@@ -7,7 +7,7 @@ import html from "../../../../rendering/html";
 import { NodePatchingData } from "../../../../rendering/nodes/NodePatchingData";
 import { DataTypes } from "../../../../utils/data/DataTypes";
 import Selectable from "../../../mixins/selectable/Selectable";
-import DataGridColumnDescriptor from "../../DataGridColumnDescriptor";
+import IDataGridColumnDescriptor from "../../IDataGridColumnDescriptor";
 import { dataGridBodyRowStyles } from "./DataGridBodyRow.styles";
 
 export default class DataGridBodyRow
@@ -60,7 +60,7 @@ export default class DataGridBodyRow
 <gcs-data-cell 
     column=${column} 
     record=${record} 
-    key=${(column as unknown as DataGridColumnDescriptor).name || column}>
+    key=${(column as unknown as IDataGridColumnDescriptor).name || column}>
 </gcs-data-cell>`
         );
     }

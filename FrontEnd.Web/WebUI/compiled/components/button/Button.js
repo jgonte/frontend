@@ -22,7 +22,9 @@ export default class Button extends Hideable(Disableable(Nuanced)) {
         const { disabled, click } = this;
         return html `
 <button disabled=${disabled} onClick=${click}>
-    <slot></slot>
+    <span>
+        <slot></slot>
+    </span>  
 </button>`;
     }
 }

@@ -3,6 +3,7 @@ import { DataTypes } from "../../utils/data/DataTypes";
 import getGlobalFunction from "../../utils/getGlobalFunction";
 import isClass from "../../utils/isClass";
 import isUndefinedOrNull from "../../utils/isUndefinedOrNull";
+import FunctionCall from "./helpers/FunctionCall";
 import ensureValueIsInOptions from "./helpers/ensureValueIsInOptions";
 import findSelfOrParent from "./helpers/findSelfOrParent";
 import valueConverter from "./helpers/valueConverter";
@@ -168,7 +169,17 @@ export default function PropertiesHolder(Base) {
                 return true;
             }
             ensureValueIsInOptions(value, options);
-            if (typeof value === 'function') {
+            if (value instanceof FunctionCall) {
+                const functionCall = value;
+                if (defer === true &&
+                    !isClass(value)) {
+                    value = (() => functionCall.execute()).bind(this);
+                }
+                else if (!isClass(value)) {
+                    value = functionCall.execute();
+                }
+            }
+            else if (typeof value === 'function') {
                 if (defer === true &&
                     !isClass(value)) {
                     value = value.bind(this);

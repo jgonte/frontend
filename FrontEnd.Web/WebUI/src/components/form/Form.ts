@@ -32,17 +32,6 @@ export default class Form extends
 
     private _fields: Map<string, Field> = new Map<string, Field>();
 
-    constructor() {
-
-        super();
-
-        this.handleFieldAdded = this.handleFieldAdded.bind(this);
-
-        this.handleChange = this.handleChange.bind(this);
-
-        this.handleBeforeUnload = this.handleBeforeUnload.bind(this);
-    }
-
     static get styles(): string {
 
         return formStyles;

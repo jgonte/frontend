@@ -8,6 +8,10 @@ function getAppLinks() {
         text: 'Navigation'
     };
 
+    const editorsGroup = {
+        text: 'Editors'
+    };
+
     const displayGroup = {
         text: 'Display'
     };
@@ -75,11 +79,19 @@ function getAppLinks() {
             group: layoutGroup,
             text: 'Accordion'
         },
+
         // Navigation
         '/navigation/link': {
             group: navigationGroup,
             text: 'Link'
         },
+
+        // Editors
+        '/editors/cell': {
+            group: editorsGroup,
+            text: 'Cell Editor'
+        },
+
         // Display
         '/display/data-template': {
             group: displayGroup,
@@ -100,6 +112,10 @@ function getAppLinks() {
         '/display/collection-panel': {
             group: displayGroup,
             text: 'Collection Panel'
+        },
+        '/display/property-grid': {
+            group: displayGroup,
+            text: 'Property Grid'
         },
 
         // Tools

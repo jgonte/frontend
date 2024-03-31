@@ -8,6 +8,8 @@ textarea {
     outline: none;
     border-style: solid;
     border-color: #d0d0d0;
+    border-radius: var(--gcs-border-radius);
+    font-size: inherit;
 }
 
 textarea,

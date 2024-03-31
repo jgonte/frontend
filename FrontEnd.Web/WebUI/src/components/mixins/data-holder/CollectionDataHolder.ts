@@ -1,7 +1,5 @@
 import CustomElementPropertyMetadata from "../../../custom-element/mixins/metadata/types/CustomElementPropertyMetadata"
 import CustomHTMLElementConstructor from "../../../custom-element/mixins/metadata/types/CustomHTMLElementConstructor"
-import html from "../../../rendering/html"
-import { NodePatchingData } from "../../../rendering/nodes/NodePatchingData"
 import compareValues from "../../../rendering/utils/compareValues"
 import { DataTypes } from "../../../utils/data/DataTypes"
 import { GenericRecord } from "../../../utils/types"
@@ -43,17 +41,6 @@ export default function CollectionDataHolder<TBase extends CustomHTMLElementCons
             super.disconnectedCallback?.();
 
             this.removeEventListener(sorterChanged, this.sort as EventListenerOrEventListenerObject);
-        }
-
-        renderEmptyData(slot: string | null = null) : NodePatchingData {
-
-            return html`
-<gcs-alert 
-    kind="warning"
-    slot=${slot}
->
-    <gcs-localized-text>No Records Found</gcs-localized-text>
-</gcs-alert>`;
         }
 
         /**

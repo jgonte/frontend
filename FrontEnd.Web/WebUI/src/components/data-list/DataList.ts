@@ -10,6 +10,7 @@ import { GenericRecord } from "../../utils/types";
 import { DataTypes } from "../../utils/data/DataTypes";
 import { dataListStyles } from "./DataList.styles";
 import mergeStyles from "../../custom-element/styles/mergeStyles";
+import { renderEmptyData } from "../mixins/data-holder/renderEmptyData";
 
 /**
  * Render a collection of records
@@ -53,7 +54,7 @@ export default class DataList extends
 
         if (data.length === 0) {
 
-            return this.renderEmptyData();
+            return renderEmptyData();
         }
 
         return data.map((record: GenericRecord) =>

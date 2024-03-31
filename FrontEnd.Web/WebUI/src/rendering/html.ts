@@ -7,6 +7,11 @@ export default function html(strings: TemplateStringsArray, ...values: NodePatch
 
     const key = strings.toString();
 
+    if (key.trim() == '') {
+
+        throw new Error('Tempate string cannot be empty. Return null if you do not want to create HTML nodes');
+    }
+
     let patcher = patchersCache.get(key);
 
     if (patcher === undefined) {

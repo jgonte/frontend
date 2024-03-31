@@ -9,15 +9,15 @@ export default class Panel extends CustomElement {
     }
     render() {
         return html `
-            <div id=header>
-                <slot name="header"></slot>
-            </div>
-            <div id=body>
-                <slot name="body"></slot>
-            </div>
-            <div id=footer>
-                <slot name="footer"></slot>
-            </div>
+<div id=header>
+    <slot name="header"></slot>
+</div>
+<div id=body>
+    <slot name="body"></slot>
+</div>
+<div id=footer>
+    <slot name="footer"></slot>
+</div>
         `;
     }
 }

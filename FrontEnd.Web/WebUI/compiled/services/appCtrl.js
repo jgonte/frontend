@@ -13,7 +13,6 @@ class AppCtrl {
     iconsPath;
     overlay = new Overlay();
     apiUrl;
-    themeNamesUrl;
     defaultTheme;
     routeParams;
     async init() {
@@ -22,7 +21,7 @@ class AppCtrl {
         this.handleError = this.handleError.bind(this);
         const appConfig = window.appConfig;
         if (appConfig !== undefined) {
-            const { errorHandler, intl, iconsPath, apiUrl, themeNamesUrl, defaultTheme } = appConfig;
+            const { errorHandler, intl, iconsPath, apiUrl, defaultTheme } = appConfig;
             if (intl !== undefined) {
                 const lang = intl.lang || window.document.documentElement.getAttribute('lang') || window.navigator.language;
                 this.intlProvider = new IntlProvider(lang, intl.data);
@@ -30,7 +29,6 @@ class AppCtrl {
             this.errorHandler = errorHandler;
             this.iconsPath = iconsPath;
             this.apiUrl = apiUrl;
-            this.themeNamesUrl = themeNamesUrl;
             this.defaultTheme = defaultTheme;
             window.dispatchEvent(new CustomEvent(AppInitializedEvent, {
                 bubbles: true,

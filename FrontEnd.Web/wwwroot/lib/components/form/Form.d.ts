@@ -10,7 +10,6 @@ export declare const formDisconnectedEvent = "formDisconnectedEvent";
 declare const Form_base: typeof CustomElement;
 export default class Form extends Form_base {
     private _fields;
-    constructor();
     static get styles(): string;
     static get properties(): Record<string, CustomElementPropertyMetadata>;
     render(): NodePatchingData;

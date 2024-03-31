@@ -58,17 +58,12 @@ class AppCtrl {
 	apiUrl?: string;
 
 	/**
-	 * The data with the names of the tems to feed the selector
-	 */
-	themeNamesUrl?: string;
-
-	/**
 	 * The default theme of the application
 	 */
 	defaultTheme?: string;
 
 	/**
-	 * The parameter that were parsed from the current route
+	 * The parameters that were parsed from the current route
 	 */
     routeParams?: Record<string, string>;
 
@@ -93,7 +88,6 @@ class AppCtrl {
 				intl,
 				iconsPath,
 				apiUrl,
-				themeNamesUrl,
 				defaultTheme
 			} = appConfig;
 
@@ -114,8 +108,6 @@ class AppCtrl {
 			this.iconsPath = iconsPath;
 
 			this.apiUrl = apiUrl;
-
-			this.themeNamesUrl = themeNamesUrl;
 
 			this.defaultTheme = defaultTheme;
 

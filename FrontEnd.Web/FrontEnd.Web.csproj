@@ -7,11 +7,27 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="WebUI\" />
+    <None Remove="WebUI\css\styles.css" />
+    <None Remove="WebUI\css\themes.css" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="WebUI\css\styles.css">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Include="WebUI\css\themes.css">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="System.Drawing.Common" Version="8.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="wwwroot\demo\icons\" />
   </ItemGroup>
 
 </Project>

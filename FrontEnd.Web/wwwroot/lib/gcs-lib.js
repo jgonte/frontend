@@ -259,6 +259,18 @@ function isClass(value) {
         value.toString().substring(0, 5) == 'class';
 }
 
+class FunctionCall {
+    _fcn;
+    _parameters;
+    constructor(fcn, parameters) {
+        this._fcn = fcn;
+        this._parameters = parameters;
+    }
+    execute() {
+        return this._fcn(...this._parameters);
+    }
+}
+
 function findSelfOrParent(element, predicate) {
     let parent = element;
     do {
@@ -273,20 +285,88 @@ function findSelfOrParent(element, predicate) {
     return null;
 }
 
+function parseValue(value) {
+    value = value.trim();
+    if ((value.startsWith("'") && value.endsWith("'")) ||
+        (value.startsWith('"') && value.endsWith('"'))) {
+        value = value.slice(1, -1);
+    }
+    value = value.replace(/\\(.)/g, "$1");
+    const numberRegex = /^[+-]?\d+(\.\d+)?$/;
+    if (numberRegex.test(value)) {
+        return parseFloat(value);
+    }
+    const lowerCaseValue = value.toLowerCase();
+    if (lowerCaseValue === 'true' ||
+        lowerCaseValue === 'false') {
+        return lowerCaseValue === 'true';
+    }
+    if (lowerCaseValue === 'null' ||
+        lowerCaseValue === 'undefined') {
+        return null;
+    }
+    const dateValue = new Date(value);
+    if (!isNaN(dateValue.getTime())) {
+        return dateValue;
+    }
+    try {
+        return JSON.parse(value);
+    }
+    catch (error) {
+        return value;
+    }
+}
+
+function parseFunctionCall(callString) {
+    const regex = /(\w+)\((.*)\)/;
+    const match = callString.match(regex);
+    if (match && match.length === 3) {
+        const functionName = match[1];
+        const parametersString = match[2].trim();
+        const parameters = parametersString.length > 0 ? parametersString.split(',').map(param => parseValue(param.trim())) : [];
+        return { functionName, parameters };
+    }
+    return null;
+}
+
 const valueConverter = {
     toProperty: (value, type) => {
-        if (value === null) {
+        if (isUndefinedOrNull(value)) {
             return null;
         }
         if (!Array.isArray(type)) {
             type = [type];
         }
-        if (value[value.length - 2] === '(' && value[value.length - 1] === ')'
-            && type.includes(DataTypes.Function)) {
-            const fcn = getGlobalFunction(value);
-            if (fcn !== undefined) {
-                return fcn;
+        if (type.includes(DataTypes.Function)) {
+            const functionCallInfo = parseFunctionCall(value);
+            if (functionCallInfo !== null) {
+                const fcn = getGlobalFunction(functionCallInfo.functionName);
+                if (fcn !== undefined) {
+                    if (functionCallInfo.parameters.length > 0) {
+                        return new FunctionCall(fcn, functionCallInfo.parameters);
+                    }
+                    else {
+                        return fcn;
+                    }
+                }
             }
+        }
+        if (type.includes(DataTypes.Number)) {
+            const numberRegex = /^[+-]?\d+(\.\d+)?$/;
+            if (numberRegex.test(value)) {
+                return parseFloat(value);
+            }
+        }
+        if (type.includes(DataTypes.Boolean)) {
+            const lowerCaseValue = value.toLowerCase();
+            if (lowerCaseValue === 'true' ||
+                lowerCaseValue === 'false') {
+                return lowerCaseValue === 'true';
+            }
+        }
+        const dateValue = new Date(value);
+        if (!isNaN(dateValue.getTime())) {
+            return dateValue;
         }
         if (type.includes(DataTypes.Object) ||
             type.includes(DataTypes.Array)) {
@@ -295,7 +375,9 @@ const valueConverter = {
                 o = JSON.parse(value);
             }
             catch (error) {
-                if (!type.includes(DataTypes.String)) {
+                o = window[value];
+                if (!o &&
+                    !type.includes(DataTypes.String)) {
                     throw error;
                 }
             }
@@ -310,15 +392,6 @@ const valueConverter = {
                 }
                 return o;
             }
-        }
-        if (type.includes(DataTypes.Boolean)) {
-            if (value === 'false') {
-                return false;
-            }
-            return true;
-        }
-        if (type.includes(DataTypes.Number)) {
-            return Number(value);
         }
         return value;
     },
@@ -496,7 +569,17 @@ function PropertiesHolder(Base) {
                 return true;
             }
             ensureValueIsInOptions(value, options);
-            if (typeof value === 'function') {
+            if (value instanceof FunctionCall) {
+                const functionCall = value;
+                if (defer === true &&
+                    !isClass(value)) {
+                    value = (() => functionCall.execute()).bind(this);
+                }
+                else if (!isClass(value)) {
+                    value = functionCall.execute();
+                }
+            }
+            else if (typeof value === 'function') {
                 if (defer === true &&
                     !isClass(value)) {
                     value = value.bind(this);
@@ -1688,6 +1771,9 @@ function getKey(patchingData) {
 const patchersCache = new Map();
 function html(strings, ...values) {
     const key = strings.toString();
+    if (key.trim() == '') {
+        throw new Error('Tempate string cannot be empty. Return null if you do not want to create HTML nodes');
+    }
     let patcher = patchersCache.get(key);
     if (patcher === undefined) {
         patcher = new NodePatcher(strings);
@@ -2283,7 +2369,6 @@ class AppCtrl {
     iconsPath;
     overlay = new Overlay();
     apiUrl;
-    themeNamesUrl;
     defaultTheme;
     routeParams;
     async init() {
@@ -2292,7 +2377,7 @@ class AppCtrl {
         this.handleError = this.handleError.bind(this);
         const appConfig = window.appConfig;
         if (appConfig !== undefined) {
-            const { errorHandler, intl, iconsPath, apiUrl, themeNamesUrl, defaultTheme } = appConfig;
+            const { errorHandler, intl, iconsPath, apiUrl, defaultTheme } = appConfig;
             if (intl !== undefined) {
                 const lang = intl.lang || window.document.documentElement.getAttribute('lang') || window.navigator.language;
                 this.intlProvider = new IntlProvider(lang, intl.data);
@@ -2300,7 +2385,6 @@ class AppCtrl {
             this.errorHandler = errorHandler;
             this.iconsPath = iconsPath;
             this.apiUrl = apiUrl;
-            this.themeNamesUrl = themeNamesUrl;
             this.defaultTheme = defaultTheme;
             window.dispatchEvent(new CustomEvent(AppInitializedEvent, {
                 bubbles: true,
@@ -2660,13 +2744,15 @@ const buttonStyles = css `
 button {
     display: inline-flex;
     align-items: center;
-    justify-content: start;
+    gap: var(--gcs-padding);
     user-select: none;
     cursor: pointer;
     font-size: inherit;
     border-width: var(--gcs-border-width);
     border-radius: var(--gcs-border-radius);
     margin: var(--gcs-margin);
+    padding: var(--gcs-padding);
+    
     
     /* outline: 0;
       margin-right: 8px;
@@ -2731,7 +2817,9 @@ class Button extends Hideable(Disableable(Nuanced)) {
         const { disabled, click } = this;
         return html `
 <button disabled=${disabled} onClick=${click}>
-    <slot></slot>
+    <span>
+        <slot></slot>
+    </span>  
 </button>`;
     }
 }
@@ -4041,12 +4129,6 @@ const formConnectedEvent = "formConnectedEvent";
 const formDisconnectedEvent = "formDisconnectedEvent";
 class Form extends Submittable(Validatable(RemoteLoadableHolder(CustomElement))) {
     _fields = new Map();
-    constructor() {
-        super();
-        this.handleFieldAdded = this.handleFieldAdded.bind(this);
-        this.handleChange = this.handleChange.bind(this);
-        this.handleBeforeUnload = this.handleBeforeUnload.bind(this);
-    }
     static get styles() {
         return formStyles;
     }
@@ -4859,15 +4941,15 @@ class Panel extends CustomElement {
     }
     render() {
         return html `
-            <div id=header>
-                <slot name="header"></slot>
-            </div>
-            <div id=body>
-                <slot name="body"></slot>
-            </div>
-            <div id=footer>
-                <slot name="footer"></slot>
-            </div>
+<div id=header>
+    <slot name="header"></slot>
+</div>
+<div id=body>
+    <slot name="body"></slot>
+</div>
+<div id=footer>
+    <slot name="footer"></slot>
+</div>
         `;
     }
 }
@@ -4919,6 +5001,8 @@ textarea {
     outline: none;
     border-style: solid;
     border-color: #d0d0d0;
+    border-radius: var(--gcs-border-radius);
+    font-size: inherit;
 }
 
 textarea,
@@ -5100,15 +5184,6 @@ function CollectionDataHolder(Base) {
         disconnectedCallback() {
             super.disconnectedCallback?.();
             this.removeEventListener(sorterChanged, this.sort);
-        }
-        renderEmptyData(slot = null) {
-            return html `
-<gcs-alert 
-    kind="warning"
-    slot=${slot}
->
-    <gcs-localized-text>No Records Found</gcs-localized-text>
-</gcs-alert>`;
         }
         sort(event) {
             const { column, ascending, element } = event.detail;
@@ -6324,10 +6399,121 @@ ${this.renderErrors()}`;
 }
 defineCustomElement('gcs-validation-summary', ValidationSummary);
 
+const cellEditorStyles = css `
+:host {
+    position: relative;
+}`;
+
+class CellEditor extends CustomElement {
+    _field;
+    static get styles() {
+        return cellEditorStyles;
+    }
+    static get properties() {
+        return {
+            name: {
+                type: DataTypes.String,
+                required: true
+            },
+            type: {
+                type: DataTypes.String,
+                required: true
+            },
+            value: {
+                type: [
+                    DataTypes.String,
+                    DataTypes.Number,
+                    DataTypes.Boolean,
+                    DataTypes.BigInt,
+                    DataTypes.Date,
+                    DataTypes.Object,
+                    DataTypes.Array,
+                    DataTypes.Function
+                ],
+                defer: true,
+            }
+        };
+    }
+    static get state() {
+        return {
+            editing: {
+                value: false
+            }
+        };
+    }
+    connectedCallback() {
+        super.connectedCallback?.();
+        this.addEventListener("keydown", this.handleKeyDown);
+        this.addEventListener(fieldAddedEvent, this.handleFieldAdded);
+    }
+    disconnectedCallback() {
+        super.disconnectedCallback?.();
+        this.removeEventListener("keydown", this.handleKeyDown);
+        this.removeEventListener(fieldAddedEvent, this.handleFieldAdded);
+    }
+    acceptChanges() {
+        if (this.editing === false) {
+            return;
+        }
+        const { _field } = this;
+        if (_field) {
+            this.value = _field.value;
+        }
+        this.editing = false;
+    }
+    rejectChanges() {
+        this.editing = false;
+    }
+    handleFieldAdded(event) {
+        const { field } = event.detail;
+        this._field = field;
+    }
+    render() {
+        const { value, editing } = this;
+        const v = typeof value === "function" ?
+            value() :
+            value;
+        if (editing == false) {
+            return html `${v}`;
+        }
+        else {
+            return this.renderField(v);
+        }
+    }
+    renderField(value) {
+        switch (this.type) {
+            case "string": return html `
+<gcs-text-field
+    name=${this.name}
+    value=${value}
+>
+</gcs-text-field>`;
+            case "number": return html `
+<gcs-number-field
+    name=${this.name}
+    value=${value}
+>
+</gcs-number-field>`;
+            default: throw new Error(`Not implemented for type: ${this.type}`);
+        }
+    }
+}
+defineCustomElement('gcs-cell-editor', CellEditor);
+
 const dataListStyles = css `
 :host {
     display: grid;
 }`;
+
+function renderEmptyData(slot = null) {
+    return html `
+<gcs-alert 
+    kind="warning"
+    slot=${slot}
+>
+    <gcs-localized-text>No Records Found</gcs-localized-text>
+</gcs-alert>`;
+}
 
 class DataList extends SelectionContainer(RemoteLoadableHolder(CollectionDataHolder(CustomElement))) {
     static get styles() {
@@ -6346,7 +6532,7 @@ class DataList extends SelectionContainer(RemoteLoadableHolder(CollectionDataHol
     render() {
         const { idField, data } = this;
         if (data.length === 0) {
-            return this.renderEmptyData();
+            return renderEmptyData();
         }
         return data.map((record) => this.itemTemplate(record, record[idField]));
     }
@@ -6615,7 +6801,7 @@ class DataGrid extends RemoteLoadableHolder(CollectionDataHolder(CustomElement))
     renderBody() {
         const { columns, data, idField } = this;
         if (data.length === 0) {
-            return this.renderEmptyData('body');
+            return renderEmptyData('body');
         }
         return data.map((record) => html `
 <gcs-data-row 
@@ -6635,6 +6821,212 @@ class DataGrid extends RemoteLoadableHolder(CollectionDataHolder(CustomElement))
     }
 }
 defineCustomElement('gcs-data-grid', DataGrid);
+
+var KeyNames;
+(function (KeyNames) {
+    KeyNames["Enter"] = "Enter";
+    KeyNames["ArrowLeft"] = "ArrowLeft";
+    KeyNames["ArrowUp"] = "ArrowUp";
+    KeyNames["ArrowRight"] = "ArrowRight";
+    KeyNames["ArrowDown"] = "ArrowDown";
+    KeyNames["Backspace"] = "Backspace";
+    KeyNames["Tab"] = "Tab";
+    KeyNames["Escape"] = "Escape";
+    KeyNames["Space"] = " ";
+})(KeyNames || (KeyNames = {}));
+
+const propertyGridRowStyles = css `
+:host {
+    display: flex;   
+    margin: var(--gcs-margin); 
+    gap: var(--gcs-margin); 
+}`;
+
+class PropertyGridRow extends Clickable(CustomElement) {
+    static get styles() {
+        return mergeStyles(super.styles, propertyGridRowStyles);
+    }
+    static get properties() {
+        return {
+            label: {
+                type: DataTypes.String
+            },
+            name: {
+                type: DataTypes.String,
+                required: true
+            },
+            type: {
+                type: DataTypes.String,
+                required: true
+            },
+            value: {
+                type: DataTypes.String
+            },
+            labelAlign,
+            labelWidth,
+        };
+    }
+    connectedCallback() {
+        super.connectedCallback?.();
+        this.addEventListener("keydown", this.handleKeyDown);
+    }
+    disconnectedCallback() {
+        super.disconnectedCallback?.();
+        this.removeEventListener("keydown", this.handleKeyDown);
+    }
+    handleKeyDown(event) {
+        switch (event.key) {
+            case KeyNames.Enter:
+            case KeyNames.Tab:
+                {
+                    const cellEditor = this.document.getElementById("cell-editor");
+                    cellEditor.acceptChanges();
+                }
+                break;
+            case KeyNames.Backspace:
+                break;
+            default:
+                {
+                    const printableRegex = /^[\x20-\x7E]$/;
+                    if (!printableRegex.test(event.key)) {
+                        const cellEditor = this.document.getElementById("cell-editor");
+                        cellEditor.rejectChanges();
+                    }
+                }
+                break;
+        }
+    }
+    render() {
+        const { label, name, type, value, labelAlign, labelWidth } = this;
+        const labelContainerStyle = css `flex: 0 0 ${labelWidth};`;
+        const labelStyle = css `justify-content: ${labelAlign};`;
+        return html `
+<span id="label-container" style=${labelContainerStyle}>
+    <span id="label" style=${labelStyle}>
+        <gcs-localized-text>${label}</gcs-localized-text>
+    </span>
+</span>
+<span style="flex: auto; border: var(--gcs-border-width) solid lightgrey; border-radius: var(--gcs-border-radius);">
+    <gcs-cell-editor 
+        id="cell-editor"
+        name=${name}
+        type=${type}
+        value=${value}>
+    </gcs-cell-editor>
+</span>`;
+    }
+    handleClick() {
+        const cellEditor = this.document.getElementById("cell-editor");
+        cellEditor.editing = true;
+    }
+}
+defineCustomElement('gcs-property-grid-row', PropertyGridRow);
+
+function Configurable(Base) {
+    return class ConfigurableMixin extends Base {
+        static get properties() {
+            return {
+                source: {
+                    type: [
+                        DataTypes.Object,
+                        DataTypes.Function
+                    ],
+                    defer: true,
+                    canChange: function () {
+                        return true;
+                    },
+                    afterChange: async function (value) {
+                        await this.updateComplete;
+                        const descriptor = (typeof value === "function" ?
+                            value() :
+                            value);
+                        this.configure(descriptor);
+                    }
+                }
+            };
+        }
+    };
+}
+
+const propertyGridStyles = css `
+:host {
+    display: inline-block;   
+    margin: var(--gcs-margin); 
+}`;
+
+class PropertyGrid extends Configurable(CustomElement) {
+    static get styles() {
+        return mergeStyles(super.styles, propertyGridStyles);
+    }
+    static get properties() {
+        return {
+            labelWidth,
+            labelAlign,
+            data: {
+                type: [
+                    DataTypes.Object,
+                    DataTypes.Function
+                ],
+                defer: true
+            }
+        };
+    }
+    render() {
+        return html `
+<gcs-panel>
+    ${this._renderLabel()}
+    ${this._renderIcon()}
+    ${this._renderBody()}
+</gcs-panel>`;
+    }
+    configure(source) {
+        this.source = source;
+    }
+    _renderLabel() {
+        return html `
+<gcs-localized-text 
+    slot="header"
+>
+    ${this.source.label || "Properties Grid"}
+</gcs-localized-text>`;
+    }
+    _renderIcon() {
+        const { iconName, } = this.source;
+        if (!iconName) {
+            return null;
+        }
+        return html `
+<gcs-icon 
+    slot="header"
+    name=${iconName}
+>
+</gcs-icon>`;
+    }
+    _renderBody() {
+        const { source, data, labelWidth, labelAlign } = this;
+        const d = typeof data === "function" ?
+            data() :
+            data;
+        if (!d) {
+            return renderEmptyData('body');
+        }
+        const children = typeof source.children === "function" ?
+            source.children() :
+            source.children;
+        return children.map((c) => html `
+<gcs-property-grid-row 
+    slot="body"
+    label-width=${labelWidth} 
+    label-align=${labelAlign} 
+    label=${c.label}
+    name=${c.name}
+    type=${c.type || "string"}
+    value=${d[c.name]} 
+    key=${c.name}>
+</gcs-property-grid-row>`);
+    }
+}
+defineCustomElement('gcs-property-grid', PropertyGrid);
 
 function getNotFoundView() {
     return class {
@@ -7055,4 +7447,4 @@ window.appCtrl = appCtrl;
 window.html = html;
 window.viewsRegistry = viewsRegistry;
 
-export { Accordion, Alert, AppInitializedEvent, ApplicationHeader, ApplicationView, Button, Center, CheckBox, CloseTool, CollectionField, CollectionPanel, ComboBox, ContentView, CustomElement, DataGridBodyCell as DataCell, DataGrid, DataGridHeader, DataGridHeaderCell as DataHeaderCell, DataList, DataGridBodyRow as DataRow, DataTemplate, DataTypes, DateField, DisplayableField, DropDown, ExpanderTool, FileField, Form, FormField, HashRouter, HelpTip, HiddenField, Icon, LocalizedText, ModifiedTip, NavigationBar, NavigationLink, NumberField, Overlay, Panel, PanelHeader, PasswordField, Pill, RequiredTip, Selector, Slider, SorterTool, StarRating, TextArea, TextField, Theme, Tool, ToolTip, ValidationSummary, Wizard, WizardStep, appCtrl, css, defineCustomElement, getNotFoundView, html, navigateToRoute, viewsRegistry };
+export { Accordion, Alert, AppInitializedEvent, ApplicationHeader, ApplicationView, Button, CellEditor, Center, CheckBox, CloseTool, CollectionField, CollectionPanel, ComboBox, ContentView, CustomElement, DataGridBodyCell as DataCell, DataGrid, DataGridHeader, DataGridHeaderCell as DataHeaderCell, DataList, DataGridBodyRow as DataRow, DataTemplate, DataTypes, DateField, DisplayableField, DropDown, ExpanderTool, FileField, Form, FormField, HashRouter, HelpTip, HiddenField, Icon, LocalizedText, ModifiedTip, NavigationBar, NavigationLink, NumberField, Overlay, Panel, PanelHeader, PasswordField, Pill, PropertyGrid, PropertyGridRow, RequiredTip, Selector, Slider, SorterTool, StarRating, TextArea, TextField, Theme, Tool, ToolTip, ValidationSummary, Wizard, WizardStep, appCtrl, css, defineCustomElement, getNotFoundView, html, navigateToRoute, viewsRegistry };

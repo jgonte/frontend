@@ -17,7 +17,5 @@ export default interface AppConfig {
 
     useThemeSelector: boolean;
 
-    themeNamesUrl: string;
-
     defaultTheme: string;
 }

@@ -1,11 +1,14 @@
 import { DataTypes } from "../../../utils/data/DataTypes";
 import getGlobalFunction from "../../../utils/getGlobalFunction";
+import isUndefinedOrNull from "../../../utils/isUndefinedOrNull";
+import parseFunctionCall from "../../../utils/parseFunctionCall";
+import FunctionCall from "./FunctionCall";
 
 const valueConverter = {
 
     toProperty: (value: string, type: DataTypes | DataTypes[]) => {
 
-        if (value === null) {
+        if (isUndefinedOrNull(value)) {
 
             return null;
         }
@@ -16,15 +19,59 @@ const valueConverter = {
         }
 
         // First try a function since that can create any of the objects below
-        if (value[value.length - 2] === '(' && value[value.length - 1] === ')' // The function by convention must end in ()
-            && type.includes(DataTypes.Function)) {
+        if (type.includes(DataTypes.Function)) {
 
-            const fcn = getGlobalFunction(value);
+            const functionCallInfo = parseFunctionCall(value);
 
-            if (fcn !== undefined) {
+            if (functionCallInfo !== null) {
 
-                return fcn;
+                const fcn = getGlobalFunction(functionCallInfo.functionName);
+
+                if (fcn !== undefined) {
+
+                    if (functionCallInfo.parameters.length > 0) {
+                        return new FunctionCall(
+                            fcn,
+                            functionCallInfo.parameters
+                        );
+                    }
+                    else {
+
+                        return fcn; // Without any parameters, just return the function
+                    }
+                }
             }
+        }
+
+        // Attempt to parse as number
+        if (type.includes(DataTypes.Number)) {
+
+            const numberRegex = /^[+-]?\d+(\.\d+)?$/; // Regex to match numbers
+
+            if (numberRegex.test(value)) {
+
+                return parseFloat(value);
+            }
+        }
+
+        // Attempt to parse as boolean
+        if (type.includes(DataTypes.Boolean)) {
+
+            const lowerCaseValue = value.toLowerCase();
+
+            if (lowerCaseValue === 'true' ||
+                lowerCaseValue === 'false') {
+
+                return lowerCaseValue === 'true';
+            }
+        }
+
+        // Attempt to parse as date
+        const dateValue = new Date(value);
+
+        if (!isNaN(dateValue.getTime())) {
+
+            return dateValue;
         }
 
         if (type.includes(DataTypes.Object) ||
@@ -39,12 +86,14 @@ const valueConverter = {
             }
             catch (error) {
 
-                if (!type.includes(DataTypes.String)) {
+                // Check if the string value points to global object
+                o = (window as unknown as Window & Record<string, object>)[value];
 
-                    throw error; // Malformed JSON
+                if (!o &&
+                    !type.includes(DataTypes.String)) {
+
+                    throw error; // Malformed JSON and not global object
                 }
-
-                // Try the other types below
             }
 
             if (o !== undefined) {
@@ -63,21 +112,6 @@ const valueConverter = {
 
                 return o;
             }
-        }
-
-        if (type.includes(DataTypes.Boolean)) {
-
-            if (value === 'false') {
-
-                return false;
-            }
-            
-            return true;
-        }
-
-        if (type.includes(DataTypes.Number)) {
-
-            return Number(value);
         }
 
         return value;

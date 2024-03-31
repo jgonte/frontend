@@ -5,7 +5,7 @@ import mergeStyles from "../../../custom-element/styles/mergeStyles";
 import html from "../../../rendering/html";
 import { NodePatchingData } from "../../../rendering/nodes/NodePatchingData";
 import { DataTypes } from "../../../utils/data/DataTypes";
-import DataGridColumnDescriptor from "../DataGridColumnDescriptor";
+import IDataGridColumnDescriptor from "../IDataGridColumnDescriptor";
 import { dataGridHeaderStyles } from "./DataGridHeader.styles";
 
 export default class DataGridHeader extends CustomElement {
@@ -34,9 +34,9 @@ export default class DataGridHeader extends CustomElement {
 
     render(): NodePatchingData[] {
 
-        return this.columns.map((column: DataGridColumnDescriptor |string | number) => {
+        return this.columns.map((column: IDataGridColumnDescriptor |string | number) => {
 
-            return html`<gcs-data-header-cell column=${column} key=${(column as DataGridColumnDescriptor).name || column}></gcs-data-header-cell>`;
+            return html`<gcs-data-header-cell column=${column} key=${(column as IDataGridColumnDescriptor).name || column}></gcs-data-header-cell>`;
         });
     }
 }
