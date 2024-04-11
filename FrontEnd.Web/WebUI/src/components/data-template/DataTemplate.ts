@@ -3,6 +3,8 @@ import defineCustomElement from "../../custom-element/defineCustomElement";
 import CustomElementPropertyMetadata from "../../custom-element/mixins/metadata/types/CustomElementPropertyMetadata";
 import { NodePatchingData } from "../../rendering/nodes/NodePatchingData";
 import { DataTypes } from "../../utils/data/DataTypes";
+import { GenericRecord } from "../../utils/types";
+import SingleRecordDataHolder from "../mixins/data-holder/SingleRecordDataHolder";
 import RemoteLoadableHolder from "../mixins/remote-loadable/RemoteLoadable";
 
 /**
@@ -10,24 +12,14 @@ import RemoteLoadableHolder from "../mixins/remote-loadable/RemoteLoadable";
  */
 export default class DataTemplate extends
     RemoteLoadableHolder(
-        CustomElement
+        SingleRecordDataHolder(
+            CustomElement
+        )
     ) {
 
     static get properties(): Record<string, CustomElementPropertyMetadata> {
 
         return {
-
-            /**
-             * The data used by the template to generate the markup
-             */
-            data: {
-                type: [
-                    DataTypes.Object,
-                    DataTypes.Function
-                ],
-                value: undefined
-                //required: true - We might need to load it after connecting the component
-            },
 
             /**
              * The template to render the markup
@@ -40,16 +32,9 @@ export default class DataTemplate extends
         }
     }
 
-    render(): NodePatchingData {
-
-        const {
-            data,
-            template
-        } = this;
-
-        return data === undefined ?
-            null :
-            template(data);
+    _applyTemplate(record: GenericRecord) : NodePatchingData {
+        
+        return this.template(record);
     }
 }
 

@@ -10,7 +10,6 @@ import { GenericRecord } from "../../utils/types";
 import { DataTypes } from "../../utils/data/DataTypes";
 import { dataListStyles } from "./DataList.styles";
 import mergeStyles from "../../custom-element/styles/mergeStyles";
-import { renderEmptyData } from "../mixins/data-holder/renderEmptyData";
 
 /**
  * Render a collection of records
@@ -45,21 +44,9 @@ export default class DataList extends
         };
     }
 
-    render(): NodePatchingData[] | NodePatchingData {
+    _applyTemplate(record: GenericRecord) : NodePatchingData {
 
-        const {
-            idField,
-            data
-        } = this;
-
-        if (data.length === 0) {
-
-            return renderEmptyData();
-        }
-
-        return data.map((record: GenericRecord) =>
-            this.itemTemplate(record, record[idField])
-        );
+        return this.itemTemplate(record, record[this.idField]);
     }
 }
 

@@ -24,13 +24,14 @@ export const applicationViewStyles = css`
 #header,
 #footer {
   	grid-column: 1 / 4;
-	background-color: var(--gcs-header-bg-color);
-	color: var(--gcs-header-text-color);
+	background-color: var(--gcs-bg-color-primary-3);
+	color: var(--gcs-color-primary-3);
+	padding: var(--gcs-padding);
 }
 
 #subheader { 
-	background-color: var(--alt-bg-color);
-	color: var(--text-color);
+	background-color: var(--gcs-bg-color-primary-2);
+	color: var(--gcs-color-primary-2);
 }
 
 #left {

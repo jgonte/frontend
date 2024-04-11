@@ -3,21 +3,21 @@
 public struct HSL
 {
     /// <summary>
-    /// Hue (between 0 and 360
+    /// Hue (between 0 and 360)
     /// </summary>
     public short Hue { get; private set; }
 
     /// <summary>
-    /// The saturation (between 0 and 100%)
+    /// The saturation (between 0 and 1)
     /// </summary>
-    public byte Saturation { get; private set; }
+    public float Saturation { get; private set; }
 
     /// <summary>
-    /// The lightness (between 0 and 100%)
+    /// The lightness (between 0 and 1)
     /// </summary>
-    public byte Lightness { get; private set; }
+    public float Lightness { get; private set; }
 
-    public HSL(short hue, byte saturation, byte lightness)
+    public HSL(short hue, float saturation, float lightness)
     {
         if (hue < 0 && hue > 360)
         {
@@ -43,24 +43,21 @@ public struct HSL
 
     public string ToCss()
     {
-        return $"hsl({Hue}, {Saturation}%, {Lightness}%)";
+        int saturationPercent = (int)Math.Round(Saturation * 100);
+
+        int lightnessPercent = (int)Math.Round(Lightness * 100);
+
+        return $"hsl({Hue}, {saturationPercent}%, {lightnessPercent}%)";
     }
 
-    public HSL[] GenerateMonochromaticScale(int n)
+    public static short[] GenerateTriadicHues(short hue)
     {
-        var scale = new HSL[n];
+        short[] hues = new short[2];
 
-        var lightnessSteps = Convert.ToByte(100 / (n + 2));
+        hues[0] = (short)((hue + 120) % 360);
 
-        var lightness = lightnessSteps;
+        hues[1] = (short)((hue + 240) % 360);
 
-        for (int i = 0; i < n; ++i)
-        {
-            lightness += lightnessSteps;
-
-            scale[i] = new HSL(Hue, Saturation, lightness);
-        }
-
-        return scale;
+        return hues;
     }
 }

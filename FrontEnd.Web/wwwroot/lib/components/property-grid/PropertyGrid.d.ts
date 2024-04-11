@@ -1,6 +1,8 @@
 import CustomElement from "../../custom-element/CustomElement";
 import CustomElementPropertyMetadata from "../../custom-element/mixins/metadata/types/CustomElementPropertyMetadata";
 import { RenderReturnTypes } from "../../custom-element/mixins/metadata/types/IRenderable";
+import { NodePatchingData } from "../../rendering/nodes/NodePatchingData";
+import { GenericRecord } from "../../utils/types";
 import { IComponentDescriptor } from "../mixins/configurable/models/IComponentDescriptor";
 declare const PropertyGrid_base: typeof CustomElement;
 export default class PropertyGrid extends PropertyGrid_base {
@@ -10,6 +12,6 @@ export default class PropertyGrid extends PropertyGrid_base {
     configure(source: IComponentDescriptor): void;
     private _renderLabel;
     private _renderIcon;
-    private _renderBody;
+    _applyTemplate(record: GenericRecord): NodePatchingData;
 }
 export {};

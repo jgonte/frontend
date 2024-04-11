@@ -18,6 +18,9 @@ function getAppRoutes() {
         '/alert': {
             view: `${views}/alert.html`
         },
+        '/toolbar': {
+            view: `${views}/toolbar.html`
+        },
         '/button': {
             view: `${views}/button.html`
         },
@@ -76,6 +79,9 @@ function getAppRoutes() {
         },
         '/display/property-grid': {
             view: `${views}/display/property-grid.html`
+        },
+        '/display/tree-view': {
+            view: `${views}/display/tree-view.html`
         },
 
         // Tools

@@ -1,7 +1,7 @@
 import CustomElementPropertyMetadata from "../../custom-element/mixins/metadata/types/CustomElementPropertyMetadata";
+import iconName from "../icon/props/iconName";
 import html from "../../rendering/html";
 import { NodePatchingData } from "../../rendering/nodes/NodePatchingData";
-import { DataTypes } from "../../utils/data/DataTypes";
 import Clickable from "../mixins/clickable/Clickable";
 import Nuanced from "../Nuanced";
 
@@ -14,17 +14,7 @@ export default abstract class Tool
 
         return {
 
-            /**
-             * What action to execute when the tool has been closed
-             */
-            iconName: {
-                type: [
-                    DataTypes.String,
-                    DataTypes.Function
-                ],
-                defer: true,
-                required: true
-            }
+            iconName: iconName(true)
         };
     }
 

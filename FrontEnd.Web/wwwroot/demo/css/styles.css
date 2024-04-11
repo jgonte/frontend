@@ -40,6 +40,8 @@ body {
 	height: 100%;
 	min-height: 100vh;
 	text-rendering: optimizeSpeed;
+	background-color: var(--gcs-bg-color-primary-1);
+	color: var(--gcs-color-primary-1);
 }
 
 /* A elements that don't have a class get default styles */
@@ -101,40 +103,40 @@ select {
 	--gcs-font-family: Arial, Helvetica, sans-serif;
 	/* Colors */
 	--gcs-color-primary-dark: rgb(37, 68, 12);
-	--gcs-overlay-background-color: rgba(0, 0, 0, 0.3);
+	--gcs-overlay-bg-color: rgba(0, 0, 0, 0.3);
 	--gcs-color-info: #1f87b8;
-	--gcs-background-color-info: #e6f7ff;
+	--gcs-bg-color-info: #e6f7ff;
 	--gcs-color-contained-info: rgb(37, 68, 12);
-	--gcs-background-color-contained-info: #26295c;
+	--gcs-bg-color-contained-info: #26295c;
 	--gcs-color-primary: #3880ff;
-	--gcs-background-color-primary: #e6f7ff;
+	--gcs-bg-color-primary: #e6f7ff;
 	--gcs-color-contained-primary: #fff;
-	--gcs-background-color-contained-primary: #3880ff;
+	--gcs-bg-color-contained-primary: #3880ff;
 	--gcs-color-success: #009E52;
-	--gcs-background-color-success: #f6ffed;
+	--gcs-bg-color-success: #f6ffed;
 	--gcs-color-contained-success: #fff;
-	--gcs-background-color-contained-success: #009E52;
+	--gcs-bg-color-contained-success: #009E52;
 	--gcs-color-warning: #ecbf09;
-	--gcs-background-color-warning: #fffbe6;
+	--gcs-bg-color-warning: #fffbe6;
 	--gcs-color-contained-warning: #000;
-	--gcs-background-color-contained-warning: yellow;
+	--gcs-bg-color-contained-warning: yellow;
 	--gcs-color-danger: #b12020;
-	--gcs-background-color-danger: #fff2f0;
+	--gcs-bg-color-danger: #fff2f0;
 	--gcs-color-contained-danger: white;
-	--gcs-background-color-contained-danger: crimson;
-	--gcs-background-color-secondary: #0cd1e8;
+	--gcs-bg-color-contained-danger: crimson;
+	--gcs-bg-color-secondary: #0cd1e8;
 	--gcs-color-secondary: #032517;
 	--gcs-color-contained-secondary: #fff;
-	--gcs-background-color-contained-secondary: #e8c00c;
-	--gcs-background-color-tertiary: #f4a942;
+	--gcs-bg-color-contained-secondary: #e8c00c;
+	--gcs-bg-color-tertiary: #f4a942;
 	--gcs-color-tertiary: #b446b4;
-	--gcs-disabled-background-color: lightgray;
+	--gcs-disabled-bg-color: lightgray;
 	--gcs-disabled-color: darkgray;
 	/* Hoverable */
-	--gcs-hoverable-background-color: rgb(211, 227, 233);
+	--gcs-hoverable-bg-color: rgb(211, 227, 233);
 	--gcs-hoverable-color: black;
 	/* Tooltip*/
-	--gcs-tooltip-background-color: #555;
+	--gcs-tooltip-bg-color: #555;
 	--gcs-tooltip-color: rgb(211, 227, 233);
 	/*
     
@@ -142,29 +144,42 @@ select {
     --gcs-color-medium: #989aa2;
     --gcs-color-dark: #222428;
 
-    --gcs-background-color:#fff;
+    --gcs-bg-color:#fff;
 
-    --gcs-selected-background-color:#8ebeba;
+    --gcs-selected-bg-color:#8ebeba;
     --gcs-selected-color: gold;
 
-    --gcs-header-background-color: #1d62d8;
+    --gcs-header-bg-color: #1d62d8;
 
     */
 	/* Font sizes */
-	--gcs-font-size: 1.4rem;
+	--gcs-font-size: 1.2rem;
 	/* Icon sizes */
 	--gcs-icon-size-large: 2.048rem;
 	--gcs-icon-size-medium: 1.28rem;
 	--gcs-icon-size-small: .8rem;
 	/* Border */
 	--gcs-border-width: .1em;
-	--gcs-border-radius: .25rem;
+	--gcs-border-radius: .3rem;
 	/* Min height */
 	--gcs-min-height: 1.2em;
 	/* Margin */
 	--gcs-margin: .25em;
 	/* Padding */
 	--gcs-padding: .25em;
+	/* Basic records */
+	--gcs-color-red: hsl(0, 100%, 50%);
+	--gcs-color-red-orange: hsl(30, 100%, 50%);
+	--gcs-color-orange: hsl(60, 100%, 50%);
+	--gcs-color-yellow-orange: hsl(90, 100%, 50%);
+	--gcs-color-yellow: hsl(120, 100%, 50%);
+	--gcs-color-yellow-green: hsl(150, 100%, 50%);
+	--gcs-color-green: hsl(180, 100%, 50%);
+	--gcs-color-blue-green: hsl(210, 100%, 50%);
+	--gcs-color-blue: hsl(240, 100%, 50%);
+	--gcs-color-blue-purple: hsl(270, 100%, 50%);
+	--gcs-color-purple: hsl(300, 100%, 50%);
+	--gcs-color-red-purple: hsl(330, 100%, 50%);
 }
 
 body {

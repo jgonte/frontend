@@ -1,11 +1,11 @@
+import Clickable from "../../mixins/clickable/Clickable";
+import ToolBar from "../../toolbar/Toolbar";
 import defineCustomElement from "../../../custom-element/defineCustomElement";
 import mergeStyles from "../../../custom-element/styles/mergeStyles";
 import { DataTypes } from "../../../utils/data/DataTypes";
-import Clickable from "../../mixins/clickable/Clickable";
-import Nuanced from "../../Nuanced";
 import { navigationLinkStyles } from "./NavigationLink.styles";
 export const linkClickedEvent = 'linkClickedEvent';
-export default class NavigationLink extends Clickable(Nuanced) {
+export default class NavigationLink extends Clickable(ToolBar) {
     static get styles() {
         return mergeStyles(super.styles, navigationLinkStyles);
     }

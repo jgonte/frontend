@@ -6,8 +6,9 @@ export default class NavigationBar extends NavigationBar_base {
     static get styles(): string;
     static get properties(): Record<string, CustomElementPropertyMetadata>;
     render(): NodePatchingData;
-    renderLinks(): NodePatchingData[];
-    private renderGroupedLinks;
-    private renderLink;
+    private _renderLinks;
+    private _renderIcon;
+    private _renderGroupedLinks;
+    private _renderLink;
 }
 export {};

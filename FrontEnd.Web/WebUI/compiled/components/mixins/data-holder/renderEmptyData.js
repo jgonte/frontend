@@ -1,5 +1,5 @@
 import html from "../../../rendering/html";
-export function renderEmptyData(slot = null) {
+export default function renderEmptyData(slot = null) {
     return html `
 <gcs-alert 
     kind="warning"

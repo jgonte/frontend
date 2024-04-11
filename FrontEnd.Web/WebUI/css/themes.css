@@ -1,9 +1,9 @@
 [theme="0-light"] {
-    --text-color: hsl(0, 50%, 10%);
+    --gcs-color-primary-1: hsl(0, 50%, 10%);
     --bg-color: hsl(0, 50%, 95%);
-    --alt-bg-color: hsl(0, 50%, 90%);
-    --gcs-header-text-color: hsl(0, 50%, 95%);
-    --gcs-header-bg-color: hsl(0, 50%, 40%);
+    --gcs-bg-color-primary-2: hsl(0, 50%, 90%);
+    --gcs-color-primary-3: hsl(0, 50%, 95%);
+    --gcs-bg-color-primary-3: hsl(0, 50%, 40%);
     --hover-text-color: hsl(0, 50%, 25%);
     --hover-bg-color: hsl(0, 50%, 85%);
     --active-text-color: hsl(180, 50%, 25%);
@@ -15,11 +15,11 @@
 }
 
 [theme="0-dark"] {
-    --text-color: hsl(0, 50%, 90%);
+    --gcs-color-primary-1: hsl(0, 50%, 90%);
     --bg-color: hsl(0, 50%, 5%);
-    --alt-bg-color: hsl(0, 50%, 15%);
-    --gcs-header-text-color: hsl(0, 50%, 10%);
-    --gcs-header-bg-color: hsl(0, 50%, 85%);
+    --gcs-bg-color-primary-2: hsl(0, 50%, 15%);
+    --gcs-color-primary-3: hsl(0, 50%, 10%);
+    --gcs-bg-color-primary-3: hsl(0, 50%, 85%);
     --hover-text-color: hsl(0, 50%, 85%);
     --hover-bg-color: hsl(0, 50%, 25%);
     --active-text-color: hsl(180, 50%, 90%);
@@ -31,11 +31,11 @@
 }
 
 [theme="30-light"] {
-    --text-color: hsl(30, 50%, 10%);
+    --gcs-color-primary-1: hsl(30, 50%, 10%);
     --bg-color: hsl(30, 50%, 95%);
-    --alt-bg-color: hsl(30, 50%, 90%);
-    --gcs-header-text-color: hsl(30, 50%, 95%);
-    --gcs-header-bg-color: hsl(30, 50%, 40%);
+    --gcs-bg-color-primary-2: hsl(30, 50%, 90%);
+    --gcs-color-primary-3: hsl(30, 50%, 95%);
+    --gcs-bg-color-primary-3: hsl(30, 50%, 40%);
     --hover-text-color: hsl(30, 50%, 25%);
     --hover-bg-color: hsl(30, 50%, 85%);
     --active-text-color: hsl(210, 50%, 25%);
@@ -47,11 +47,11 @@
 }
 
 [theme="30-dark"] {
-    --text-color: hsl(30, 50%, 90%);
+    --gcs-color-primary-1: hsl(30, 50%, 90%);
     --bg-color: hsl(30, 50%, 5%);
-    --alt-bg-color: hsl(30, 50%, 15%);
-    --gcs-header-text-color: hsl(30, 50%, 10%);
-    --gcs-header-bg-color: hsl(30, 50%, 85%);
+    --gcs-bg-color-primary-2: hsl(30, 50%, 15%);
+    --gcs-color-primary-3: hsl(30, 50%, 10%);
+    --gcs-bg-color-primary-3: hsl(30, 50%, 85%);
     --hover-text-color: hsl(30, 50%, 85%);
     --hover-bg-color: hsl(30, 50%, 25%);
     --active-text-color: hsl(210, 50%, 90%);
@@ -63,11 +63,11 @@
 }
 
 [theme="60-light"] {
-    --text-color: hsl(60, 50%, 10%);
+    --gcs-color-primary-1: hsl(60, 50%, 10%);
     --bg-color: hsl(60, 50%, 95%);
-    --alt-bg-color: hsl(60, 50%, 90%);
-    --gcs-header-text-color: hsl(60, 50%, 95%);
-    --gcs-header-bg-color: hsl(60, 50%, 40%);
+    --gcs-bg-color-primary-2: hsl(60, 50%, 90%);
+    --gcs-color-primary-3: hsl(60, 50%, 95%);
+    --gcs-bg-color-primary-3: hsl(60, 50%, 40%);
     --hover-text-color: hsl(60, 50%, 25%);
     --hover-bg-color: hsl(60, 50%, 85%);
     --active-text-color: hsl(240, 50%, 25%);
@@ -79,11 +79,11 @@
 }
 
 [theme="60-dark"] {
-    --text-color: hsl(60, 50%, 90%);
+    --gcs-color-primary-1: hsl(60, 50%, 90%);
     --bg-color: hsl(60, 50%, 5%);
-    --alt-bg-color: hsl(60, 50%, 15%);
-    --gcs-header-text-color: hsl(60, 50%, 10%);
-    --gcs-header-bg-color: hsl(60, 50%, 85%);
+    --gcs-bg-color-primary-2: hsl(60, 50%, 15%);
+    --gcs-color-primary-3: hsl(60, 50%, 10%);
+    --gcs-bg-color-primary-3: hsl(60, 50%, 85%);
     --hover-text-color: hsl(60, 50%, 85%);
     --hover-bg-color: hsl(60, 50%, 25%);
     --active-text-color: hsl(240, 50%, 90%);
@@ -95,11 +95,11 @@
 }
 
 [theme="90-light"] {
-    --text-color: hsl(90, 50%, 10%);
+    --gcs-color-primary-1: hsl(90, 50%, 10%);
     --bg-color: hsl(90, 50%, 95%);
-    --alt-bg-color: hsl(90, 50%, 90%);
-    --gcs-header-text-color: hsl(90, 50%, 95%);
-    --gcs-header-bg-color: hsl(90, 50%, 40%);
+    --gcs-bg-color-primary-2: hsl(90, 50%, 90%);
+    --gcs-color-primary-3: hsl(90, 50%, 95%);
+    --gcs-bg-color-primary-3: hsl(90, 50%, 40%);
     --hover-text-color: hsl(90, 50%, 25%);
     --hover-bg-color: hsl(90, 50%, 85%);
     --active-text-color: hsl(270, 50%, 25%);
@@ -111,11 +111,11 @@
 }
 
 [theme="90-dark"] {
-    --text-color: hsl(90, 50%, 90%);
+    --gcs-color-primary-1: hsl(90, 50%, 90%);
     --bg-color: hsl(90, 50%, 5%);
-    --alt-bg-color: hsl(90, 50%, 15%);
-    --gcs-header-text-color: hsl(90, 50%, 10%);
-    --gcs-header-bg-color: hsl(90, 50%, 85%);
+    --gcs-bg-color-primary-2: hsl(90, 50%, 15%);
+    --gcs-color-primary-3: hsl(90, 50%, 10%);
+    --gcs-bg-color-primary-3: hsl(90, 50%, 85%);
     --hover-text-color: hsl(90, 50%, 85%);
     --hover-bg-color: hsl(90, 50%, 25%);
     --active-text-color: hsl(270, 50%, 90%);
@@ -127,11 +127,11 @@
 }
 
 [theme="120-light"] {
-    --text-color: hsl(120, 50%, 10%);
+    --gcs-color-primary-1: hsl(120, 50%, 10%);
     --bg-color: hsl(120, 50%, 95%);
-    --alt-bg-color: hsl(120, 50%, 90%);
-    --gcs-header-text-color: hsl(120, 50%, 95%);
-    --gcs-header-bg-color: hsl(120, 50%, 40%);
+    --gcs-bg-color-primary-2: hsl(120, 50%, 90%);
+    --gcs-color-primary-3: hsl(120, 50%, 95%);
+    --gcs-bg-color-primary-3: hsl(120, 50%, 40%);
     --hover-text-color: hsl(120, 50%, 25%);
     --hover-bg-color: hsl(120, 50%, 85%);
     --active-text-color: hsl(300, 50%, 25%);
@@ -143,11 +143,11 @@
 }
 
 [theme="120-dark"] {
-    --text-color: hsl(120, 50%, 90%);
+    --gcs-color-primary-1: hsl(120, 50%, 90%);
     --bg-color: hsl(120, 50%, 5%);
-    --alt-bg-color: hsl(120, 50%, 15%);
-    --gcs-header-text-color: hsl(120, 50%, 10%);
-    --gcs-header-bg-color: hsl(120, 50%, 85%);
+    --gcs-bg-color-primary-2: hsl(120, 50%, 15%);
+    --gcs-color-primary-3: hsl(120, 50%, 10%);
+    --gcs-bg-color-primary-3: hsl(120, 50%, 85%);
     --hover-text-color: hsl(120, 50%, 85%);
     --hover-bg-color: hsl(120, 50%, 25%);
     --active-text-color: hsl(300, 50%, 90%);
@@ -159,11 +159,11 @@
 }
 
 [theme="150-light"] {
-    --text-color: hsl(150, 50%, 10%);
+    --gcs-color-primary-1: hsl(150, 50%, 10%);
     --bg-color: hsl(150, 50%, 95%);
-    --alt-bg-color: hsl(150, 50%, 90%);
-    --gcs-header-text-color: hsl(150, 50%, 95%);
-    --gcs-header-bg-color: hsl(150, 50%, 40%);
+    --gcs-bg-color-primary-2: hsl(150, 50%, 90%);
+    --gcs-color-primary-3: hsl(150, 50%, 95%);
+    --gcs-bg-color-primary-3: hsl(150, 50%, 40%);
     --hover-text-color: hsl(150, 50%, 25%);
     --hover-bg-color: hsl(150, 50%, 85%);
     --active-text-color: hsl(330, 50%, 25%);
@@ -175,11 +175,11 @@
 }
 
 [theme="150-dark"] {
-    --text-color: hsl(150, 50%, 90%);
+    --gcs-color-primary-1: hsl(150, 50%, 90%);
     --bg-color: hsl(150, 50%, 5%);
-    --alt-bg-color: hsl(150, 50%, 15%);
-    --gcs-header-text-color: hsl(150, 50%, 10%);
-    --gcs-header-bg-color: hsl(150, 50%, 85%);
+    --gcs-bg-color-primary-2: hsl(150, 50%, 15%);
+    --gcs-color-primary-3: hsl(150, 50%, 10%);
+    --gcs-bg-color-primary-3: hsl(150, 50%, 85%);
     --hover-text-color: hsl(150, 50%, 85%);
     --hover-bg-color: hsl(150, 50%, 25%);
     --active-text-color: hsl(330, 50%, 90%);
@@ -191,11 +191,11 @@
 }
 
 [theme="180-light"] {
-    --text-color: hsl(180, 50%, 10%);
+    --gcs-color-primary-1: hsl(180, 50%, 10%);
     --bg-color: hsl(180, 50%, 95%);
-    --alt-bg-color: hsl(180, 50%, 90%);
-    --gcs-header-text-color: hsl(180, 50%, 95%);
-    --gcs-header-bg-color: hsl(180, 50%, 40%);
+    --gcs-bg-color-primary-2: hsl(180, 50%, 90%);
+    --gcs-color-primary-3: hsl(180, 50%, 95%);
+    --gcs-bg-color-primary-3: hsl(180, 50%, 40%);
     --hover-text-color: hsl(180, 50%, 25%);
     --hover-bg-color: hsl(180, 50%, 85%);
     --active-text-color: hsl(360, 50%, 25%);
@@ -207,11 +207,11 @@
 }
 
 [theme="180-dark"] {
-    --text-color: hsl(180, 50%, 90%);
+    --gcs-color-primary-1: hsl(180, 50%, 90%);
     --bg-color: hsl(180, 50%, 5%);
-    --alt-bg-color: hsl(180, 50%, 15%);
-    --gcs-header-text-color: hsl(180, 50%, 10%);
-    --gcs-header-bg-color: hsl(180, 50%, 85%);
+    --gcs-bg-color-primary-2: hsl(180, 50%, 15%);
+    --gcs-color-primary-3: hsl(180, 50%, 10%);
+    --gcs-bg-color-primary-3: hsl(180, 50%, 85%);
     --hover-text-color: hsl(180, 50%, 85%);
     --hover-bg-color: hsl(180, 50%, 25%);
     --active-text-color: hsl(360, 50%, 90%);
@@ -223,11 +223,11 @@
 }
 
 [theme="210-light"] {
-    --text-color: hsl(210, 50%, 10%);
+    --gcs-color-primary-1: hsl(210, 50%, 10%);
     --bg-color: hsl(210, 50%, 95%);
-    --alt-bg-color: hsl(210, 50%, 90%);
-    --gcs-header-text-color: hsl(210, 50%, 95%);
-    --gcs-header-bg-color: hsl(210, 50%, 40%);
+    --gcs-bg-color-primary-2: hsl(210, 50%, 90%);
+    --gcs-color-primary-3: hsl(210, 50%, 95%);
+    --gcs-bg-color-primary-3: hsl(210, 50%, 40%);
     --hover-text-color: hsl(210, 50%, 25%);
     --hover-bg-color: hsl(210, 50%, 85%);
     --active-text-color: hsl(390, 50%, 25%);
@@ -239,11 +239,11 @@
 }
 
 [theme="210-dark"] {
-    --text-color: hsl(210, 50%, 90%);
+    --gcs-color-primary-1: hsl(210, 50%, 90%);
     --bg-color: hsl(210, 50%, 5%);
-    --alt-bg-color: hsl(210, 50%, 15%);
-    --gcs-header-text-color: hsl(210, 50%, 10%);
-    --gcs-header-bg-color: hsl(210, 50%, 85%);
+    --gcs-bg-color-primary-2: hsl(210, 50%, 15%);
+    --gcs-color-primary-3: hsl(210, 50%, 10%);
+    --gcs-bg-color-primary-3: hsl(210, 50%, 85%);
     --hover-text-color: hsl(210, 50%, 85%);
     --hover-bg-color: hsl(210, 50%, 25%);
     --active-text-color: hsl(390, 50%, 90%);
@@ -255,11 +255,11 @@
 }
 
 [theme="240-light"] {
-    --text-color: hsl(240, 50%, 10%);
+    --gcs-color-primary-1: hsl(240, 50%, 10%);
     --bg-color: hsl(240, 50%, 95%);
-    --alt-bg-color: hsl(240, 50%, 90%);
-    --gcs-header-text-color: hsl(240, 50%, 95%);
-    --gcs-header-bg-color: hsl(240, 50%, 40%);
+    --gcs-bg-color-primary-2: hsl(240, 50%, 90%);
+    --gcs-color-primary-3: hsl(240, 50%, 95%);
+    --gcs-bg-color-primary-3: hsl(240, 50%, 40%);
     --hover-text-color: hsl(240, 50%, 25%);
     --hover-bg-color: hsl(240, 50%, 85%);
     --active-text-color: hsl(420, 50%, 25%);
@@ -271,11 +271,11 @@
 }
 
 [theme="240-dark"] {
-    --text-color: hsl(240, 50%, 90%);
+    --gcs-color-primary-1: hsl(240, 50%, 90%);
     --bg-color: hsl(240, 50%, 5%);
-    --alt-bg-color: hsl(240, 50%, 15%);
-    --gcs-header-text-color: hsl(240, 50%, 10%);
-    --gcs-header-bg-color: hsl(240, 50%, 85%);
+    --gcs-bg-color-primary-2: hsl(240, 50%, 15%);
+    --gcs-color-primary-3: hsl(240, 50%, 10%);
+    --gcs-bg-color-primary-3: hsl(240, 50%, 85%);
     --hover-text-color: hsl(240, 50%, 85%);
     --hover-bg-color: hsl(240, 50%, 25%);
     --active-text-color: hsl(420, 50%, 90%);
@@ -287,11 +287,11 @@
 }
 
 [theme="270-light"] {
-    --text-color: hsl(270, 50%, 10%);
+    --gcs-color-primary-1: hsl(270, 50%, 10%);
     --bg-color: hsl(270, 50%, 95%);
-    --alt-bg-color: hsl(270, 50%, 90%);
-    --gcs-header-text-color: hsl(270, 50%, 95%);
-    --gcs-header-bg-color: hsl(270, 50%, 40%);
+    --gcs-bg-color-primary-2: hsl(270, 50%, 90%);
+    --gcs-color-primary-3: hsl(270, 50%, 95%);
+    --gcs-bg-color-primary-3: hsl(270, 50%, 40%);
     --hover-text-color: hsl(270, 50%, 25%);
     --hover-bg-color: hsl(270, 50%, 85%);
     --active-text-color: hsl(450, 50%, 25%);
@@ -303,11 +303,11 @@
 }
 
 [theme="270-dark"] {
-    --text-color: hsl(270, 50%, 90%);
+    --gcs-color-primary-1: hsl(270, 50%, 90%);
     --bg-color: hsl(270, 50%, 5%);
-    --alt-bg-color: hsl(270, 50%, 15%);
-    --gcs-header-text-color: hsl(270, 50%, 10%);
-    --gcs-header-bg-color: hsl(270, 50%, 85%);
+    --gcs-bg-color-primary-2: hsl(270, 50%, 15%);
+    --gcs-color-primary-3: hsl(270, 50%, 10%);
+    --gcs-bg-color-primary-3: hsl(270, 50%, 85%);
     --hover-text-color: hsl(270, 50%, 85%);
     --hover-bg-color: hsl(270, 50%, 25%);
     --active-text-color: hsl(450, 50%, 90%);
@@ -319,11 +319,11 @@
 }
 
 [theme="300-light"] {
-    --text-color: hsl(300, 50%, 10%);
+    --gcs-color-primary-1: hsl(300, 50%, 10%);
     --bg-color: hsl(300, 50%, 95%);
-    --alt-bg-color: hsl(300, 50%, 90%);
-    --gcs-header-text-color: hsl(300, 50%, 95%);
-    --gcs-header-bg-color: hsl(300, 50%, 40%);
+    --gcs-bg-color-primary-2: hsl(300, 50%, 90%);
+    --gcs-color-primary-3: hsl(300, 50%, 95%);
+    --gcs-bg-color-primary-3: hsl(300, 50%, 40%);
     --hover-text-color: hsl(300, 50%, 25%);
     --hover-bg-color: hsl(300, 50%, 85%);
     --active-text-color: hsl(480, 50%, 25%);
@@ -335,11 +335,11 @@
 }
 
 [theme="300-dark"] {
-    --text-color: hsl(300, 50%, 90%);
+    --gcs-color-primary-1: hsl(300, 50%, 90%);
     --bg-color: hsl(300, 50%, 5%);
-    --alt-bg-color: hsl(300, 50%, 15%);
-    --gcs-header-text-color: hsl(300, 50%, 10%);
-    --gcs-header-bg-color: hsl(300, 50%, 85%);
+    --gcs-bg-color-primary-2: hsl(300, 50%, 15%);
+    --gcs-color-primary-3: hsl(300, 50%, 10%);
+    --gcs-bg-color-primary-3: hsl(300, 50%, 85%);
     --hover-text-color: hsl(300, 50%, 85%);
     --hover-bg-color: hsl(300, 50%, 25%);
     --active-text-color: hsl(480, 50%, 90%);
@@ -351,11 +351,11 @@
 }
 
 [theme="330-light"] {
-    --text-color: hsl(330, 50%, 10%);
+    --gcs-color-primary-1: hsl(330, 50%, 10%);
     --bg-color: hsl(330, 50%, 95%);
-    --alt-bg-color: hsl(330, 50%, 90%);
-    --gcs-header-text-color: hsl(330, 50%, 95%);
-    --gcs-header-bg-color: hsl(330, 50%, 40%);
+    --gcs-bg-color-primary-2: hsl(330, 50%, 90%);
+    --gcs-color-primary-3: hsl(330, 50%, 95%);
+    --gcs-bg-color-primary-3: hsl(330, 50%, 40%);
     --hover-text-color: hsl(330, 50%, 25%);
     --hover-bg-color: hsl(330, 50%, 85%);
     --active-text-color: hsl(510, 50%, 25%);
@@ -367,11 +367,11 @@
 }
 
 [theme="330-dark"] {
-    --text-color: hsl(330, 50%, 90%);
+    --gcs-color-primary-1: hsl(330, 50%, 90%);
     --bg-color: hsl(330, 50%, 5%);
-    --alt-bg-color: hsl(330, 50%, 15%);
-    --gcs-header-text-color: hsl(330, 50%, 10%);
-    --gcs-header-bg-color: hsl(330, 50%, 85%);
+    --gcs-bg-color-primary-2: hsl(330, 50%, 15%);
+    --gcs-color-primary-3: hsl(330, 50%, 10%);
+    --gcs-bg-color-primary-3: hsl(330, 50%, 85%);
     --hover-text-color: hsl(330, 50%, 85%);
     --hover-bg-color: hsl(330, 50%, 25%);
     --active-text-color: hsl(510, 50%, 90%);

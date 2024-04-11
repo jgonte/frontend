@@ -12,14 +12,14 @@ export default function StylesPatching(Base) {
         }
         addStyles(node, styles) {
             const { shadowRoot } = this;
+            const styleNode = document.createElement('style');
+            const styleContent = document.createTextNode(styles);
+            styleNode.appendChild(styleContent);
             if (shadowRoot !== null) {
-                const styleNode = document.createElement('style');
-                const styleContent = document.createTextNode(styles);
-                styleNode.appendChild(styleContent);
                 shadowRoot.appendChild(styleNode);
             }
             else {
-                throw new Error('Not implemented');
+                document.body.appendChild(styleNode);
             }
             return node;
         }

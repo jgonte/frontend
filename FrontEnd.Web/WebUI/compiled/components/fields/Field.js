@@ -114,6 +114,7 @@ export default class Field extends Validatable(CustomElement) {
         });
     }
     handleBlur() {
+        this.handleChange();
     }
     handleInput(event) {
         if (!isUndefinedOrNull(event)) {

@@ -10,7 +10,6 @@ button {
     font-size: inherit;
     border-width: var(--gcs-border-width);
     border-radius: var(--gcs-border-radius);
-    margin: var(--gcs-margin);
     padding: var(--gcs-padding);
     
     

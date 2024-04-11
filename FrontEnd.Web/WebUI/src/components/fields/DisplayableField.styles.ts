@@ -25,5 +25,5 @@ input[type='date'] {
 input:focus,
 textarea:focus,
 select:focus {
-    border: solid var(--gcs-header-bg-color);
+    border: solid var(--gcs-bg-color-primary-3);
 }`;

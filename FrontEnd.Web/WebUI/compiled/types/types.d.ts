@@ -1,12 +1,3 @@
-export declare class Accordion extends CustomElement {
-    static get styles(): string;
-    static get properties(): Record<string, CustomElementPropertyMetadata>;
-    constructor();
-    render(): NodePatchingData;
-    toggleContentVisibility(evt: Event): void;
-    renderExpanderIcon(): NodePatchingData;
-}
-
 export declare class Alert extends Alert_base {
     static get styles(): string;
     static get properties(): Record<string, CustomElementPropertyMetadata>;
@@ -165,6 +156,7 @@ declare type Constructor<T = GenericRecord> = new (...args: any[]) => T;
 
 export declare class ContentView extends CustomElement {
     static get component(): CustomElementComponentMetadata;
+    static get styles(): string;
     static get properties(): Record<string, CustomElementPropertyMetadata>;
 }
 
@@ -268,7 +260,7 @@ export declare class DataGrid extends DataGrid_base {
     static get properties(): Record<string, CustomElementPropertyMetadata>;
     render(): NodePatchingData;
     renderHeader(): NodePatchingData;
-    renderBody(): NodePatchingData[] | NodePatchingData;
+    _applyTemplate(record: GenericRecord): NodePatchingData;
     load(): void;
 }
 
@@ -293,7 +285,7 @@ export declare class DataHeaderCell extends CustomElement {
 export declare class DataList extends DataList_base {
     static get styles(): string;
     static get properties(): Record<string, CustomElementPropertyMetadata>;
-    render(): NodePatchingData[] | NodePatchingData;
+    _applyTemplate(record: GenericRecord): NodePatchingData;
 }
 
 declare const DataList_base: CustomHTMLElementConstructor;
@@ -311,7 +303,7 @@ export declare class DataRow extends DataGridBodyRow_base {
 
 export declare class DataTemplate extends DataTemplate_base {
     static get properties(): Record<string, CustomElementPropertyMetadata>;
-    render(): NodePatchingData;
+    _applyTemplate(record: GenericRecord): NodePatchingData;
 }
 
 declare const DataTemplate_base: typeof CustomElement;
@@ -350,7 +342,7 @@ export declare abstract class DisplayableField extends DisplayableField_base {
 
 declare const DisplayableField_base: CustomHTMLElementConstructor;
 
-export declare class DropDown extends CustomElement implements IContentHidable {
+export declare class DropDown extends CustomElement {
     static get styles(): string;
     static get state(): Record<string, CustomElementStateMetadata>;
     connectedCallback(): void;
@@ -367,12 +359,9 @@ declare interface ErrorHandler {
     handleError: (event: CustomEvent) => void;
 }
 
-export declare class ExpanderTool extends Tool implements IContentHidable {
-    constructor();
-    static get state(): Record<string, CustomElementStateMetadata>;
+export declare class ExpanderTool extends Tool {
+    static get properties(): Record<string, CustomElementPropertyMetadata>;
     iconName: () => "chevron-down" | "chevron-up";
-    hideContent(): void;
-    updateShowing(showing: boolean): void;
     handleClick(evt: Event): void;
 }
 
@@ -490,10 +479,6 @@ export declare class Icon extends CustomElement {
     render(): Promise<NodePatchingData | null>;
 }
 
-declare interface IContentHidable {
-    hideContent?: () => void;
-}
-
 declare interface IDataGridColumnDescriptor {
     name: string;
     display: string | (() => NodePatchingData);
@@ -523,6 +508,12 @@ declare interface IRenderable {
     render(): RenderReturnTypes;
 }
 
+declare interface ITreeNodeData {
+    id: string;
+    label: string;
+    nodes: ITreeNodeData[];
+}
+
 export declare class LocalizedText extends CustomElement {
     static get styles(): string;
     private _key;
@@ -548,9 +539,10 @@ export declare class NavigationBar extends NavigationBar_base {
     static get styles(): string;
     static get properties(): Record<string, CustomElementPropertyMetadata>;
     render(): NodePatchingData;
-    renderLinks(): NodePatchingData[];
-    private renderGroupedLinks;
-    private renderLink;
+    private _renderLinks;
+    private _renderIcon;
+    private _renderGroupedLinks;
+    private _renderLink;
 }
 
 declare const NavigationBar_base: typeof CustomElement;
@@ -561,7 +553,7 @@ export declare class NavigationLink extends NavigationLink_base {
     handleClick(): void;
 }
 
-declare const NavigationLink_base: typeof Nuanced;
+declare const NavigationLink_base: typeof ToolBar;
 
 declare interface NodePatcherRule {
     type: NodePatcherRuleTypes;
@@ -620,19 +612,13 @@ export declare class Overlay extends CustomElement {
     render(): NodePatchingData | null;
 }
 
-export declare class Panel extends CustomElement {
+export declare class Panel extends Panel_base {
     static get styles(): string;
     render(): RenderReturnTypes;
+    getCollapsibleContent(): HTMLElement;
 }
 
-export declare class PanelHeader extends PanelHeader_base {
-    static get styles(): string;
-    static get properties(): Record<string, CustomElementPropertyMetadata>;
-    render(): NodePatchingData;
-    renderIcon(): NodePatchingData | null;
-}
-
-declare const PanelHeader_base: typeof CustomElement;
+declare const Panel_base: typeof CustomElement;
 
 declare type ParameterlessVoidFunction = () => void;
 
@@ -658,7 +644,7 @@ export declare class PropertyGrid extends PropertyGrid_base {
     configure(source: IComponentDescriptor): void;
     private _renderLabel;
     private _renderIcon;
-    private _renderBody;
+    _applyTemplate(record: GenericRecord): NodePatchingData;
 }
 
 declare const PropertyGrid_base: typeof CustomElement;
@@ -752,6 +738,11 @@ export declare abstract class Tool extends Tool_base {
 
 declare const Tool_base: typeof Nuanced;
 
+export declare class ToolBar extends CustomElement {
+    static get styles(): string;
+    render(): NodePatchingData;
+}
+
 export declare class ToolTip extends CustomElement {
     static get styles(): string;
     static get properties(): Record<string, CustomElementPropertyMetadata>;
@@ -760,6 +751,15 @@ export declare class ToolTip extends CustomElement {
     disconnectedCallback(): void;
     private _positionContent;
 }
+
+export declare class TreeView extends TreeView_base {
+    static get styles(): string;
+    _applyTemplate(record: GenericRecord): NodePatchingData;
+    _renderNode(nodeData: ITreeNodeData): NodePatchingData;
+    _renderChildrenNodes(nodesData: ITreeNodeData[]): NodePatchingData[];
+}
+
+declare const TreeView_base: typeof CustomElement;
 
 declare interface User {
     username: string;

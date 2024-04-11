@@ -47,7 +47,7 @@ export default class NavigationBar extends
 
             return html`
 <nav slot="start" class=${this.orientation}>
-    ${this.renderLinks()}
+    ${this._renderLinks()}
 </nav>`;
 
         }
@@ -57,7 +57,7 @@ export default class NavigationBar extends
         }
     }
 
-    renderLinks(): NodePatchingData[] {
+    private _renderLinks(): NodePatchingData[] {
 
         const {
             links
@@ -99,36 +99,58 @@ export default class NavigationBar extends
 
                 const groupedLinks = linksArray.filter(r => r.group === group);
 
+                const {
+                    collapsed,
+                    iconName,
+                    text
+                } = group;
+
                 lnks.push(html`
-<gcs-panel>
-    <gcs-localized-text slot="header">${group.text}</gcs-localized-text>
-    ${this.renderGroupedLinks(groupedLinks)}
+<gcs-panel collapsed=${collapsed}>
+    <gcs-toolbar slot="header">
+        ${this._renderIcon(iconName)}
+        <gcs-localized-text slot="title">${text}</gcs-localized-text>
+        <gcs-expander-tool slot="tools"></gcs-expander-tool>
+    </gcs-toolbar>
+    ${this._renderGroupedLinks(groupedLinks)}
 </gcs-panel>`);
             }
             else { // Push the ungrouped link
 
-                lnks.push(this.renderLink(link));
+                lnks.push(this._renderLink(link));
             }
         }
 
         return lnks;
     }
 
-    private renderGroupedLinks(groupedRoutes: Link[]): NodePatchingData[] {
+    private _renderIcon(iconName?: string) {
 
-        return groupedRoutes.map(r => this.renderLink(r, 'body'));
+        if (iconName) {
+
+            return html`<gcs-icon slot="icon" name=${iconName}></gcs-icon>`;
+        }
+
+        return null;
     }
 
-    private renderLink(route: Link, slot: string | null = null): NodePatchingData {
+    private _renderGroupedLinks(groupedRoutes: Link[]): NodePatchingData[] {
+
+        return groupedRoutes.map(r => this._renderLink(r, 'body'));
+    }
+
+    private _renderLink(route: Link, slot: string | null = null): NodePatchingData {
 
         const {
+            iconName,
             path,
             text
         } = route as Link;
 
         return html`
 <gcs-nav-link to=${path} key=${path} slot=${slot}>
-    <gcs-localized-text>${text}</gcs-localized-text>
+    ${this._renderIcon(iconName)}
+    <gcs-localized-text slot="title">${text}</gcs-localized-text>
 </gcs-nav-link>`;
     }
 }

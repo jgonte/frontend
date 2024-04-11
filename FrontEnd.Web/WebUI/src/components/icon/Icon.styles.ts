@@ -1,9 +1,13 @@
 import css from "../../custom-element/styles/css";
 
 export const iconStyles = css`
-:host svg {
-    display: inline-block;
-    width: 1em;
-    height: 1em;
+:host {
+    display: inline-flex;
+    align-items: center;
+}
+
+:host svg {  
+    width: 1.1em;
+    height: 1.1em;
     color: inherit;
 }`;

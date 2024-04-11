@@ -2,94 +2,49 @@
 
 public abstract class ThemeGenerationStrategy
 {
-    /// <summary>
-    /// The suffix to add to the name of the theme
-    /// </summary>
-    public string ColorSchemeName { get; private set; }
+    public abstract ColorResources GenerateResources(short hue);
 
-    /// <summary>
-    /// The hue offset to create the alternate color
-    /// </summary>
-    public short AlternateHueOffset { get; private set;  }
-
-    public PartialColorData TextColor { get; private set; }
-
-    public PartialColorData BackgroundColor { get; private set; }
-
-    public PartialColorData AlternateTextColor { get; private set; }
-
-    public PartialColorData AlternateBackgroundColor { get; private set; }
-
-    public PartialColorData HeaderTextColor { get; private set; }
-
-    public PartialColorData HeaderBackgroundColor { get; private set; }
-
-    public PartialColorData HoverTextColor { get; private set; }
-
-    public PartialColorData HoverBackgroundColor { get; private set; }
-
-    public PartialColorData ActiveTextColor { get; private set; }
-
-    public PartialColorData ActiveBackgroundColor { get; private set; }
-
-    public PartialColorData ActiveHoverTextColor { get; private set; }
-
-    public PartialColorData ActiveHoverBackgroundColor { get; private set; }
-
-    public PartialColorData SurfaceShadowColor { get; private set; }
-
-    public string ShadowStrength { get; private set; }
-
-    public ThemeGenerationStrategy(
-        string colorScheme,
-        short alternateHueOffset,
-        PartialColorData textColor,
-        PartialColorData backgroundColor,
-        PartialColorData alternateTextColor,
-        PartialColorData alternateBackgroundColor,
-        PartialColorData headerTextColor,
-        PartialColorData headerBackgroundColor,
-        PartialColorData hoverTextColor,
-        PartialColorData hoverBackgroundColor,
-        PartialColorData activeTextColor,
-        PartialColorData activeBackgroundColor,
-        PartialColorData activeHoverTextColor,
-        PartialColorData activeHoverBackgroundColor,
-        PartialColorData surfaceShadowColor,
-        string shadowStrength
-        )
+    protected static ColorResources GenerateResources(short hue, float saturation, float textLightness, float backgroundLightness1, float backgroundLightness2, float backgroundLightness3)
     {
-        ColorSchemeName = colorScheme;
+        var primaryTextColor = new HSL(hue, saturation, textLightness);
 
-        AlternateHueOffset = alternateHueOffset;
+        var primaryBackgroundColor1 = new HSL(hue, saturation, backgroundLightness1);
 
-        TextColor = textColor;
+        var primaryBackgroundColor2 = new HSL(hue, saturation, backgroundLightness2);
 
-        BackgroundColor = backgroundColor;
+        var hues = HSL.GenerateTriadicHues(hue);
 
-        AlternateTextColor = alternateTextColor;
+        var secondaryTextColor = new HSL(hues[0], saturation, textLightness);
 
-        AlternateBackgroundColor = alternateBackgroundColor;
+        var secondaryBackgroundColor1 = new HSL(hues[0], saturation, backgroundLightness1);
 
-        HeaderTextColor = headerTextColor;
+        var secondaryBackgroundColor2 = new HSL(hues[0], saturation, backgroundLightness2);
 
-        HeaderBackgroundColor = headerBackgroundColor;
+        // Invert background colors for active
+        var tertiaryTextColor = new HSL(hues[1], saturation, backgroundLightness1);
 
-        HoverTextColor = hoverTextColor;
+        var tertiaryBackgroundColor1 = new HSL(hues[1], saturation, backgroundLightness3);
 
-        HoverBackgroundColor = hoverBackgroundColor;
+        return new ColorResources
+        {
+            ColorPrimary1 = primaryTextColor,
+            BackgroundColorPrimary1 = primaryBackgroundColor1,
 
-        ActiveTextColor = activeTextColor;
+            ColorPrimary2 = primaryTextColor,
+            BackgroundColorPrimary2 = primaryBackgroundColor2,
 
-        ActiveBackgroundColor = activeBackgroundColor;
+            ColorPrimary3 = primaryBackgroundColor1,
+            BackgroundColorPrimary3 = primaryTextColor,
 
-        ActiveHoverTextColor = activeHoverTextColor;
+            ColorSecondary1 = secondaryTextColor,
+            BackgroundColorSecondary1 = secondaryBackgroundColor1,
 
-        ActiveHoverBackgroundColor = activeHoverBackgroundColor;
+            ColorSecondary2 = secondaryTextColor,
+            BackgroundColorSecondary2 = secondaryBackgroundColor2,
 
-        SurfaceShadowColor = surfaceShadowColor;
+            ColorTertiary1 = tertiaryTextColor,
+            BackgroundColorTertiary1 = tertiaryBackgroundColor1,
 
-        ShadowStrength = shadowStrength;
+        };
     }
-
 }

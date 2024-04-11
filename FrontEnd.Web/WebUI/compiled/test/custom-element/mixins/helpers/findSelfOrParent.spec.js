@@ -1,4 +1,4 @@
-import ToolTip from "../../../../components/tool-tip/ToolTip";
+import ToolTip from "../../../../components/tooltip/ToolTip";
 import Pill from "../../../../components/pill/Pill";
 import LocalizedText from "../../../../components/localized-text/LocalizedText";
 import RequiredTip from "../../../../components/tips/RequiredTip";

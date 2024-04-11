@@ -1,7 +1,9 @@
 import CustomElement from "../../custom-element/CustomElement";
 import defineCustomElement from "../../custom-element/defineCustomElement";
+import mergeStyles from "../../custom-element/styles/mergeStyles";
 import { DataTypes } from "../../utils/data/DataTypes";
 import { resourceLoader } from "../../utils/resourceLoader";
+import { contentViewStyles } from "./ContentView.styles";
 function copyNode(source, dataView) {
     const newNode = document.createElement(source.nodeName);
     Array.from(source.attributes).forEach(attr => newNode.setAttribute(attr.name, attr.value));
@@ -14,6 +16,9 @@ export default class ContentView extends CustomElement {
         return {
             shadow: false
         };
+    }
+    static get styles() {
+        return mergeStyles(super.styles, contentViewStyles);
     }
     static get properties() {
         return {

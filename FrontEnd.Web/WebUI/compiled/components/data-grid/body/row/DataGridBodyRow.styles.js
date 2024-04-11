@@ -7,7 +7,7 @@ export const dataGridBodyRowStyles = css `
 }
 
 :host(:nth-of-type(even)) {
-    background-color: var(--alt-bg-color);
+    background-color: var(--gcs-bg-color-primary-2);
 }
 
 :host(:nth-of-type(odd)) {

@@ -6,7 +6,7 @@ import CustomHTMLElementConstructor from "./metadata/types/CustomHTMLElementCons
  * @param Base 
  * @returns 
  */
-export default function StylesPatching<TBase extends CustomHTMLElementConstructor>(Base: TBase) : TBase {
+export default function StylesPatching<TBase extends CustomHTMLElementConstructor>(Base: TBase): TBase {
 
     return class StylesPatchingMixin extends Base {
 
@@ -36,23 +36,23 @@ export default function StylesPatching<TBase extends CustomHTMLElementConstructo
                 shadowRoot
             } = this;
 
+            const styleNode = document.createElement('style');
+
+            const styleContent = document.createTextNode(styles);
+
+            styleNode.appendChild(styleContent);
+
             // Not optimal adding the same style sheet to the shadow root when the component is constructed
             // Better to add an adopted stylesheet but that is not widely supported by all the browsers
             // Or add the stylesheet to the template content since it is a static text but then the component can have different patching data
             // and we need to research the relation between component and patching data
             if (shadowRoot !== null) {
 
-                const styleNode = document.createElement('style');
-
-                const styleContent = document.createTextNode(styles);
-
-                styleNode.appendChild(styleContent);
-
                 shadowRoot.appendChild(styleNode); // Append the style
             }
             else { // this.shadowRoot === null
 
-                throw new Error('Not implemented'); // Maybe append the style to the parent document/ shadow root? More research when we encounter the specific scenario
+                document.body.appendChild(styleNode); // Append the style to the document
             }
 
             return node;

@@ -1,42 +1,28 @@
 import Tool from "../Tool";
 import defineCustomElement from "../../../custom-element/defineCustomElement";
-export const expanderChangedEvent = 'expanderChangedEvent';
+import collapsed from "./props/collapsed";
+export const expanderChangedEvent = 'expanderChanged';
 export default class ExpanderTool extends Tool {
-    constructor() {
-        super();
-        this.updateShowing = this.updateShowing.bind(this);
-    }
-    static get state() {
+    static get properties() {
         return {
-            showing: {
-                value: false
-            }
+            collapsed: collapsed({
+                inherit: true
+            })
         };
     }
     iconName = () => {
-        const { showing } = this;
-        if (showing === undefined) {
-            return 'chevron-down';
-        }
-        return showing === true ?
-            'chevron-up' :
-            'chevron-down';
+        return this.collapsed === true ?
+            'chevron-down' :
+            'chevron-up';
     };
-    hideContent() {
-        this.updateShowing(false);
-    }
-    updateShowing(showing) {
-        this.showing = showing;
+    handleClick(evt) {
+        evt.stopPropagation();
+        const collapsed = !(this.collapsed || false);
         this.dispatchCustomEvent(expanderChangedEvent, {
-            showing,
+            collapsed,
             element: this
         });
-    }
-    handleClick(evt) {
-        let { showing } = this;
-        evt.stopPropagation();
-        showing = !showing;
-        this.updateShowing(showing);
+        this.collapsed = collapsed;
     }
 }
 defineCustomElement('gcs-expander-tool', ExpanderTool);

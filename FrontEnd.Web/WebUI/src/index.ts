@@ -19,11 +19,11 @@ import Theme from "./services/themes/Theme";
 // Components
 import Icon from "./components/icon/Icon";
 import LocalizedText from "./components/localized-text/LocalizedText";
+import ToolBar from "./components/toolbar/Toolbar";
 import Alert from "./components/alert/Alert";
-import Accordion from "./components/accordion/Accordion";
 import Pill from "./components/pill/Pill";
 import Button from "./components/button/Button";
-import ToolTip from "./components/tool-tip/ToolTip";
+import ToolTip from "./components/tooltip/ToolTip";
 import DataTemplate from "./components/data-template/DataTemplate";
 import Selector from "./components/selector/Selector";
 import DropDown from "./components/drop-down/DropDown";
@@ -45,7 +45,6 @@ import RequiredTip from "./components/tips/RequiredTip";
 // Layout
 import Center from "./components/center/Center";
 import Overlay from "./components/overlay/Overlay";
-import PanelHeader from "./components/panel/header/PanelHeader";
 import Panel from "./components/panel/Panel";
 
 // Tools
@@ -87,6 +86,7 @@ import DataGrid from "./components/data-grid/DataGrid";
 import CollectionPanel from "./components/collection-panel/CollectionPanel";
 import PropertyGridRow from "./components/property-grid/row/PropertyGridRow";
 import PropertyGrid from "./components/property-grid/PropertyGrid";
+import TreeView from "./components/tree-view/TreeView";
 
 // Routers
 import HashRouter from "./components/routers/hash-router/HashRouter";
@@ -131,8 +131,8 @@ export {
     // Components
     Icon,
     LocalizedText,
+    ToolBar,
     Alert,
-    Accordion,
     Pill,
     Button,
     ToolTip,
@@ -157,7 +157,6 @@ export {
     // Layout
     Center,
     Overlay,
-    PanelHeader,
     Panel,
 
     // Tools
@@ -199,6 +198,7 @@ export {
     CollectionPanel,
     PropertyGridRow,
     PropertyGrid,
+    TreeView,
 
     // Routers
     HashRouter,

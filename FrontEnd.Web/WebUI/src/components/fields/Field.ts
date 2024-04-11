@@ -92,7 +92,7 @@ export default abstract class Field extends
             value: {
                 type: [
                     DataTypes.String,
-                    DataTypes.Object // Ideally is a string but could be a more complex object
+                    DataTypes.Object // Ideally it would a string but could be a more complex object
                 ],
                 beforeGet: function(value: unknown) {
 
@@ -193,7 +193,7 @@ export default abstract class Field extends
 
     handleBlur(/*event: Event*/) {
 
-        //this.validate();
+       this.handleChange();
     }
 
     /**

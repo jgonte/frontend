@@ -57,6 +57,7 @@ export default class CellEditor extends CustomElement {
         }
         const { _field } = this;
         if (_field) {
+            _field.handleChange();
             this.value = _field.value;
         }
         this.editing = false;

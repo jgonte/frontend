@@ -3,9 +3,9 @@ import IntlResource from "../../../utils/intl/IntlResource";
 export default interface LinkGroup extends IntlResource {
 
     /**
-     * Whether the group can be either collapsed or expanded
+     * The name of the icon to show on the group
      */
-    collapsible: boolean;
+    iconName: string | undefined;
 
     /**
      * Whether the group is initially collapsed

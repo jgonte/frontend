@@ -1,13 +1,13 @@
 const cssVariables = new Map<string, string>();
 
 cssVariables.set("color", "--gcs-color-");
-cssVariables.set("background-color", "--gcs-background-color-");
+cssVariables.set("background-color", "--gcs-bg-color-");
 
 cssVariables.set("color-contained", "--gcs-color-contained-");
-cssVariables.set("background-color-contained", "--gcs-background-color-contained-");
+cssVariables.set("background-color-contained", "--gcs-bg-color-contained-");
 
 cssVariables.set("disabled-color", "--gcs-disabled-color");
-cssVariables.set("disabled-background-color", "--gcs-disabled-background-color");
+cssVariables.set("disabled-bg-color", "--gcs-disabled-bg-color");
 
 cssVariables.set("font-size", "--gcs-font-size-");
 

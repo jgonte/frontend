@@ -6,7 +6,7 @@ window.appConfig = {
 
     useThemeSelector: true,
 
-    defaultTheme: '180-light',
+    defaultTheme: 'green-dark',
 
     apiUrl: 'https://localhost:5000/api',
 

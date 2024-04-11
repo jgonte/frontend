@@ -358,6 +358,9 @@ const valueConverter = {
             }
         }
         if (type.includes(DataTypes.Boolean)) {
+            if (value === '') {
+                return true;
+            }
             const lowerCaseValue = value.toLowerCase();
             if (lowerCaseValue === 'true' ||
                 lowerCaseValue === 'false') {
@@ -709,14 +712,14 @@ function StylesPatching(Base) {
         }
         addStyles(node, styles) {
             const { shadowRoot } = this;
+            const styleNode = document.createElement('style');
+            const styleContent = document.createTextNode(styles);
+            styleNode.appendChild(styleContent);
             if (shadowRoot !== null) {
-                const styleNode = document.createElement('style');
-                const styleContent = document.createTextNode(styles);
-                styleNode.appendChild(styleContent);
                 shadowRoot.appendChild(styleNode);
             }
             else {
-                throw new Error('Not implemented');
+                document.body.appendChild(styleNode);
             }
             return node;
         }
@@ -1862,6 +1865,18 @@ const zIndexManager = {
     }
 };
 
+function iconName(required = false) {
+    return {
+        attribute: 'icon-name',
+        type: [
+            DataTypes.String,
+            DataTypes.Function
+        ],
+        defer: true,
+        required
+    };
+}
+
 function mergeStyles(style1, style2) {
     if (style1 === undefined) {
         return `
@@ -1916,8 +1931,8 @@ function Disableable(Base) {
 
 const hoverableStyles = css `
 :host([hoverable]:hover) {
-    background-color: var(--hover-bg-color);
-    color: var(--hover-text-color);
+    background-color: var(--gcs-bg-color-secondary-1);
+    color: var(--gcs-color-secondary-1);
     transition: all 0.3s ease;
 }`;
 
@@ -1973,11 +1988,11 @@ function Clickable(Base) {
 
 const cssVariables = new Map();
 cssVariables.set("color", "--gcs-color-");
-cssVariables.set("background-color", "--gcs-background-color-");
+cssVariables.set("background-color", "--gcs-bg-color-");
 cssVariables.set("color-contained", "--gcs-color-contained-");
-cssVariables.set("background-color-contained", "--gcs-background-color-contained-");
+cssVariables.set("background-color-contained", "--gcs-bg-color-contained-");
 cssVariables.set("disabled-color", "--gcs-disabled-color");
-cssVariables.set("disabled-background-color", "--gcs-disabled-background-color");
+cssVariables.set("disabled-bg-color", "--gcs-disabled-bg-color");
 cssVariables.set("font-size", "--gcs-font-size-");
 cssVariables.set("icon-size", "--gcs-icon-size-");
 cssVariables.set("min-height", "--gcs-min-height");
@@ -2018,7 +2033,7 @@ function createVariantStyles(ctor, kind) {
                                 styles.push(css `
 :host([kind='${kind}'][variant='${variant}']) button:disabled { 
     color: var(${cssVariables.get("disabled-color")}); 
-    background-color: var(${cssVariables.get("disabled-background-color")}); 
+    background-color: var(${cssVariables.get("disabled-bg-color")}); 
     border-color: var(${cssVariables.get("disabled-color")}); 
 }`);
                             }
@@ -2037,7 +2052,7 @@ function createVariantStyles(ctor, kind) {
                                 addContainedStyle(styles, kind, variant, 'button:not(disabled)');
                                 styles.push(css `
 :host([kind='${kind}'][variant='${variant}']) button:disabled { 
-    color: var(${cssVariables.get("disabled-background-color")}); 
+    color: var(${cssVariables.get("disabled-bg-color")}); 
     background-color: var(${cssVariables.get("disabled-color")}); 
 }`);
                             }
@@ -2156,14 +2171,7 @@ class Nuanced extends Variant(Kind(CustomElement)) {
 class Tool extends Clickable(Nuanced) {
     static get properties() {
         return {
-            iconName: {
-                type: [
-                    DataTypes.String,
-                    DataTypes.Function
-                ],
-                defer: true,
-                required: true
-            }
+            iconName: iconName(true)
         };
     }
     render() {
@@ -2201,7 +2209,7 @@ const overlayStyles = css `
     right: 0;
     left: 0;
     bottom: 0;
-    background-color: var(--gcs-overlay-background-color);
+    background-color: var(--gcs-bg-color-primary-3);
     transition: 0.3s;
     /* center */
     display: flex;
@@ -2435,10 +2443,14 @@ class Theme {
 }
 
 const iconStyles = css `
-:host svg {
-    display: inline-block;
-    width: 1em;
-    height: 1em;
+:host {
+    display: inline-flex;
+    align-items: center;
+}
+
+:host svg {  
+    width: 1.1em;
+    height: 1.1em;
     color: inherit;
 }`;
 
@@ -2552,6 +2564,46 @@ class LocalizedText extends CustomElement {
 }
 defineCustomElement('gcs-localized-text', LocalizedText);
 
+const toolbarStyles = css `
+:host {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    border-width: var(--gcs-border-width);
+    border-radius: var(--gcs-border-radius);
+    padding: var(--gcs-padding);
+    /* background-color: var(--gcs-bg-color-primary-2);
+    color: var(--gcs-color-primary-2); */
+}
+
+.item {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--gcs-padding);
+}`;
+
+class ToolBar extends CustomElement {
+    static get styles() {
+        return mergeStyles(super.styles, toolbarStyles);
+    }
+    render() {
+        return html `
+<span class="item">
+    <slot name="icon"></slot>
+</span> 
+<span class="item">
+    <slot name="title"></slot>
+</span>
+<span class="item">
+    <slot name="tools"></slot>
+</span>`;
+    }
+}
+defineCustomElement('gcs-toolbar', ToolBar);
+
 function Closable(Base) {
     return class ClosableMixin extends Base {
         static get properties() {
@@ -2599,6 +2651,7 @@ const alertStyles = css `
     background-color: inherit;
     border: var(--gcs-border-width) solid;
     border-radius: var(--gcs-border-radius);
+    padding: var(--gcs-padding);
     max-width: 90vw;
 }
 
@@ -2660,66 +2713,6 @@ class Alert extends Closable(Nuanced) {
 }
 defineCustomElement('gcs-alert', Alert);
 
-const accordionStyles = css `
-:host {   
-    display: block;
-    width: 100%;
-}
-
-#content {
-    max-height: 0;
-    overflow: hidden;
-    transition: max-height 0.3s ease-in-out;
-}`;
-
-class Accordion extends CustomElement {
-    static get styles() {
-        return mergeStyles(super.styles, accordionStyles);
-    }
-    static get properties() {
-        return {
-            collapsed: {
-                type: DataTypes.Boolean,
-                value: false,
-                reflect: true,
-                afterUpdate: function () {
-                    const content = this.document.getElementById('content');
-                    if (this.collapsed === true) {
-                        content.style.maxHeight = '0';
-                    }
-                    else {
-                        content.style.maxHeight = `${content.scrollHeight}px`;
-                    }
-                }
-            }
-        };
-    }
-    constructor() {
-        super();
-        this.toggleContentVisibility = this.toggleContentVisibility.bind(this);
-    }
-    render() {
-        return html `
-<gcs-button id="header" click=${this.toggleContentVisibility}>
-    <slot name="label"></slot>
-    ${this.renderExpanderIcon()}
-</gcs-button>
-<div id="content">
-    <slot name="content"></slot>
-</div>`;
-    }
-    toggleContentVisibility(evt) {
-        evt.stopPropagation();
-        this.collapsed = !this.collapsed;
-    }
-    renderExpanderIcon() {
-        return this.collapsed === true ?
-            html `<gcs-icon name="chevron-down"></gcs-icon>` :
-            html `<gcs-icon name="chevron-up"></gcs-icon>`;
-    }
-}
-defineCustomElement('gcs-accordion', Accordion);
-
 const pillStyles = css `
 :host {
     box-sizing: border-box;
@@ -2750,7 +2743,6 @@ button {
     font-size: inherit;
     border-width: var(--gcs-border-width);
     border-radius: var(--gcs-border-radius);
-    margin: var(--gcs-margin);
     padding: var(--gcs-padding);
     
     
@@ -2817,9 +2809,7 @@ class Button extends Hideable(Disableable(Nuanced)) {
         const { disabled, click } = this;
         return html `
 <button disabled=${disabled} onClick=${click}>
-    <span>
-        <slot></slot>
-    </span>  
+    <slot></slot>
 </button>`;
     }
 }
@@ -2847,7 +2837,7 @@ const toolTipStyles = css `
 #content {
     position: absolute; 
     visibility: hidden;
-    background-color: var(--gcs-tooltip-background-color);
+    background-color: var(--gcs-tooltip-bg-color);
     color: var(--gcs-tooltip-color);
     padding: var(--gcs-padding);
     border-radius: var(--gcs-border-radius);
@@ -2892,28 +2882,28 @@ const toolTipStyles = css `
     top: 100%; /* At the bottom of the tooltip */  
     left: 50%;
     margin-left: -5px;
-    border-color: var(--gcs-tooltip-background-color) transparent transparent transparent;
+    border-color: var(--gcs-tooltip-bg-color) transparent transparent transparent;
 }
 
 #content.bottom::after {
     bottom: 100%;  /* At the top of the tooltip */
     left: 50%;
     margin-left: -5px; 
-    border-color: transparent transparent var(--gcs-tooltip-background-color) transparent;
+    border-color: transparent transparent var(--gcs-tooltip-bg-color) transparent;
 }
 
 #content.left::after {
     top: 50%;
     left: 100%; /* To the right of the tooltip */
     margin-top: -5px;
-    border-color: transparent transparent transparent var(--gcs-tooltip-background-color);
+    border-color: transparent transparent transparent var(--gcs-tooltip-bg-color);
 }
 
 #content.right::after {
     top: 50%;
     right: 100%; /* To the left of the tooltip */   
     margin-top: -5px;
-    border-color: transparent var(--gcs-tooltip-background-color) transparent transparent;
+    border-color: transparent var(--gcs-tooltip-bg-color) transparent transparent;
 }
   
 /* Show the container text when you mouse over the container container */
@@ -3006,6 +2996,45 @@ class ToolTip extends CustomElement {
     }
 }
 defineCustomElement('gcs-tool-tip', ToolTip);
+
+function renderEmptyData(slot = null) {
+    return html `
+<gcs-alert 
+    kind="warning"
+    slot=${slot}
+>
+    <gcs-localized-text>No Records Found</gcs-localized-text>
+</gcs-alert>`;
+}
+
+function SingleRecordDataHolder(Base) {
+    return class SingleRecordDataHolderMixin extends Base {
+        static get properties() {
+            return {
+                data: {
+                    type: [
+                        DataTypes.Object,
+                        DataTypes.Function
+                    ],
+                    value: [],
+                }
+            };
+        }
+        render() {
+            return this.renderData();
+        }
+        renderData() {
+            const { data } = this;
+            const d = typeof data === "function" ?
+                data() :
+                data;
+            if (!d) {
+                return renderEmptyData('body');
+            }
+            return this._applyTemplate(d);
+        }
+    };
+}
 
 function deserializeXmlDocument(document) {
     const o = {};
@@ -3341,16 +3370,9 @@ function RemoteLoadableHolder(Base) {
     };
 }
 
-class DataTemplate extends RemoteLoadableHolder(CustomElement) {
+class DataTemplate extends RemoteLoadableHolder(SingleRecordDataHolder(CustomElement)) {
     static get properties() {
         return {
-            data: {
-                type: [
-                    DataTypes.Object,
-                    DataTypes.Function
-                ],
-                value: undefined
-            },
             template: {
                 type: DataTypes.Function,
                 required: true,
@@ -3358,11 +3380,8 @@ class DataTemplate extends RemoteLoadableHolder(CustomElement) {
             }
         };
     }
-    render() {
-        const { data, template } = this;
-        return data === undefined ?
-            null :
-            template(data);
+    _applyTemplate(record) {
+        return this.template(record);
     }
 }
 defineCustomElement('gcs-data-template', DataTemplate);
@@ -3479,43 +3498,38 @@ function getClasses(props) {
     return classes.join(' ');
 }
 
-const expanderChangedEvent = 'expanderChangedEvent';
+function collapsed(options) {
+    return {
+        type: DataTypes.Boolean,
+        value: false,
+        reflect: true,
+        inherit: options?.inherit,
+        afterUpdate: options?.afterUpdate
+    };
+}
+
+const expanderChangedEvent = 'expanderChanged';
 class ExpanderTool extends Tool {
-    constructor() {
-        super();
-        this.updateShowing = this.updateShowing.bind(this);
-    }
-    static get state() {
+    static get properties() {
         return {
-            showing: {
-                value: false
-            }
+            collapsed: collapsed({
+                inherit: true
+            })
         };
     }
     iconName = () => {
-        const { showing } = this;
-        if (showing === undefined) {
-            return 'chevron-down';
-        }
-        return showing === true ?
-            'chevron-up' :
-            'chevron-down';
+        return this.collapsed === true ?
+            'chevron-down' :
+            'chevron-up';
     };
-    hideContent() {
-        this.updateShowing(false);
-    }
-    updateShowing(showing) {
-        this.showing = showing;
+    handleClick(evt) {
+        evt.stopPropagation();
+        const collapsed = !(this.collapsed || false);
         this.dispatchCustomEvent(expanderChangedEvent, {
-            showing,
+            collapsed,
             element: this
         });
-    }
-    handleClick(evt) {
-        let { showing } = this;
-        evt.stopPropagation();
-        showing = !showing;
-        this.updateShowing(showing);
+        this.collapsed = collapsed;
     }
 }
 defineCustomElement('gcs-expander-tool', ExpanderTool);
@@ -4038,6 +4052,7 @@ class Field extends Validatable(CustomElement) {
         });
     }
     handleBlur() {
+        this.handleChange();
     }
     handleInput(event) {
         if (!isUndefinedOrNull(event)) {
@@ -4506,28 +4521,25 @@ defineCustomElement('gcs-wizard', Wizard);
 
 const navigationLinkStyles = css `
 :host {
-    display: flex;
-    flex-wrap: nowrap;
-    background-color: var(--bg-color);
-    color: var(--text-color);
+    background-color: var(--gcs-bg-color-primary-2);
+    color: var(--gcs-color-primary-2);
     margin: var(--gcs-margin);
-    transition: all 0.3s ease;
 }
 
 :host([active]) {
-    background-color: var(--active-bg-color);
-    color: var(--active-text-color);
+    background-color: var(--gcs-bg-color-tertiary-1);
+    color: var(--gcs-color-tertiary-1);
 	transition: all 0.3s ease;
 }
 
 :host([active]:hover) {
-    background-color: var(--active-hover-bg-color);
-    color: var(--active-hover-text-color);
+    background-color: var(--gcs-bg-color-secondary-2);
+    color: var(--gcs-color-secondary-2);
     transition: all 0.3s ease;
 }`;
 
 const linkClickedEvent = 'linkClickedEvent';
-class NavigationLink extends Clickable(Nuanced) {
+class NavigationLink extends Clickable(ToolBar) {
     static get styles() {
         return mergeStyles(super.styles, navigationLinkStyles);
     }
@@ -4553,19 +4565,15 @@ class NavigationLink extends Clickable(Nuanced) {
 defineCustomElement('gcs-nav-link', NavigationLink);
 
 const navigationBarStyles = css `
-:host {  
-    background-color: var(--alt-bg-color);
-    display: flex;
-    height: 100%;
+:host {
+    margin: var(--gcs-margin);
 }
-
 .horizontal {
     display: flex;
     justify-content: space-evenly;
 }
 
 .vertical {    
-    flex-basis: 250px;
     flex-shrink: 0;
 }`;
 
@@ -4684,14 +4692,14 @@ class NavigationBar extends NavigationContainer(CustomElement) {
         if (links !== undefined) {
             return html `
 <nav slot="start" class=${this.orientation}>
-    ${this.renderLinks()}
+    ${this._renderLinks()}
 </nav>`;
         }
         else {
             return html `<slot></slot>`;
         }
     }
-    renderLinks() {
+    _renderLinks() {
         const { links } = this;
         const linksArray = [];
         for (const [key, route] of Object.entries(links)) {
@@ -4712,26 +4720,38 @@ class NavigationBar extends NavigationContainer(CustomElement) {
                 }
                 processedGroups.add(group);
                 const groupedLinks = linksArray.filter(r => r.group === group);
+                const { collapsed, iconName, text } = group;
                 lnks.push(html `
-<gcs-panel>
-    <gcs-localized-text slot="header">${group.text}</gcs-localized-text>
-    ${this.renderGroupedLinks(groupedLinks)}
+<gcs-panel collapsed=${collapsed}>
+    <gcs-toolbar slot="header">
+        ${this._renderIcon(iconName)}
+        <gcs-localized-text slot="title">${text}</gcs-localized-text>
+        <gcs-expander-tool slot="tools"></gcs-expander-tool>
+    </gcs-toolbar>
+    ${this._renderGroupedLinks(groupedLinks)}
 </gcs-panel>`);
             }
             else {
-                lnks.push(this.renderLink(link));
+                lnks.push(this._renderLink(link));
             }
         }
         return lnks;
     }
-    renderGroupedLinks(groupedRoutes) {
-        return groupedRoutes.map(r => this.renderLink(r, 'body'));
+    _renderIcon(iconName) {
+        if (iconName) {
+            return html `<gcs-icon slot="icon" name=${iconName}></gcs-icon>`;
+        }
+        return null;
     }
-    renderLink(route, slot = null) {
-        const { path, text } = route;
+    _renderGroupedLinks(groupedRoutes) {
+        return groupedRoutes.map(r => this._renderLink(r, 'body'));
+    }
+    _renderLink(route, slot = null) {
+        const { iconName, path, text } = route;
         return html `
 <gcs-nav-link to=${path} key=${path} slot=${slot}>
-    <gcs-localized-text>${text}</gcs-localized-text>
+    ${this._renderIcon(iconName)}
+    <gcs-localized-text slot="title">${text}</gcs-localized-text>
 </gcs-nav-link>`;
     }
 }
@@ -4751,6 +4771,14 @@ const resourceLoader = {
     }
 };
 
+const contentViewStyles = css `
+body {
+    height: 100%;
+    overflow: auto;
+    background-color: var(--gcs-bg-color-primary-1);
+    color: var(--gcs-color-primary-1);
+}`;
+
 function copyNode(source, dataView) {
     const newNode = document.createElement(source.nodeName);
     Array.from(source.attributes).forEach(attr => newNode.setAttribute(attr.name, attr.value));
@@ -4763,6 +4791,9 @@ class ContentView extends CustomElement {
         return {
             shadow: false
         };
+    }
+    static get styles() {
+        return mergeStyles(super.styles, contentViewStyles);
     }
     static get properties() {
         return {
@@ -4864,78 +4895,80 @@ class Center extends CustomElement {
 }
 defineCustomElement('gcs-center', Center);
 
-const panelHeaderStyles = css `
-:host {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    border: solid transparent;
-    border-radius: var(--gcs-border-radius);
+const collapsibleStyles = css `
+:host([disabled="true"]),
+:host([disabled=""]) {
+    cursor: not-allowed;
 }
 
-.item {
-    margin: var(--gcs-margin);
+*[disabled="true"],
+*[disabled=""] {
+    cursor: not-allowed;
 }`;
 
-class PanelHeader extends Closable(CustomElement) {
-    static get styles() {
-        return mergeStyles(super.styles, panelHeaderStyles);
-    }
-    static get properties() {
-        return {
-            iconName: {
-                attribute: 'icon-name',
-                type: [
-                    DataTypes.String
-                ]
-            }
-        };
-    }
-    render() {
-        return html `
-<span class="item">
-    ${this.renderIcon()}
-</span> 
-<span class="item">
-    <slot name="title"></slot>
-</span>
-<span class="item">
-    <slot name="tools"></slot>
-    ${this.renderCloseTool()}
-</span>`;
-    }
-    renderIcon() {
-        const { iconName } = this;
-        if (iconName) {
-            return html `
-<gcs-icon 
-    slot="start" 
-    name=${this.iconName}
->
-</gcs-icon>`;
+function Collapsible(Base) {
+    return class CollapsibleMixin extends Base {
+        static get styles() {
+            return mergeStyles(super.styles, collapsibleStyles);
         }
-        else {
-            return null;
+        static get properties() {
+            return {
+                collapsed: collapsed({
+                    afterUpdate: function () {
+                        const cc = this.getCollapsibleContent();
+                        if (this.collapsed === true) {
+                            cc.style.maxHeight = '0';
+                        }
+                        else {
+                            cc.style.maxHeight = `${cc.scrollHeight}px`;
+                        }
+                    }
+                })
+            };
         }
-    }
+        connectedCallback() {
+            super.connectedCallback?.();
+            this.addEventListener(expanderChangedEvent, this.handleCollapsible);
+        }
+        disconnectedCallback() {
+            super.disconnectedCallback?.();
+            this.removeEventListener(expanderChangedEvent, this.handleCollapsible);
+        }
+        handleCollapsible(event) {
+            const { collapsed } = event.detail;
+            this.collapsed = collapsed;
+        }
+    };
 }
-defineCustomElement('gcs-panel-header', PanelHeader);
 
 const panelStyles = css `
 :host {
     display: grid;
     grid-template-rows: auto 1fr auto;
     background-color: var(--bg-color);
-    border-radius: var(--gcs-border-radius)
+    border: var(--gcs-border-width) solid var(--gcs-bg-color-primary-3);
+    border-radius: var(--gcs-border-radius);
+    margin: var(--gcs-margin);
+    background-color: var(--gcs-bg-color-primary-1);
+    color: var(--gcs-color-primary-1);
+}
+
+#body {
+    overflow: auto;
 }
 
 #header,
 #footer {
-    background-color: var(--gcs-header-bg-color);
-    color: var(--gcs-header-text-color);
+    background-color: var(--gcs-bg-color-primary-3);
+    color: var(--gcs-color-primary-3);
+}
+
+#collapsible-content {
+    overflow: hidden;
+    transition: max-height 0.3s ease-in-out;
 }`;
 
-class Panel extends CustomElement {
+class Panel extends Collapsible(CustomElement) {
     static get styles() {
         return mergeStyles(super.styles, panelStyles);
     }
@@ -4944,13 +4977,17 @@ class Panel extends CustomElement {
 <div id=header>
     <slot name="header"></slot>
 </div>
-<div id=body>
-    <slot name="body"></slot>
-</div>
-<div id=footer>
-    <slot name="footer"></slot>
-</div>
-        `;
+<div id="collapsible-content">
+    <div id=body>
+        <slot name="body"></slot>
+    </div>
+    <div id=footer>
+        <slot name="footer"></slot>
+    </div>
+</div>`;
+    }
+    getCollapsibleContent() {
+        return this.document.getElementById('collapsible-content');
     }
 }
 defineCustomElement('gcs-panel', Panel);
@@ -5018,7 +5055,7 @@ input[type='date'] {
 input:focus,
 textarea:focus,
 select:focus {
-    border: solid var(--gcs-header-bg-color);
+    border: solid var(--gcs-bg-color-primary-3);
 }`;
 
 const inputEvent = "inputEvent";
@@ -5141,31 +5178,8 @@ function RemoteLoadableHolderPassthrough(Base) {
     };
 }
 
-function compareValues(v1, v2) {
-    if (v1 instanceof Date && v2 instanceof Date) {
-        return v1.getTime() - v2.getTime();
-    }
-    if (!isPrimitive(v1) || !isPrimitive(v2)) {
-        throw new Error('compareValues - Both values being compared must be either Date or primitives');
-    }
-    const v1Type = typeof v1;
-    const v2Type = typeof v2;
-    if (v1Type !== v2Type) {
-        throw new Error('compareValues - Both values must be of the same type');
-    }
-    if (v1Type === 'boolean') {
-        return (v1 ? 1 : 0) - (v2 ? 1 : 0);
-    }
-    if (v1Type === 'number' ||
-        v1Type === 'bigint') {
-        return v1 - v2;
-    }
-    return v1.localeCompare(v2);
-}
-
 function CollectionDataHolder(Base) {
     return class CollectionDataHolderMixin extends Base {
-        _lastSorter;
         static get properties() {
             return {
                 data: {
@@ -5177,36 +5191,18 @@ function CollectionDataHolder(Base) {
                 }
             };
         }
-        connectedCallback() {
-            super.connectedCallback?.();
-            this.addEventListener(sorterChanged, this.sort);
+        render() {
+            return this.renderData();
         }
-        disconnectedCallback() {
-            super.disconnectedCallback?.();
-            this.removeEventListener(sorterChanged, this.sort);
-        }
-        sort(event) {
-            const { column, ascending, element } = event.detail;
-            if (this._lastSorter !== element) {
-                if (this._lastSorter !== undefined) {
-                    this._lastSorter.ascending = undefined;
-                }
-                this._lastSorter = element;
+        renderData() {
+            const { data } = this;
+            const d = typeof data === "function" ?
+                data() :
+                data;
+            if (d.length === 0) {
+                return renderEmptyData('body');
             }
-            if (this.loader !== undefined) {
-                throw new Error('Not implemented');
-            }
-            else {
-                const comparer = (r1, r2) => {
-                    if (ascending === true) {
-                        return compareValues(r1[column], r2[column]);
-                    }
-                    else {
-                        return compareValues(r2[column], r1[column]);
-                    }
-                };
-                this.data = [...this.data].sort(comparer);
-            }
+            return d.map((record) => this._applyTemplate(record));
         }
     };
 }
@@ -5214,7 +5210,7 @@ function CollectionDataHolder(Base) {
 const focusableStyles = css `
 :host(:focus),
 :host(:focus-visible) {
-    border: solid var(--gcs-header-bg-color);
+    border: solid var(--gcs-bg-color-primary-3);
 }`;
 
 function Focusable(Base) {
@@ -6250,7 +6246,7 @@ const formFieldStyles = css `
     display: grid;
     grid-template-columns: 1fr auto;   
     /* flex-grow: 1; We want to keep the labels with fixed width. not to expand them */
-    background-color: var(--alt-bg-color);
+    background-color: var(--gcs-bg-color-primary-2);
     border-radius: var(--gcs-border-radius);
     
 }
@@ -6457,6 +6453,7 @@ class CellEditor extends CustomElement {
         }
         const { _field } = this;
         if (_field) {
+            _field.handleChange();
             this.value = _field.value;
         }
         this.editing = false;
@@ -6505,16 +6502,6 @@ const dataListStyles = css `
     display: grid;
 }`;
 
-function renderEmptyData(slot = null) {
-    return html `
-<gcs-alert 
-    kind="warning"
-    slot=${slot}
->
-    <gcs-localized-text>No Records Found</gcs-localized-text>
-</gcs-alert>`;
-}
-
 class DataList extends SelectionContainer(RemoteLoadableHolder(CollectionDataHolder(CustomElement))) {
     static get styles() {
         return mergeStyles(super.styles, dataListStyles);
@@ -6529,12 +6516,8 @@ class DataList extends SelectionContainer(RemoteLoadableHolder(CollectionDataHol
             }
         };
     }
-    render() {
-        const { idField, data } = this;
-        if (data.length === 0) {
-            return renderEmptyData();
-        }
-        return data.map((record) => this.itemTemplate(record, record[idField]));
+    _applyTemplate(record) {
+        return this.itemTemplate(record, record[this.idField]);
     }
 }
 defineCustomElement('gcs-data-list', DataList);
@@ -6602,7 +6585,7 @@ const dataGridBodyRowStyles = css `
 }
 
 :host(:nth-of-type(even)) {
-    background-color: var(--alt-bg-color);
+    background-color: var(--gcs-bg-color-primary-2);
 }
 
 :host(:nth-of-type(odd)) {
@@ -6735,8 +6718,8 @@ const dataGridHeaderStyles = css `
     width: 100%;
     display: flex;
     flex-flow: row nowrap;
-    background-color: var(--gcs-header-bg-color);
-    color: var(--gcs-header-text-color);
+    background-color: var(--gcs-bg-color-primary-3);
+    color: var(--gcs-color-primary-3);
 }`;
 
 class DataGridHeader extends CustomElement {
@@ -6769,7 +6752,66 @@ const dataGridStyles = css `
     flex: 1 1 auto;
 }`;
 
-class DataGrid extends RemoteLoadableHolder(CollectionDataHolder(CustomElement)) {
+function compareValues(v1, v2) {
+    if (v1 instanceof Date && v2 instanceof Date) {
+        return v1.getTime() - v2.getTime();
+    }
+    if (!isPrimitive(v1) || !isPrimitive(v2)) {
+        throw new Error('compareValues - Both values being compared must be either Date or primitives');
+    }
+    const v1Type = typeof v1;
+    const v2Type = typeof v2;
+    if (v1Type !== v2Type) {
+        throw new Error('compareValues - Both values must be of the same type');
+    }
+    if (v1Type === 'boolean') {
+        return (v1 ? 1 : 0) - (v2 ? 1 : 0);
+    }
+    if (v1Type === 'number' ||
+        v1Type === 'bigint') {
+        return v1 - v2;
+    }
+    return v1.localeCompare(v2);
+}
+
+function Sortable(Base) {
+    return class SortableMixin extends Base {
+        _lastSorter;
+        connectedCallback() {
+            super.connectedCallback?.();
+            this.addEventListener(sorterChanged, this.sort);
+        }
+        disconnectedCallback() {
+            super.disconnectedCallback?.();
+            this.removeEventListener(sorterChanged, this.sort);
+        }
+        sort(event) {
+            const { column, ascending, element } = event.detail;
+            if (this._lastSorter !== element) {
+                if (this._lastSorter !== undefined) {
+                    this._lastSorter.ascending = undefined;
+                }
+                this._lastSorter = element;
+            }
+            if (this.loader !== undefined) {
+                throw new Error('Not implemented');
+            }
+            else {
+                const comparer = (r1, r2) => {
+                    if (ascending === true) {
+                        return compareValues(r1[column], r2[column]);
+                    }
+                    else {
+                        return compareValues(r2[column], r1[column]);
+                    }
+                };
+                this.data = [...this.data].sort(comparer);
+            }
+        }
+    };
+}
+
+class DataGrid extends Sortable(RemoteLoadableHolder(CollectionDataHolder(CustomElement))) {
     static get styles() {
         return mergeStyles(super.styles, dataGridStyles);
     }
@@ -6788,7 +6830,7 @@ class DataGrid extends RemoteLoadableHolder(CollectionDataHolder(CustomElement))
         return html `
 <gcs-panel>
     ${this.renderHeader()}
-    ${this.renderBody()}      
+    ${this.renderData()}      
 </gcs-panel>`;
     }
     renderHeader() {
@@ -6798,18 +6840,15 @@ class DataGrid extends RemoteLoadableHolder(CollectionDataHolder(CustomElement))
     columns=${this.columns}>
 </gcs-data-header>`;
     }
-    renderBody() {
-        const { columns, data, idField } = this;
-        if (data.length === 0) {
-            return renderEmptyData('body');
-        }
-        return data.map((record) => html `
+    _applyTemplate(record) {
+        const { columns, idField } = this;
+        return html `
 <gcs-data-row 
     slot="body"
     columns=${columns}
     record=${record} 
     key=${record[idField]}>
-</gcs-data-row>`);
+</gcs-data-row>`;
     }
     load() {
         if (this.loadUrl) {
@@ -6954,21 +6993,14 @@ const propertyGridStyles = css `
     margin: var(--gcs-margin); 
 }`;
 
-class PropertyGrid extends Configurable(CustomElement) {
+class PropertyGrid extends Configurable(SingleRecordDataHolder(CustomElement)) {
     static get styles() {
         return mergeStyles(super.styles, propertyGridStyles);
     }
     static get properties() {
         return {
             labelWidth,
-            labelAlign,
-            data: {
-                type: [
-                    DataTypes.Object,
-                    DataTypes.Function
-                ],
-                defer: true
-            }
+            labelAlign
         };
     }
     render() {
@@ -6976,7 +7008,7 @@ class PropertyGrid extends Configurable(CustomElement) {
 <gcs-panel>
     ${this._renderLabel()}
     ${this._renderIcon()}
-    ${this._renderBody()}
+    ${this.renderData()}
 </gcs-panel>`;
     }
     configure(source) {
@@ -7002,14 +7034,8 @@ class PropertyGrid extends Configurable(CustomElement) {
 >
 </gcs-icon>`;
     }
-    _renderBody() {
-        const { source, data, labelWidth, labelAlign } = this;
-        const d = typeof data === "function" ?
-            data() :
-            data;
-        if (!d) {
-            return renderEmptyData('body');
-        }
+    _applyTemplate(record) {
+        const { source, labelWidth, labelAlign } = this;
         const children = typeof source.children === "function" ?
             source.children() :
             source.children;
@@ -7021,12 +7047,42 @@ class PropertyGrid extends Configurable(CustomElement) {
     label=${c.label}
     name=${c.name}
     type=${c.type || "string"}
-    value=${d[c.name]} 
+    value=${record[c.name]} 
     key=${c.name}>
 </gcs-property-grid-row>`);
     }
 }
 defineCustomElement('gcs-property-grid', PropertyGrid);
+
+const treeViewStyles = css `
+:host {
+    padding: var(--gcs-padding);
+}`;
+
+class TreeView extends CollectionDataHolder(CustomElement) {
+    static get styles() {
+        return mergeStyles(super.styles, treeViewStyles);
+    }
+    _applyTemplate(record) {
+        return this._renderNode(record);
+    }
+    _renderNode(nodeData) {
+        if (nodeData.nodes.length > 0) {
+            return html `
+<gcs-drop-down>
+    <span slot="header">${nodeData.label}</span>
+    <div slot="content">${this._renderChildrenNodes(nodeData.nodes)}</div>
+</gcs-drop-down>`;
+        }
+        else {
+            return html `<span>${nodeData.label}</span>`;
+        }
+    }
+    _renderChildrenNodes(nodesData) {
+        return nodesData.map((r) => this._renderNode(r));
+    }
+}
+defineCustomElement('gcs-tree-view', TreeView);
 
 function getNotFoundView() {
     return class {
@@ -7297,13 +7353,14 @@ const applicationViewStyles = css `
 #header,
 #footer {
   	grid-column: 1 / 4;
-	background-color: var(--gcs-header-bg-color);
-	color: var(--gcs-header-text-color);
+	background-color: var(--gcs-bg-color-primary-3);
+	color: var(--gcs-color-primary-3);
+	padding: var(--gcs-padding);
 }
 
 #subheader { 
-	background-color: var(--alt-bg-color);
-	color: var(--text-color);
+	background-color: var(--gcs-bg-color-primary-2);
+	color: var(--gcs-color-primary-2);
 }
 
 #left {
@@ -7447,4 +7504,4 @@ window.appCtrl = appCtrl;
 window.html = html;
 window.viewsRegistry = viewsRegistry;
 
-export { Accordion, Alert, AppInitializedEvent, ApplicationHeader, ApplicationView, Button, CellEditor, Center, CheckBox, CloseTool, CollectionField, CollectionPanel, ComboBox, ContentView, CustomElement, DataGridBodyCell as DataCell, DataGrid, DataGridHeader, DataGridHeaderCell as DataHeaderCell, DataList, DataGridBodyRow as DataRow, DataTemplate, DataTypes, DateField, DisplayableField, DropDown, ExpanderTool, FileField, Form, FormField, HashRouter, HelpTip, HiddenField, Icon, LocalizedText, ModifiedTip, NavigationBar, NavigationLink, NumberField, Overlay, Panel, PanelHeader, PasswordField, Pill, PropertyGrid, PropertyGridRow, RequiredTip, Selector, Slider, SorterTool, StarRating, TextArea, TextField, Theme, Tool, ToolTip, ValidationSummary, Wizard, WizardStep, appCtrl, css, defineCustomElement, getNotFoundView, html, navigateToRoute, viewsRegistry };
+export { Alert, AppInitializedEvent, ApplicationHeader, ApplicationView, Button, CellEditor, Center, CheckBox, CloseTool, CollectionField, CollectionPanel, ComboBox, ContentView, CustomElement, DataGridBodyCell as DataCell, DataGrid, DataGridHeader, DataGridHeaderCell as DataHeaderCell, DataList, DataGridBodyRow as DataRow, DataTemplate, DataTypes, DateField, DisplayableField, DropDown, ExpanderTool, FileField, Form, FormField, HashRouter, HelpTip, HiddenField, Icon, LocalizedText, ModifiedTip, NavigationBar, NavigationLink, NumberField, Overlay, Panel, PasswordField, Pill, PropertyGrid, PropertyGridRow, RequiredTip, Selector, Slider, SorterTool, StarRating, TextArea, TextField, Theme, Tool, ToolBar, ToolTip, TreeView, ValidationSummary, Wizard, WizardStep, appCtrl, css, defineCustomElement, getNotFoundView, html, navigateToRoute, viewsRegistry };

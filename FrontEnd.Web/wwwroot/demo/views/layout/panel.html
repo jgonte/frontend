@@ -5,13 +5,50 @@
 </head>
 
 <body>
-    <gcs-panel style="height: 400px;">
-        <div slot="header">This is the title</div>
+    <h4>Panel without footer</h4>
+    <gcs-panel style="height: 150px;">
+        <gcs-toolbar slot="header">
+            <gcs-localized-text slot="title">Title of the panel</gcs-localized-text>
+        </gcs-toolbar>
         <div slot="body">
             Lorem ipsum dolor sit, amet consectetur adipisicing elit. Ipsam minima, eligendi asperiores ex necessitatibus praesentium, autem at ipsum aperiam ducimus dolore quod molestiae repellat doloribus, quos perferendis enim explicabo nisi?
         </div>
-        <div slot="footer">Footer</div>
     </gcs-panel>
+
+    <br />
+
+    <h4>Panel showing the footer</h4>
+    <gcs-panel>
+        <gcs-toolbar slot="header">
+            <gcs-icon slot="icon" name="airplane-engines"></gcs-icon>
+            <gcs-localized-text slot="title">Title of the panel</gcs-localized-text>
+        </gcs-toolbar>
+        <div slot="body">
+            Lorem ipsum dolor sit, amet consectetur adipisicing elit. Ipsam minima, eligendi asperiores ex necessitatibus praesentium, autem at ipsum aperiam ducimus dolore quod molestiae repellat doloribus, quos perferendis enim explicabo nisi?
+        </div>
+        <gcs-toolbar slot="footer">
+            <gcs-icon slot="icon" name="bricks"></gcs-icon>
+            <gcs-localized-text slot="title">Footer of the panel</gcs-localized-text>
+        </gcs-toolbar>
+    </gcs-panel>
+
+    <br />
+
+    <h4>Closable panel</h4>
+    <gcs-panel>
+        <gcs-toolbar slot="header">
+            <gcs-icon slot="icon" name="activity"></gcs-icon>
+            <gcs-localized-text slot="title">Title of the panel</gcs-localized-text>
+            <gcs-close-tool slot="tools"></gcs-close-tool>
+        </gcs-toolbar>
+        <div slot="body">
+            Lorem ipsum dolor sit, amet consectetur adipisicing elit. Ipsam minima, eligendi asperiores ex necessitatibus praesentium, autem at ipsum aperiam ducimus dolore quod molestiae repellat doloribus, quos perferendis enim explicabo nisi?
+        </div>
+        <div slot="footer">The footer</div>
+    </gcs-panel>
+
+    <br />
+
 </body>
 
 </html>

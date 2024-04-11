@@ -5,17 +5,19 @@ import { RenderReturnTypes } from "../../custom-element/mixins/metadata/types/IR
 import mergeStyles from "../../custom-element/styles/mergeStyles";
 import html from "../../rendering/html";
 import { NodePatchingData } from "../../rendering/nodes/NodePatchingData";
-import { DataTypes } from "../../utils/data/DataTypes";
+import { GenericRecord } from "../../utils/types";
 import labelAlign from "../form/labelAlign";
 import labelWidth from "../form/labelWidth";
 import Configurable from "../mixins/configurable/Configurable";
 import { IComponentDescriptor } from "../mixins/configurable/models/IComponentDescriptor";
-import { renderEmptyData } from "../mixins/data-holder/renderEmptyData";
+import SingleRecordDataHolder from "../mixins/data-holder/SingleRecordDataHolder";
 import { propertyGridStyles } from "./PropertyGrid.styles";
 
 export default class PropertyGrid extends
     Configurable(
-        CustomElement
+        SingleRecordDataHolder(
+            CustomElement
+        )
     ) {
 
     static get styles(): string {
@@ -35,15 +37,7 @@ export default class PropertyGrid extends
             /**
              * Label alignment
              */
-            labelAlign,
-
-            data: {
-                type: [
-                    DataTypes.Object,
-                    DataTypes.Function
-                ],
-                defer: true
-            }
+            labelAlign
         };
     }
 
@@ -53,7 +47,7 @@ export default class PropertyGrid extends
 <gcs-panel>
     ${this._renderLabel()}
     ${this._renderIcon()}
-    ${this._renderBody()}
+    ${this.renderData()}
 </gcs-panel>`;
     }
 
@@ -91,24 +85,14 @@ export default class PropertyGrid extends
 </gcs-icon>`;
     }
 
-    private _renderBody(): NodePatchingData[] | NodePatchingData {
+    _applyTemplate(record: GenericRecord) : NodePatchingData {
 
         const {
             source,
-            data,
             labelWidth,
             labelAlign
         } = this;
 
-        const d = typeof data === "function" ?
-            data() :
-            data;
-
-        if (!d) {
-
-            return renderEmptyData('body');
-        }
-      
         const children = typeof source.children === "function" ?
             source.children() :
             source.children;
@@ -121,10 +105,9 @@ export default class PropertyGrid extends
     label=${c.label}
     name=${c.name}
     type=${c.type || "string"}
-    value=${d[c.name]} 
+    value=${record[c.name]} 
     key=${c.name}>
 </gcs-property-grid-row>`);
-
     }
 
 }

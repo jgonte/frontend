@@ -89,7 +89,7 @@ export default class CellEditor extends CustomElement {
 
         if (_field) {
 
-            //_field.handleChange();
+            _field.handleChange();
 
             this.value = _field.value;
         }

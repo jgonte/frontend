@@ -1,9 +1,8 @@
 import CustomElementPropertyMetadata from "../../../custom-element/mixins/metadata/types/CustomElementPropertyMetadata";
 import CustomHTMLElementConstructor from "../../../custom-element/mixins/metadata/types/CustomHTMLElementConstructor";
+import Clickable from "../clickable/Clickable";
 import mergeStyles from "../../../custom-element/styles/mergeStyles";
 import { DataTypes } from "../../../utils/data/DataTypes";
-import Clickable from "../clickable/Clickable";
-
 import { selectableStyles } from "./Selectable.styles";
 
 export const selectionChangedEvent = 'selectionChangedEvent';

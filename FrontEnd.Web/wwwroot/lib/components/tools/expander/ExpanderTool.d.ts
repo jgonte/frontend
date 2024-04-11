@@ -1,12 +1,8 @@
 import Tool from "../Tool";
-import { IContentHidable } from "../../../utils/types";
-import CustomElementStateMetadata from "../../../custom-element/mixins/metadata/types/CustomElementStateMetadata";
-export declare const expanderChangedEvent = "expanderChangedEvent";
-export default class ExpanderTool extends Tool implements IContentHidable {
-    constructor();
-    static get state(): Record<string, CustomElementStateMetadata>;
+import CustomElementPropertyMetadata from "../../../custom-element/mixins/metadata/types/CustomElementPropertyMetadata";
+export declare const expanderChangedEvent = "expanderChanged";
+export default class ExpanderTool extends Tool {
+    static get properties(): Record<string, CustomElementPropertyMetadata>;
     iconName: () => "chevron-down" | "chevron-up";
-    hideContent(): void;
-    updateShowing(showing: boolean): void;
     handleClick(evt: Event): void;
 }

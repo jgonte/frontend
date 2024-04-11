@@ -2,25 +2,26 @@
 
 public class LightThemeGenerationStrategy : ThemeGenerationStrategy
 {
-    public LightThemeGenerationStrategy() :
-        base(
-            colorScheme: "light",
-            alternateHueOffset: 180,
-            textColor: PartialColorData.EarthLight,
-            backgroundColor: PartialColorData.PastelLight,
-            alternateTextColor: PartialColorData.EarthDark,
-            alternateBackgroundColor: PartialColorData.PastelDark,
-            headerTextColor: PartialColorData.EarthMiddle,
-            headerBackgroundColor: PartialColorData.PastelMiddle,
-            hoverTextColor: PartialColorData.NeutralLight,
-            hoverBackgroundColor: PartialColorData.JewelLight,
-            activeTextColor: PartialColorData.NeutralMiddle,
-            activeBackgroundColor: PartialColorData.JewelMiddle,
-            activeHoverTextColor: PartialColorData.NeutralDark,
-            activeHoverBackgroundColor: PartialColorData.JewelDark,
-            surfaceShadowColor: PartialColorData.EarthLight,
-            shadowStrength: ".2"
-        )
+    public override ColorResources GenerateResources(short hue)
     {
+        var saturation = .6f;
+
+        var textLightness = .2f;
+
+        var backgroundLightness1 = .95f;
+
+        var backgroundLightness2 = .8f;
+
+        var backgroundLightness3 = .4f;
+
+        return GenerateResources(
+            hue,
+            saturation,
+            textLightness,
+            backgroundLightness1,
+            backgroundLightness2,
+            backgroundLightness3
+        );
     }
+
 }

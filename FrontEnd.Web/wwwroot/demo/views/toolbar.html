@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+    <script>
+
+        function onCloseTool() {
+
+            alert('Trying to close tool!');
+        }
+
+        window.addEventListener('expanderChanged', event => alert(`
+            Event type: 'expanderChanged'
+            Showing: '${event.detail.showing}'
+            Element id: '${event.detail.element.id}'
+        `));
+
+        function onButtonClicked() {
+
+            alert('Button clicked!');
+        }
+
+    </script>
+
+    <title>Toolbar demo</title>
+
+</head>
+
+<body>
+
+    <h4>Toolbar with title only</h4>
+    <gcs-toolbar>
+        <gcs-localized-text slot="title">Title</gcs-localized-text>
+    </gcs-toolbar>
+
+    <br />
+
+    <h4>Toolbar with icon and title</h4>
+    <gcs-toolbar>
+        <gcs-icon slot="icon" name="airplane-engines"></gcs-icon>
+        <gcs-localized-text slot="title">Title</gcs-localized-text>
+    </gcs-toolbar>
+
+    <br />
+
+    <h4>Toolbar with icon, title and close tool</h4>
+    <gcs-toolbar>
+        <gcs-icon slot="icon" name="activity"></gcs-icon>
+        <gcs-localized-text slot="title">Title</gcs-localized-text>
+        <gcs-close-tool slot="tools" close="onCloseTool()"></gcs-close-tool>
+    </gcs-toolbar>
+
+    <br />
+
+    <h4>Toolbar with icon, title and collapsible tool</h4>
+    <gcs-toolbar>
+        <gcs-icon slot="icon" name="broadcast"></gcs-icon>
+        <gcs-localized-text slot="title">Title</gcs-localized-text>
+        <gcs-expander-tool slot="tools" id="expander-1"></gcs-expander-tool>
+    </gcs-toolbar>
+
+    <br />
+
+    <h4>Toolbar with icon, title, buttons in title slot and collapsible tool</h4>
+    <gcs-toolbar>
+        <gcs-icon slot="icon" name="bricks"></gcs-icon>
+        <gcs-localized-text slot="title">Title</gcs-localized-text>
+        <gcs-button slot="title" click="onButtonClicked()">
+            Button 1
+        </gcs-button>
+        <gcs-button slot="title" click="onButtonClicked()">
+            Button 2
+        </gcs-button>
+        <gcs-button slot="title" click="onButtonClicked()">
+            Button 3
+        </gcs-button>
+        <gcs-expander-tool slot="tools" id="expander-2"></gcs-expander-tool>
+    </gcs-toolbar>
+
+    <br />
+
+    <h4>Toolbar with icon, title, buttons in tools slot and collapsible tool</h4>
+    <gcs-toolbar>
+        <gcs-icon slot="icon" name="boxes"></gcs-icon>
+        <gcs-localized-text slot="title">Title</gcs-localized-text>
+        <gcs-button slot="tools" click="onButtonClicked()">
+            Button 1
+        </gcs-button>
+        <gcs-button slot="tools" click="onButtonClicked()" kind="danger" variant="contained">
+            Button 2
+            <gcs-icon name="alarm-fill"></gcs-icon>
+        </gcs-button>
+        <gcs-button slot="tools" click="onButtonClicked()">
+            Button 3
+        </gcs-button>
+        <gcs-expander-tool slot="tools" id="expander-3"></gcs-expander-tool>
+    </gcs-toolbar>
+
+</body>
+
+</html>

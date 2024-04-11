@@ -1,2 +1,2 @@
 import { NodePatchingData } from "../../../rendering/nodes/NodePatchingData";
-export declare function renderEmptyData(slot?: string | null): NodePatchingData;
+export default function renderEmptyData(slot?: string | null): NodePatchingData;

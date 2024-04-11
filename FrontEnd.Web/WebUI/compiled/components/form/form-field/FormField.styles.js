@@ -14,7 +14,7 @@ export const formFieldStyles = css `
     display: grid;
     grid-template-columns: 1fr auto;   
     /* flex-grow: 1; We want to keep the labels with fixed width. not to expand them */
-    background-color: var(--alt-bg-color);
+    background-color: var(--gcs-bg-color-primary-2);
     border-radius: var(--gcs-border-radius);
     
 }

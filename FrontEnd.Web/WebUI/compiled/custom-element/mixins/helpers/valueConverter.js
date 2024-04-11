@@ -32,6 +32,9 @@ const valueConverter = {
             }
         }
         if (type.includes(DataTypes.Boolean)) {
+            if (value === '') {
+                return true;
+            }
             const lowerCaseValue = value.toLowerCase();
             if (lowerCaseValue === 'true' ||
                 lowerCaseValue === 'false') {

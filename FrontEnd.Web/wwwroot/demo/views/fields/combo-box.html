@@ -76,10 +76,10 @@
                 description
             } = record;
 
-            return html`<div style="width: 200px;">
-                    <div style="background-color: lightgreen;">${name}</div>
-                    <div style="background-color: yellow;">${reputation}</div>
-                    <div style="background-color: darkred; color: white; font-weight: bold;">${description}</div>
+            return html`<div style="width: 200px; padding: var(--gcs-padding);">
+                    <div style="background-color: lightgreen; padding: var(--gcs-padding);">${name}</div>
+                    <div style="background-color: yellow; padding: var(--gcs-padding);">${reputation}</div>
+                    <div style="background-color: darkred; color: white; font-weight: bold; padding: var(--gcs-padding);">${description}</div>
                 </div>`;
         }
 

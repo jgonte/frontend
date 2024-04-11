@@ -1,18 +1,11 @@
+import iconName from "../icon/props/iconName";
 import html from "../../rendering/html";
-import { DataTypes } from "../../utils/data/DataTypes";
 import Clickable from "../mixins/clickable/Clickable";
 import Nuanced from "../Nuanced";
 export default class Tool extends Clickable(Nuanced) {
     static get properties() {
         return {
-            iconName: {
-                type: [
-                    DataTypes.String,
-                    DataTypes.Function
-                ],
-                defer: true,
-                required: true
-            }
+            iconName: iconName(true)
         };
     }
     render() {

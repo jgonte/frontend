@@ -3,5 +3,6 @@ import CustomElementComponentMetadata from "../../custom-element/mixins/metadata
 import CustomElementPropertyMetadata from "../../custom-element/mixins/metadata/types/CustomElementPropertyMetadata";
 export default class ContentView extends CustomElement {
     static get component(): CustomElementComponentMetadata;
+    static get styles(): string;
     static get properties(): Record<string, CustomElementPropertyMetadata>;
 }

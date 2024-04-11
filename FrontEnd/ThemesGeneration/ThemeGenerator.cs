@@ -4,46 +4,69 @@ namespace FrontEnd;
 
 public class ThemeGenerator
 {
-    public static readonly string TextColor = "--text-color";
+    /// <summary>
+    /// The text color of the body of the page/component
+    /// </summary>
+    public static readonly string ColorPrimary1 = "--gcs-color-primary-1";
 
-    public static readonly string BackgroundColor = "--bg-color";
+    /// <summary>
+    /// The background color of the body of the page/component
+    /// </summary>
+    public static readonly string BackgroundColorPrimary1 = "--gcs-bg-color-primary-1";
 
+    /// <summary>
+    /// The text color of the subheader/toolbar/navigation item
+    /// </summary>
+    public static readonly string ColorPrimary2 = "--gcs-color-primary-2";
 
-    public static readonly string AlternateTextColor = "--alt-text-color";
+    /// <summary>
+    /// The background color of the body of the subheader/toolbar/navigation item
+    /// </summary>
+    public static readonly string BackgroundColorPrimary2 = "--gcs-bg-color-primary-2";
 
-    public static readonly string AlternateBackgroundColor = "--alt-bg-color";
+    /// <summary>
+    /// The text color of the header/navigation group
+    /// </summary>
+    public static readonly string ColorPrimary3 = "--gcs-color-primary-3";
 
+    /// <summary>
+    /// The background color of the header/navigation group
+    /// </summary>
+    public static readonly string BackgroundColorPrimary3 = "--gcs-bg-color-primary-3";
 
-    public static readonly string HeaderTextColor = "--header-text-color";
+    /// <summary>
+    /// The text color of the hover inactive
+    /// </summary>
+    public static readonly string ColorSecondary1 = "--gcs-color-secondary-1";
 
-    public static readonly string HeaderBackgroundColor = "--header-bg-color";
+    /// <summary>
+    /// The background color of the hover inactive
+    /// </summary>
+    public static readonly string BackgroundColorSecondary1 = "--gcs-bg-color-secondary-1";
 
+    /// <summary>
+    /// The text color of the hover active (selected) component
+    /// </summary>
+    public static readonly string ColorSecondary2 = "--gcs-color-secondary-2";
 
-    public static readonly string HoverTextColor = "--hover-text-color";
+    /// <summary>
+    /// The background color of the hover active (selected) component
+    /// </summary>
+    public static readonly string BackgroundColorSecondary2 = "--gcs-bg-color-secondary-2";
 
-    public static readonly string HoverBackgroundColor = "--hover-bg-color";
+    /// <summary>
+    /// The text color of the active (selected) component
+    /// </summary>
+    public static readonly string ColorTertiary1 = "--gcs-color-tertiary-1";
 
-
-    public static readonly string ActiveTextColor = "--active-text-color";
-
-    public static readonly string ActiveBackgroundColor = "--active-bg-color";
-
-
-    public static readonly string ActiveHoverTextColor = "--active-hover-text-color";
-
-    public static readonly string ActiveHoverBackgroundColor = "--active-hover-bg-color";
-
-
-    public static readonly string SurfaceShadow = "--surface-shadow";
-
-    public static readonly string ShadowStrengh = "--shadow-strength";
-
+    /// <summary>
+    /// The background color of the active (selected) component
+    /// </summary>
+    public static readonly string BackgroundColorTertiary1 = "--gcs-bg-color-tertiary-1";
 
     public string ThemeName { get; private set; }
 
     public short Hue { get; private set; }
-
-    public short AlternateHue { get; private set; }
 
     public ThemeGenerator(string themeName, short hue)
     {
@@ -54,46 +77,36 @@ public class ThemeGenerator
 
     public void Generate(CssBuilder builder, ThemeGenerationStrategy strategy)
     {
-        AlternateHue = GetAlternateHue(Hue, strategy.AlternateHueOffset);
+        var resources = strategy.GenerateResources(Hue);
 
-        builder.Selectors(GetThemeName(ThemeName, strategy.ColorSchemeName))
+        builder.Selectors(GetThemeName(ThemeName))
 
-            .Rule(TextColor, GetColor(Hue, strategy.TextColor))
-            .Rule(BackgroundColor, GetColor(Hue, strategy.BackgroundColor))
+            .Rule(ColorPrimary1, resources.ColorPrimary1.ToCss())
+            .Rule(BackgroundColorPrimary1, resources.BackgroundColorPrimary1.ToCss())
 
-            .Rule(AlternateTextColor, GetColor(Hue, strategy.AlternateTextColor))
-            .Rule(AlternateBackgroundColor, GetColor(Hue, strategy.AlternateBackgroundColor))
+            .Rule(ColorPrimary2, resources.ColorPrimary2.ToCss())
+            .Rule(BackgroundColorPrimary2, resources.BackgroundColorPrimary2.ToCss())
 
-            .Rule(HeaderTextColor, GetColor(Hue, strategy.HeaderTextColor))
-            .Rule(HeaderBackgroundColor, GetColor(Hue, strategy.HeaderBackgroundColor))
+            .Rule(ColorPrimary3, resources.ColorPrimary3.ToCss())
+            .Rule(BackgroundColorPrimary3, resources.BackgroundColorPrimary3.ToCss())
 
-            .Rule(HoverTextColor, GetColor(Hue, strategy.HoverTextColor))
-            .Rule(HoverBackgroundColor, GetColor(Hue, strategy.HoverTextColor))
+            .Rule(ColorSecondary1, resources.ColorSecondary1.ToCss())
+            .Rule(BackgroundColorSecondary1, resources.BackgroundColorSecondary1.ToCss())
 
-            .Rule(ActiveTextColor, GetColor(AlternateHue, strategy.ActiveTextColor))
-            .Rule(ActiveBackgroundColor, GetColor(AlternateHue, strategy.ActiveTextColor))
+            .Rule(ColorSecondary2, resources.ColorSecondary2.ToCss())
+            .Rule(BackgroundColorSecondary2, resources.BackgroundColorSecondary2.ToCss())
 
-            .Rule(ActiveHoverTextColor, GetColor(AlternateHue, strategy.ActiveHoverTextColor))
-            .Rule(ActiveHoverBackgroundColor, GetColor(AlternateHue, strategy.ActiveHoverBackgroundColor))
+            .Rule(ColorTertiary1, resources.ColorTertiary1.ToCss())
+            .Rule(BackgroundColorTertiary1, resources.BackgroundColorTertiary1.ToCss())
 
-            .Rule(SurfaceShadow, GetColor(Hue, strategy.SurfaceShadowColor))
-            .Rule(ShadowStrengh, strategy.ShadowStrength)
+        //.Rule(SurfaceShadow, GetColor(Hue, strategy.SurfaceShadowColor))
+        //.Rule(ShadowStrengh, strategy.ShadowStrength)
 
         .End();
     }
 
-    private short GetAlternateHue(short hue, short hueOffset)
+    public string GetThemeName(string themeName)
     {
-        return Convert.ToInt16(hue + hueOffset);
-    }
-
-    public string GetThemeName(string themeName, string colorSchemaName)
-    {
-        return $@"[theme=""{themeName}-{colorSchemaName}""]";
-    }
-
-    public string GetColor(short hue, PartialColorData colorData)
-    {
-        return new HSL(hue, colorData.Saturation, colorData.Lightness).ToCss();
+        return $@"[theme=""{themeName}""]";
     }
 }

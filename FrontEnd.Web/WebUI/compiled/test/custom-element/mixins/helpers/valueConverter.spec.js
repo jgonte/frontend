@@ -5,6 +5,10 @@ describe("valueConverter tests", () => {
         const val = valueConverter.toProperty("false", DataTypes.Boolean);
         expect(val).toEqual(false);
     });
+    it('should output true for an empty value and type boolean', () => {
+        const val = valueConverter.toProperty("", DataTypes.Boolean);
+        expect(val).toEqual(true);
+    });
     it('should output the value for the string', () => {
         const val = valueConverter.toProperty("Sarah", DataTypes.String);
         expect(val).toEqual("Sarah");

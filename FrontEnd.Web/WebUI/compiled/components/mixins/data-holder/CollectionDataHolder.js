@@ -1,9 +1,7 @@
-import compareValues from "../../../rendering/utils/compareValues";
 import { DataTypes } from "../../../utils/data/DataTypes";
-import { sorterChanged } from "../../tools/sorter/SorterTool";
+import renderEmptyData from "./renderEmptyData";
 export default function CollectionDataHolder(Base) {
     return class CollectionDataHolderMixin extends Base {
-        _lastSorter;
         static get properties() {
             return {
                 data: {
@@ -15,36 +13,18 @@ export default function CollectionDataHolder(Base) {
                 }
             };
         }
-        connectedCallback() {
-            super.connectedCallback?.();
-            this.addEventListener(sorterChanged, this.sort);
+        render() {
+            return this.renderData();
         }
-        disconnectedCallback() {
-            super.disconnectedCallback?.();
-            this.removeEventListener(sorterChanged, this.sort);
-        }
-        sort(event) {
-            const { column, ascending, element } = event.detail;
-            if (this._lastSorter !== element) {
-                if (this._lastSorter !== undefined) {
-                    this._lastSorter.ascending = undefined;
-                }
-                this._lastSorter = element;
+        renderData() {
+            const { data } = this;
+            const d = typeof data === "function" ?
+                data() :
+                data;
+            if (d.length === 0) {
+                return renderEmptyData('body');
             }
-            if (this.loader !== undefined) {
-                throw new Error('Not implemented');
-            }
-            else {
-                const comparer = (r1, r2) => {
-                    if (ascending === true) {
-                        return compareValues(r1[column], r2[column]);
-                    }
-                    else {
-                        return compareValues(r2[column], r1[column]);
-                    }
-                };
-                this.data = [...this.data].sort(comparer);
-            }
+            return d.map((record) => this._applyTemplate(record));
         }
     };
 }

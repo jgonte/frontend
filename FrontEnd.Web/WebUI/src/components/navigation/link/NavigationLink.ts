@@ -1,19 +1,16 @@
+import Clickable from "../../mixins/clickable/Clickable";
+import ToolBar from "../../toolbar/Toolbar";
 import defineCustomElement from "../../../custom-element/defineCustomElement";
 import CustomElementPropertyMetadata from "../../../custom-element/mixins/metadata/types/CustomElementPropertyMetadata";
 import mergeStyles from "../../../custom-element/styles/mergeStyles";
 import { DataTypes } from "../../../utils/data/DataTypes";
-import Clickable from "../../mixins/clickable/Clickable";
-import Nuanced from "../../Nuanced";
 import { navigationLinkStyles } from "./NavigationLink.styles";
 
 export const linkClickedEvent = 'linkClickedEvent';
 
-/**
- * Initiates a routing workflow when clicked
- */
 export default class NavigationLink
     extends Clickable(
-        Nuanced
+        ToolBar
     ) {
 
     static get styles(): string {

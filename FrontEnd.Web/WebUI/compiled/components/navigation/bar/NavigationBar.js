@@ -26,14 +26,14 @@ export default class NavigationBar extends NavigationContainer(CustomElement) {
         if (links !== undefined) {
             return html `
 <nav slot="start" class=${this.orientation}>
-    ${this.renderLinks()}
+    ${this._renderLinks()}
 </nav>`;
         }
         else {
             return html `<slot></slot>`;
         }
     }
-    renderLinks() {
+    _renderLinks() {
         const { links } = this;
         const linksArray = [];
         for (const [key, route] of Object.entries(links)) {
@@ -54,26 +54,38 @@ export default class NavigationBar extends NavigationContainer(CustomElement) {
                 }
                 processedGroups.add(group);
                 const groupedLinks = linksArray.filter(r => r.group === group);
+                const { collapsed, iconName, text } = group;
                 lnks.push(html `
-<gcs-panel>
-    <gcs-localized-text slot="header">${group.text}</gcs-localized-text>
-    ${this.renderGroupedLinks(groupedLinks)}
+<gcs-panel collapsed=${collapsed}>
+    <gcs-toolbar slot="header">
+        ${this._renderIcon(iconName)}
+        <gcs-localized-text slot="title">${text}</gcs-localized-text>
+        <gcs-expander-tool slot="tools"></gcs-expander-tool>
+    </gcs-toolbar>
+    ${this._renderGroupedLinks(groupedLinks)}
 </gcs-panel>`);
             }
             else {
-                lnks.push(this.renderLink(link));
+                lnks.push(this._renderLink(link));
             }
         }
         return lnks;
     }
-    renderGroupedLinks(groupedRoutes) {
-        return groupedRoutes.map(r => this.renderLink(r, 'body'));
+    _renderIcon(iconName) {
+        if (iconName) {
+            return html `<gcs-icon slot="icon" name=${iconName}></gcs-icon>`;
+        }
+        return null;
     }
-    renderLink(route, slot = null) {
-        const { path, text } = route;
+    _renderGroupedLinks(groupedRoutes) {
+        return groupedRoutes.map(r => this._renderLink(r, 'body'));
+    }
+    _renderLink(route, slot = null) {
+        const { iconName, path, text } = route;
         return html `
 <gcs-nav-link to=${path} key=${path} slot=${slot}>
-    <gcs-localized-text>${text}</gcs-localized-text>
+    ${this._renderIcon(iconName)}
+    <gcs-localized-text slot="title">${text}</gcs-localized-text>
 </gcs-nav-link>`;
     }
 }

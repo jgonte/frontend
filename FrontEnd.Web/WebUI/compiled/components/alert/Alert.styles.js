@@ -7,6 +7,7 @@ export const alertStyles = css `
     background-color: inherit;
     border: var(--gcs-border-width) solid;
     border-radius: var(--gcs-border-radius);
+    padding: var(--gcs-padding);
     max-width: 90vw;
 }
 

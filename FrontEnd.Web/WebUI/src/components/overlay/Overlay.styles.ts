@@ -7,10 +7,10 @@ export const overlayStyles = css`
     right: 0;
     left: 0;
     bottom: 0;
-    background-color: var(--gcs-overlay-background-color);
+    background-color: var(--gcs-bg-color-primary-3);
     transition: 0.3s;
     /* center */
     display: flex;
     align-items: center;
     justify-content: center;
-}`;
+}`

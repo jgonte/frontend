@@ -2,25 +2,26 @@
 
 public class DarkThemeGenerationStrategy : ThemeGenerationStrategy
 {
-    public DarkThemeGenerationStrategy()
-        :base(
-            colorScheme: "dark",
-            alternateHueOffset: 180,
-            textColor: PartialColorData.PastelLight ,
-            backgroundColor: PartialColorData.EarthLight,
-            alternateTextColor: PartialColorData.PastelDark,
-            alternateBackgroundColor: PartialColorData.EarthDark,
-            headerTextColor: PartialColorData.PastelMiddle,
-            headerBackgroundColor: PartialColorData.EarthMiddle,
-            hoverTextColor: PartialColorData.JewelLight,
-            hoverBackgroundColor: PartialColorData.NeutralLight,
-            activeTextColor: PartialColorData.JewelMiddle,
-            activeBackgroundColor: PartialColorData.NeutralMiddle,
-            activeHoverTextColor: PartialColorData.JewelDark,
-            activeHoverBackgroundColor: PartialColorData.NeutralDark,
-            surfaceShadowColor: PartialColorData.NeutralDark,
-            shadowStrength: ".8"
-        )
+    public override ColorResources GenerateResources(short hue)
     {
+        var saturation = .4f;
+
+        var textLightness = .75f;
+
+        var backgroundLightness1 = .1f;
+
+        var backgroundLightness2 = .4f;
+
+        var backgroundLightness3 = .7f;
+
+        return GenerateResources(
+            hue, 
+            saturation, 
+            textLightness, 
+            backgroundLightness1, 
+            backgroundLightness2, 
+            backgroundLightness3
+        );
     }
+
 }

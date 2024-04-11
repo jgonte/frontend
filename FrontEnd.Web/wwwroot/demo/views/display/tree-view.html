@@ -1,0 +1,102 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <script>
+
+        function getData() {
+
+            return [
+                {
+                    label: "Folder 1",
+                    id: "1",
+                    nodes: [
+                        {
+                            label: "Sub Folder 1",
+                            id: "2",
+                            nodes: [
+                            ]
+                        },
+                        {
+                            label: "Sub Folder 2",
+                            id: "3",
+                            nodes: [
+                            ]
+                        },
+                        {
+                            label: "Sub Folder 3",
+                            id: "4",
+                            nodes: [
+                            ]
+                        }
+                    ]
+                },
+                {
+                    label: "Folder 2",
+                    id: "5",
+                    nodes: [
+                        {
+                            label: "Sub Folder 1",
+                            id: "6",
+                            nodes: [
+                            ]
+                        },
+                        {
+                            label: "Sub Folder 2",
+                            id: "7",
+                            nodes: [
+                                {
+                                    label: "Sub Sub Folder 2",
+                                    id: "9",
+                                    nodes: [
+                                        {
+                                            label: "Sub Sub Folder 1",
+                                            id: "10",
+                                            nodes: [
+                                            ]
+                                        },
+                                        {
+                                            label: "Sub Sub Folder 2",
+                                            id: "11",
+                                            nodes: [
+                                            ]
+                                        },
+                                        {
+                                            label: "Sub Sub Folder 3",
+                                            id: "12",
+                                            nodes: [
+                                            ]
+                                        }
+                                    ]
+                                },
+                            ]
+                        },
+                        {
+                            label: "Sub Folder 3",
+                            id: "8",
+                            nodes: [
+                            ]
+                        }
+                    ]
+                },
+                {
+                    label: "Folder 3",
+                    id: "9",
+                    nodes: []
+                }
+            ];
+        }
+
+    </script>
+
+    <title>Tree view demo</title>
+</head>
+
+<body>
+    <gcs-tree-view id="tv"
+                   data="getData()">
+    </gcs-tree-view>
+</body>
+
+</html>

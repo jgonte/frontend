@@ -57,6 +57,11 @@ const valueConverter = {
         // Attempt to parse as boolean
         if (type.includes(DataTypes.Boolean)) {
 
+            if (value === '') { // Empty value in boolean attribute means true
+
+                return true;
+            }
+
             const lowerCaseValue = value.toLowerCase();
 
             if (lowerCaseValue === 'true' ||

@@ -2,27 +2,19 @@ import CustomElement from "../../custom-element/CustomElement";
 import defineCustomElement from "../../custom-element/defineCustomElement";
 import mergeStyles from "../../custom-element/styles/mergeStyles";
 import html from "../../rendering/html";
-import { DataTypes } from "../../utils/data/DataTypes";
 import labelAlign from "../form/labelAlign";
 import labelWidth from "../form/labelWidth";
 import Configurable from "../mixins/configurable/Configurable";
-import { renderEmptyData } from "../mixins/data-holder/renderEmptyData";
+import SingleRecordDataHolder from "../mixins/data-holder/SingleRecordDataHolder";
 import { propertyGridStyles } from "./PropertyGrid.styles";
-export default class PropertyGrid extends Configurable(CustomElement) {
+export default class PropertyGrid extends Configurable(SingleRecordDataHolder(CustomElement)) {
     static get styles() {
         return mergeStyles(super.styles, propertyGridStyles);
     }
     static get properties() {
         return {
             labelWidth,
-            labelAlign,
-            data: {
-                type: [
-                    DataTypes.Object,
-                    DataTypes.Function
-                ],
-                defer: true
-            }
+            labelAlign
         };
     }
     render() {
@@ -30,7 +22,7 @@ export default class PropertyGrid extends Configurable(CustomElement) {
 <gcs-panel>
     ${this._renderLabel()}
     ${this._renderIcon()}
-    ${this._renderBody()}
+    ${this.renderData()}
 </gcs-panel>`;
     }
     configure(source) {
@@ -56,14 +48,8 @@ export default class PropertyGrid extends Configurable(CustomElement) {
 >
 </gcs-icon>`;
     }
-    _renderBody() {
-        const { source, data, labelWidth, labelAlign } = this;
-        const d = typeof data === "function" ?
-            data() :
-            data;
-        if (!d) {
-            return renderEmptyData('body');
-        }
+    _applyTemplate(record) {
+        const { source, labelWidth, labelAlign } = this;
         const children = typeof source.children === "function" ?
             source.children() :
             source.children;
@@ -75,7 +61,7 @@ export default class PropertyGrid extends Configurable(CustomElement) {
     label=${c.label}
     name=${c.name}
     type=${c.type || "string"}
-    value=${d[c.name]} 
+    value=${record[c.name]} 
     key=${c.name}>
 </gcs-property-grid-row>`);
     }

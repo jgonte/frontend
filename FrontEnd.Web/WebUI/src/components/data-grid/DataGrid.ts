@@ -10,12 +10,14 @@ import { DataTypes } from "../../utils/data/DataTypes";
 import { GenericRecord } from "../../utils/types";
 import { dataGridStyles } from "./DataGrid.styles";
 import mergeStyles from "../../custom-element/styles/mergeStyles";
-import { renderEmptyData } from "../mixins/data-holder/renderEmptyData";
+import Sortable from "../mixins/sortable/Sortable";
 
 export default class DataGrid extends
-    RemoteLoadableHolder(
-        CollectionDataHolder(
-            CustomElement as CustomHTMLElementConstructor
+    Sortable(
+        RemoteLoadableHolder(
+            CollectionDataHolder(
+                CustomElement as CustomHTMLElementConstructor
+            )
         )
     )
 {
@@ -46,7 +48,7 @@ export default class DataGrid extends
         return html`
 <gcs-panel>
     ${this.renderHeader()}
-    ${this.renderBody()}      
+    ${this.renderData()}      
 </gcs-panel>`;
     }
 
@@ -59,28 +61,20 @@ export default class DataGrid extends
 </gcs-data-header>`;
     }
 
-    renderBody(): NodePatchingData[] | NodePatchingData {
+    _applyTemplate(record: GenericRecord): NodePatchingData {
 
         const {
             columns,
-            data,
             idField
         } = this;
 
-        if (data.length === 0) {
-
-            return renderEmptyData('body');
-        }
-
-        return data.map((record: GenericRecord) =>
-            html`
+        return html`
 <gcs-data-row 
     slot="body"
     columns=${columns}
     record=${record} 
     key=${record[idField]}>
-</gcs-data-row>`
-        );
+</gcs-data-row>`;
     }
 
     load() {

@@ -1,4 +1,5 @@
 ﻿using CodeGeneration.Css;
+using Utilities;
 
 namespace FrontEnd;
 
@@ -30,19 +31,101 @@ class Program
         {
             using (var builder = new CssBuilder(writer))
             {
-                var hues = new short[] { 0, 30, 60, 90, 130 };
-
-                foreach (var hue in hues)
+                var themes = new Theme[]
                 {
-                    var generator = new ThemeGenerator(
-                        themeName: "{}-light",
-                        hue: hue
+                    new Theme
+                    {
+                        Name = "red",
+                        Hue = 0
+                    },
+ 
+                    new Theme
+                    {
+                        Name = "orange",
+                        Hue = 30
+                    },
+                    new Theme
+                    {
+                        Name = "yellow",
+                        Hue = 60
+                    },
+                    new Theme
+                    {
+                        Name = "yellow-green",
+                        Hue = 90
+                    },
+                    new Theme
+                    {
+                        Name = "green",
+                        Hue = 120
+                    },
+                    new Theme
+                    {
+                        Name = "blue-green",
+                        Hue = 150
+                    },
+                    new Theme
+                    {
+                        Name = "cyan",
+                        Hue = 180
+                    },
+                    new Theme
+                    {
+                        Name = "blue",
+                        Hue = 210
+                    },
+                    new Theme
+                    {
+                        Name = "blue-purple",
+                        Hue = 240
+                    },
+                    new Theme
+                    {
+                        Name = "purple",
+                        Hue = 270
+                    },
+                    new Theme
+                    {
+                        Name = "magenta",
+                        Hue = 300
+                    },
+                    new Theme
+                    {
+                        Name = "red-magenta",
+                        Hue = 330
+                    }
+                };
+
+                foreach (var theme in themes)
+                {
+                    // Light theme
+                    var lightThemeGenerator = new ThemeGenerator(
+                        themeName: $"{theme.Name}-light",
+                        hue: theme.Hue
                     );
 
-                    generator.Generate(builder, new LightThemeGenerationStrategy());
-                }
+                    lightThemeGenerator.Generate(builder, new LightThemeGenerationStrategy());
 
+                    // Dark theme
+                    var darkThemeGenerator = new ThemeGenerator(
+                        themeName: $"{theme.Name}-dark",
+                        hue: theme.Hue
+                    );
+
+                    darkThemeGenerator.Generate(builder, new DarkThemeGenerationStrategy());
+                }
             }
+
+            writer.ToString().SaveToFile(@"C:\Projects\FrontEnd.Solution\FrontEnd.Web\wwwroot\demo\css\themes.css");
         }
+    }
+
+    private class Theme
+    {
+        public string? Name { get; internal set; }
+
+        public short Hue { get; internal set; }
+
+        public float Lightness { get; internal set; }
     }
 }

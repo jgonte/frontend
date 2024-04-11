@@ -2,22 +2,19 @@ import css from "../../../custom-element/styles/css";
 
 export const navigationLinkStyles = css`
 :host {
-    display: flex;
-    flex-wrap: nowrap;
-    background-color: var(--bg-color);
-    color: var(--text-color);
+    background-color: var(--gcs-bg-color-primary-2);
+    color: var(--gcs-color-primary-2);
     margin: var(--gcs-margin);
-    transition: all 0.3s ease;
 }
 
 :host([active]) {
-    background-color: var(--active-bg-color);
-    color: var(--active-text-color);
+    background-color: var(--gcs-bg-color-tertiary-1);
+    color: var(--gcs-color-tertiary-1);
 	transition: all 0.3s ease;
 }
 
 :host([active]:hover) {
-    background-color: var(--active-hover-bg-color);
-    color: var(--active-hover-text-color);
+    background-color: var(--gcs-bg-color-secondary-2);
+    color: var(--gcs-color-secondary-2);
     transition: all 0.3s ease;
 }`;

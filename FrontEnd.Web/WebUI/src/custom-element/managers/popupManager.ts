@@ -1,4 +1,3 @@
-import { IContentHidable } from "../../utils/types";
 import CustomElement from "../CustomElement";
 
 // The elements being shown
@@ -32,7 +31,7 @@ function closeOtherPopups(target: HTMLElement) {
             break;            
         }
 
-        (popup as IContentHidable).hideContent?.(); 
+        (popup as { hideContent?: () => void; }).hideContent?.(); 
 
         --count;
     }

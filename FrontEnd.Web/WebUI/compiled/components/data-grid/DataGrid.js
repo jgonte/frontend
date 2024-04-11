@@ -6,8 +6,8 @@ import html from "../../rendering/html";
 import { DataTypes } from "../../utils/data/DataTypes";
 import { dataGridStyles } from "./DataGrid.styles";
 import mergeStyles from "../../custom-element/styles/mergeStyles";
-import { renderEmptyData } from "../mixins/data-holder/renderEmptyData";
-export default class DataGrid extends RemoteLoadableHolder(CollectionDataHolder(CustomElement)) {
+import Sortable from "../mixins/sortable/Sortable";
+export default class DataGrid extends Sortable(RemoteLoadableHolder(CollectionDataHolder(CustomElement))) {
     static get styles() {
         return mergeStyles(super.styles, dataGridStyles);
     }
@@ -26,7 +26,7 @@ export default class DataGrid extends RemoteLoadableHolder(CollectionDataHolder(
         return html `
 <gcs-panel>
     ${this.renderHeader()}
-    ${this.renderBody()}      
+    ${this.renderData()}      
 </gcs-panel>`;
     }
     renderHeader() {
@@ -36,18 +36,15 @@ export default class DataGrid extends RemoteLoadableHolder(CollectionDataHolder(
     columns=${this.columns}>
 </gcs-data-header>`;
     }
-    renderBody() {
-        const { columns, data, idField } = this;
-        if (data.length === 0) {
-            return renderEmptyData('body');
-        }
-        return data.map((record) => html `
+    _applyTemplate(record) {
+        const { columns, idField } = this;
+        return html `
 <gcs-data-row 
     slot="body"
     columns=${columns}
     record=${record} 
     key=${record[idField]}>
-</gcs-data-row>`);
+</gcs-data-row>`;
     }
     load() {
         if (this.loadUrl) {

@@ -5,12 +5,34 @@
 </head>
 
 <body>
-    <gcs-accordion>
-        <div slot="label">This is the title</div>
-        <div slot="content">
+    
+    <h4>Collapsible panel (Accordion) initially expanded</h4>
+    <gcs-panel>
+        <gcs-toolbar slot="header">
+            <gcs-icon slot="icon" name="broadcast"></gcs-icon>
+            <gcs-localized-text slot="title">Title of the panel</gcs-localized-text>
+            <gcs-expander-tool slot="tools"></gcs-expander-tool>
+        </gcs-toolbar>
+        <div slot="body">
             Lorem ipsum dolor sit, amet consectetur adipisicing elit. Ipsam minima, eligendi asperiores ex necessitatibus praesentium, autem at ipsum aperiam ducimus dolore quod molestiae repellat doloribus, quos perferendis enim explicabo nisi?
         </div>
-    </gcs-accordion>
+        <div slot="footer">The footer</div>
+    </gcs-panel>
+
+    <br />
+
+    <h4>Collapsible panel (Accordion) initially collapsed</h4>
+    <gcs-panel collapsed>
+        <gcs-toolbar slot="header">
+            <gcs-icon slot="icon" name="boxes"></gcs-icon>
+            <gcs-localized-text slot="title">Title of the panel</gcs-localized-text>
+            <gcs-expander-tool slot="tools"></gcs-expander-tool>
+        </gcs-toolbar>
+        <div slot="body">
+            Lorem ipsum dolor sit, amet consectetur adipisicing elit. Ipsam minima, eligendi asperiores ex necessitatibus praesentium, autem at ipsum aperiam ducimus dolore quod molestiae repellat doloribus, quos perferendis enim explicabo nisi?
+        </div>
+        <div slot="footer">The footer</div>
+    </gcs-panel>
 </body>
 
 </html>

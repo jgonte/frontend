@@ -52,7 +52,7 @@ export default function createVariantStyles(ctor: CustomHTMLElementConstructor, 
                                 styles.push(css`
 :host([kind='${kind}'][variant='${variant}']) button:disabled { 
     color: var(${cssVariables.get("disabled-color")}); 
-    background-color: var(${cssVariables.get("disabled-background-color")}); 
+    background-color: var(${cssVariables.get("disabled-bg-color")}); 
     border-color: var(${cssVariables.get("disabled-color")}); 
 }`
                                 );
@@ -75,7 +75,7 @@ export default function createVariantStyles(ctor: CustomHTMLElementConstructor, 
 
                                 styles.push(css`
 :host([kind='${kind}'][variant='${variant}']) button:disabled { 
-    color: var(${cssVariables.get("disabled-background-color")}); 
+    color: var(${cssVariables.get("disabled-bg-color")}); 
     background-color: var(${cssVariables.get("disabled-color")}); 
 }`
                                 );
